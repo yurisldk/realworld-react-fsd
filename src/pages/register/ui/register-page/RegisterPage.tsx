@@ -1,4 +1,14 @@
+import { useMutation } from '@tanstack/react-query';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { object, string } from 'yup';
+import { sessionModel } from '~entities/session';
+import { conduitApi } from '~shared/api';
+
 export function RegisterPage() {
+  const register = useMutation((data: conduitApi.RegisterData) =>
+    conduitApi.Auth.register(data),
+  );
+
   return (
     <div className="auth-page">
       <div className="container page">
@@ -9,35 +19,65 @@ export function RegisterPage() {
               <a href="/#">Have an account?</a>
             </p>
 
-            <form>
-              <fieldset className="form-group">
-                <input
-                  className="form-control form-control-lg"
-                  type="text"
-                  placeholder="Your Name"
-                />
-              </fieldset>
-              <fieldset className="form-group">
-                <input
-                  className="form-control form-control-lg"
-                  type="text"
-                  placeholder="Email"
-                />
-              </fieldset>
-              <fieldset className="form-group">
-                <input
-                  className="form-control form-control-lg"
-                  type="password"
-                  placeholder="Password"
-                />
-              </fieldset>
-              <button
-                className="btn btn-lg btn-primary pull-xs-right"
-                type="submit"
-              >
-                Sign up
-              </button>
-            </form>
+            <Formik
+              initialValues={{
+                username: '',
+                email: '',
+                password: '',
+              }}
+              // TODO: add correct validation
+              validationSchema={object().shape({
+                username: string().required('requared'),
+                email: string().required('requared'),
+                password: string().required('requared'),
+              })}
+              // TODO: handle server errors
+              onSubmit={async (values) => {
+                const data = await register.mutateAsync({
+                  user: values,
+                });
+                sessionModel.sessionStore.getState().addToken(data.user.token);
+              }}
+            >
+              {({ isSubmitting }) => (
+                <Form>
+                  <fieldset className="form-group">
+                    <Field
+                      name="username"
+                      className="form-control form-control-lg"
+                      type="text"
+                      placeholder="Your Name"
+                    />
+                    <ErrorMessage name="username" />
+                  </fieldset>
+                  <fieldset className="form-group">
+                    <Field
+                      name="email"
+                      className="form-control form-control-lg"
+                      type="text"
+                      placeholder="Email"
+                    />
+                    <ErrorMessage name="email" />
+                  </fieldset>
+                  <fieldset className="form-group">
+                    <Field
+                      name="password"
+                      className="form-control form-control-lg"
+                      type="password"
+                      placeholder="Password"
+                    />
+                    <ErrorMessage name="password" />
+                  </fieldset>
+                  <button
+                    className="btn btn-lg btn-primary pull-xs-right"
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
+                    Sign up
+                  </button>
+                </Form>
+              )}
+            </Formik>
           </div>
         </div>
       </div>
