@@ -1,16 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { fetchArticles, fetchTags } from '~shared/api/realworld';
+import { conduitApi } from '~shared/api';
 
 export function HomePage() {
   const { data: articlesData, isLoading: isArticlesLoading } = useQuery(
-    ['articles'],
-    async () => fetchArticles(),
+    ['articles', 'global'],
+    async () => conduitApi.Articles.global(),
   );
 
   const { data: tagsData, isLoading: isTagsLoading } = useQuery(
-    ['tags'],
-    async () => fetchTags(),
+    ['tags', 'global'],
+    async () => conduitApi.Tags.global(),
   );
 
   return (
