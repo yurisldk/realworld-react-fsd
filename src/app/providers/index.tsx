@@ -4,10 +4,10 @@ import { Router } from './RouterProvider';
 
 export function Provider() {
   return (
-    <BrowserRouter>
-      <QueryClientProvider>
+    <QueryClientProvider>
+      <BrowserRouter>
         <Router />
-      </QueryClientProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }

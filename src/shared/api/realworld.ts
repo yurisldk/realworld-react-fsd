@@ -1,3 +1,5 @@
+const API = 'https://api.realworld.io/api';
+
 type ProfileDto = {
   username: string;
   bio: string;
@@ -18,6 +20,11 @@ type ArticleDto = {
   author: ProfileDto;
 };
 
+type ArticlesDto = {
+  articles: ArticleDto[];
+  articlesCount: number;
+};
+
 type ArticlesParams = {
   type?: string;
   author?: string;
@@ -26,11 +33,9 @@ type ArticlesParams = {
   limit?: string;
 };
 
-const API = 'https://api.realworld.io/api';
-
 export async function fetchArticles(
   params?: ArticlesParams,
-): Promise<ArticleDto> {
+): Promise<ArticlesDto> {
   const searchParams = new URLSearchParams({
     limit: '10',
     offset: '0',
@@ -38,6 +43,19 @@ export async function fetchArticles(
   });
 
   const response = await fetch(`${API}/articles?${searchParams}`);
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+  return response.json();
+}
+
+type TagDto = string;
+type TagsDto = {
+  tags: TagDto[];
+};
+
+export async function fetchTags(): Promise<TagsDto> {
+  const response = await fetch(`${API}/tags`);
   if (!response.ok) {
     throw new Error(response.statusText);
   }

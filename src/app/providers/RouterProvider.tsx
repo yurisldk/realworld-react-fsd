@@ -1,6 +1,6 @@
 import { Navigate, useRoutes } from 'react-router-dom';
+import { HomePage } from '~pages/home';
 import { MainLayout } from '~pages/layouts';
-import { HomePage } from '~pages/main';
 
 export function Router() {
   return useRoutes([
