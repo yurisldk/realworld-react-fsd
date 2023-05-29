@@ -1,28 +1,43 @@
-import { Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 
 export function MainLayout() {
   return (
     <>
       <nav className="navbar navbar-light">
         <div className="container">
-          <a className="navbar-brand" href="index.html">
+          <NavLink className="navbar-brand" to="/">
             conduit
-          </a>
+          </NavLink>
           <ul className="nav navbar-nav pull-xs-right">
             <li className="nav-item">
-              <a className="nav-link active" href="/#">
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? 'nav-link active' : 'nav-link'
+                }
+                to="/"
+              >
                 Home
-              </a>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#">
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? 'nav-link active' : 'nav-link'
+                }
+                to="/login"
+              >
                 Sign in
-              </a>
+              </NavLink>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="/#">
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? 'nav-link active' : 'nav-link'
+                }
+                to="/register"
+              >
                 Sign up
-              </a>
+              </NavLink>
             </li>
           </ul>
         </div>
@@ -30,13 +45,15 @@ export function MainLayout() {
       <Outlet />;
       <footer>
         <div className="container">
-          <a href="/#" className="logo-font">
+          <NavLink className="logo-font" to="/">
             conduit
-          </a>
+          </NavLink>
           <span className="attribution">
             An interactive learning project from{' '}
-            <a href="https://thinkster.io">Thinkster</a>. Code &amp; design
-            licensed under MIT.
+            <a href="https://thinkster.io" target="_blank" rel="noreferrer">
+              Thinkster
+            </a>
+            . Code &amp; design licensed under MIT.
           </span>
         </div>
       </footer>
