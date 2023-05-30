@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { sessionApi, sessionModel } from '~entities/session';
+import { PATH_PAGE } from '~shared/lib';
 
 function CurrentUserPreview() {
   const { data: userData, isLoading, isError } = sessionApi.useCurrentUser();
@@ -26,23 +27,23 @@ export function MainLayout() {
     <>
       <nav className="navbar navbar-light">
         <div className="container">
-          <NavLink className="navbar-brand" to="/">
+          <NavLink className="navbar-brand" to={PATH_PAGE.root}>
             conduit
           </NavLink>
           {!isAuth && (
             <ul className="nav navbar-nav pull-xs-right">
               <li className="nav-item">
-                <NavLink className="nav-link" to="/">
+                <NavLink className="nav-link" to={PATH_PAGE.root}>
                   Home
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/login">
+                <NavLink className="nav-link" to={PATH_PAGE.login}>
                   Sign in
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/register">
+                <NavLink className="nav-link" to={PATH_PAGE.register}>
                   Sign up
                 </NavLink>
               </li>
@@ -55,7 +56,7 @@ export function MainLayout() {
                   className={({ isActive }) =>
                     isActive ? 'nav-link active' : 'nav-link'
                   }
-                  to="/"
+                  to={PATH_PAGE.root}
                 >
                   Home
                 </NavLink>
@@ -84,7 +85,7 @@ export function MainLayout() {
       <Outlet />;
       <footer>
         <div className="container">
-          <NavLink className="logo-font" to="/">
+          <NavLink className="logo-font" to={PATH_PAGE.root}>
             conduit
           </NavLink>
           <span className="attribution">

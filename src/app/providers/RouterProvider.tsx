@@ -4,6 +4,7 @@ import { HomePage } from '~pages/home';
 import { MainLayout } from '~pages/layouts';
 import { LoginPage } from '~pages/login';
 import { RegisterPage } from '~pages/register';
+import { PATH_PAGE } from '~shared/lib';
 
 type GuestGuardProps = {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ function GuestGuard(props: GuestGuardProps) {
   const { children } = props;
   const isAuth = sessionModel.useAuth();
 
-  if (isAuth) return <Navigate to="/" />;
+  if (isAuth) return <Navigate to={PATH_PAGE.root} />;
 
   return <> {children} </>;
 }
@@ -42,6 +43,6 @@ export function Router() {
         },
       ],
     },
-    { path: '*', element: <Navigate to="/404" replace /> },
+    { path: '*', element: <Navigate to={PATH_PAGE.page404} replace /> },
   ]);
 }
