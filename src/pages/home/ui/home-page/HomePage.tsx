@@ -1,5 +1,6 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+import { articleApi } from '~entities/article';
 import { conduitApi } from '~shared/api';
 
 export function HomePage() {
@@ -9,20 +10,7 @@ export function HomePage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['articles', 'global'],
-    queryFn: async ({ pageParam = 0 }) =>
-      conduitApi.Articles.global({ limit: '10', offset: pageParam }),
-    getNextPageParam: (lastPage, pages) => {
-      const { articlesCount } = lastPage;
-      const maybeNextPageParams = pages.length * 10; // 10 is limit value
-
-      const nextPageParam =
-        maybeNextPageParams >= articlesCount ? null : maybeNextPageParams;
-
-      return nextPageParam;
-    },
-  });
+  } = articleApi.useGlobalArticles();
 
   const { data: tagsData, isLoading: isTagsLoading } = useQuery(
     ['tags', 'global'],
