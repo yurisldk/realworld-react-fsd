@@ -31,13 +31,13 @@ type ProfileDto = {
 };
 
 export type ArticleDto = {
-  slug: string;
+  slug: Slug;
   title: string;
   description: string;
   body: string;
   tagList: [string];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: DateIso;
+  updatedAt: DateIso;
   favorited: boolean;
   favoritesCount: number;
   author: ProfileDto;
@@ -78,7 +78,7 @@ export const Articles = {
     return response.json();
   },
 
-  article: async (slug: string) => {
+  article: async (slug: Slug) => {
     const response = await fetcher(`articles/${slug}`);
 
     if (!response.ok) throw new Error(response.statusText);
@@ -87,7 +87,7 @@ export const Articles = {
   },
 
   favoriteArticle: async (
-    slug: string,
+    slug: Slug,
   ): Promise<Record<'article', ArticleDto>> => {
     const response = await fetcher(`articles/${slug}/favorite`, {
       method: 'POST',
@@ -99,7 +99,7 @@ export const Articles = {
   },
 
   unfavoriteArticle: async (
-    slug: string,
+    slug: Slug,
   ): Promise<Record<'article', ArticleDto>> => {
     const response = await fetcher(`articles/${slug}/favorite`, {
       method: 'DELETE',

@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 type ArticlePreviewCardProps = {
   authorName: string;
   authorAvatar: string;
-  createdAt: string;
+  createdAt: DateIso;
   title: string;
   description: string;
   actionSlot?: ReactNode;
