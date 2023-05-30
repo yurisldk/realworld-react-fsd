@@ -30,7 +30,7 @@ export function RegisterPage() {
               // TODO: handle server errors
               onSubmit={async (values) => {
                 const data = await register.mutateAsync({ user: values });
-                sessionModel.sessionStore.getState().addToken(data.user.token);
+                sessionModel.addToken(data.user.token);
               }}
             >
               {({ isSubmitting }) => (

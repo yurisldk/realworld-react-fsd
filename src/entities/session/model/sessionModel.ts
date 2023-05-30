@@ -1,10 +1,10 @@
-import { StateCreator, createStore } from 'zustand';
+import { StateCreator, createStore, useStore } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { conduitApi } from '~shared/api';
 
 type Token = string;
 
-export type SessionState = {
+type SessionState = {
   token: Token | null;
   addToken: (token: Token) => void;
   deleteToken: () => void;
@@ -29,7 +29,7 @@ const createSessionSlice: StateCreator<
   },
 });
 
-export const sessionStore = createStore<SessionState>()(
+const sessionStore = createStore<SessionState>()(
   persist(
     devtools(
       (...a) => ({
@@ -49,3 +49,10 @@ export const sessionStore = createStore<SessionState>()(
     },
   ),
 );
+
+export const useAuth = () => useStore(sessionStore, (state) => !!state.token);
+
+export const addToken = (token: string) =>
+  sessionStore.getState().addToken(token);
+
+export const deleteToken = () => sessionStore.getState().deleteToken();
