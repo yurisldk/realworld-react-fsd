@@ -1,12 +1,13 @@
+import { ReactNode } from 'react';
 import dayjs from 'dayjs';
 
 type ArticlePreviewCardProps = {
   authorName: string;
   authorAvatar: string;
   createdAt: string;
-  favoritesCount: number;
   title: string;
   description: string;
+  actionSlot?: ReactNode;
 };
 
 // TODO: add slot for feature
@@ -15,9 +16,9 @@ export function ArticlePreviewCard(props: ArticlePreviewCardProps) {
     authorName,
     authorAvatar,
     createdAt,
-    favoritesCount,
     title,
     description,
+    actionSlot,
   } = props;
 
   const formatedDate = dayjs(createdAt).format('MMMM D, YYYY');
@@ -34,13 +35,7 @@ export function ArticlePreviewCard(props: ArticlePreviewCardProps) {
           </a>
           <span className="date">{formatedDate}</span>
         </div>
-        {/* FIXME: should be a slot for feature */}
-        <button
-          className="btn btn-outline-primary btn-sm pull-xs-right"
-          type="button"
-        >
-          <i className="ion-heart" /> {favoritesCount}
-        </button>
+        {actionSlot}
       </div>
       <a href="/#" className="preview-link">
         <h1>{title}</h1>

@@ -30,7 +30,7 @@ type ProfileDto = {
   following: boolean;
 };
 
-type ArticleDto = {
+export type ArticleDto = {
   slug: string;
   title: string;
   description: string;
@@ -43,7 +43,7 @@ type ArticleDto = {
   author: ProfileDto;
 };
 
-type ArticlesDto = {
+export type ArticlesDto = {
   articles: ArticleDto[];
   articlesCount: number;
 };
@@ -61,14 +61,49 @@ type ArticlesParams = {
 };
 
 export const Articles = {
-  global: async (params?: ArticlesParams): Promise<ArticlesDto> => {
+  global: async (
+    params?: ArticlesParams,
+    signal?: AbortSignal | undefined,
+  ): Promise<ArticlesDto> => {
     const searchParams = new URLSearchParams({
       limit: '10',
       offset: '0',
       ...params,
     });
 
-    const response = await fetcher(`articles?${searchParams}`);
+    const response = await fetcher(`articles?${searchParams}`, { signal });
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+
+  article: async (slug: string) => {
+    const response = await fetcher(`articles/${slug}`);
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+
+  favoriteArticle: async (
+    slug: string,
+  ): Promise<Record<'article', ArticleDto>> => {
+    const response = await fetcher(`articles/${slug}/favorite`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+
+  unfavoriteArticle: async (
+    slug: string,
+  ): Promise<Record<'article', ArticleDto>> => {
+    const response = await fetcher(`articles/${slug}/favorite`, {
+      method: 'DELETE',
+    });
 
     if (!response.ok) throw new Error(response.statusText);
 

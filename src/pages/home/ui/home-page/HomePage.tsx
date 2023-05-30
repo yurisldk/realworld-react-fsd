@@ -1,5 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { ArticlePreviewCard, articleApi } from '~entities/article';
+import {
+  FavoriteArticleButton,
+  UnfavoriteArticleButton,
+} from '~features/article';
 import { conduitApi } from '~shared/api';
 
 export function HomePage() {
@@ -53,10 +57,10 @@ export function HomePage() {
                   const {
                     slug,
                     createdAt,
-                    favoritesCount,
                     title,
                     description,
                     author,
+                    favorited,
                   } = article;
                   const { username, image } = author;
 
@@ -66,9 +70,15 @@ export function HomePage() {
                       authorName={username}
                       authorAvatar={image}
                       createdAt={createdAt}
-                      favoritesCount={favoritesCount}
                       title={title}
                       description={description}
+                      actionSlot={
+                        favorited ? (
+                          <UnfavoriteArticleButton article={article} />
+                        ) : (
+                          <FavoriteArticleButton article={article} />
+                        )
+                      }
                     />
                   );
                 }),
