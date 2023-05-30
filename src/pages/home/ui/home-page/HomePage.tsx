@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import dayjs from 'dayjs';
-import { articleApi } from '~entities/article';
+import { ArticlePreviewCard, articleApi } from '~entities/article';
 import { conduitApi } from '~shared/api';
 
 export function HomePage() {
@@ -62,32 +61,15 @@ export function HomePage() {
                   const { username, image } = author;
 
                   return (
-                    <div key={slug} className="article-preview">
-                      <div className="article-meta">
-                        <a href="profile.html">
-                          <img src={image} alt={username} />
-                        </a>
-                        <div className="info">
-                          <a href="/#" className="author">
-                            {username}
-                          </a>
-                          <span className="date">
-                            {dayjs(createdAt).format('MMMM D, YYYY')}
-                          </span>
-                        </div>
-                        <button
-                          className="btn btn-outline-primary btn-sm pull-xs-right"
-                          type="button"
-                        >
-                          <i className="ion-heart" /> {favoritesCount}
-                        </button>
-                      </div>
-                      <a href="/#" className="preview-link">
-                        <h1>{title}</h1>
-                        <p>{description}</p>
-                        <span>Read more...</span>
-                      </a>
-                    </div>
+                    <ArticlePreviewCard
+                      key={slug}
+                      authorName={username}
+                      authorAvatar={image}
+                      createdAt={createdAt}
+                      favoritesCount={favoritesCount}
+                      title={title}
+                      description={description}
+                    />
                   );
                 }),
               )}
