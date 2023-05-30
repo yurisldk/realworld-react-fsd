@@ -1,12 +1,28 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { conduitApi } from '~shared/api';
 
 export function HomePage() {
-  const { data: articlesData, isLoading: isArticlesLoading } = useQuery(
-    ['articles', 'global'],
-    async () => conduitApi.Articles.global(),
-  );
+  const {
+    data: articlesData,
+    status: articlesStatus,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['articles', 'global'],
+    queryFn: async ({ pageParam = 0 }) =>
+      conduitApi.Articles.global({ limit: '10', offset: pageParam }),
+    getNextPageParam: (lastPage, pages) => {
+      const { articlesCount } = lastPage;
+      const maybeNextPageParams = pages.length * 10; // 10 is limit value
+
+      const nextPageParam =
+        maybeNextPageParams >= articlesCount ? null : maybeNextPageParams;
+
+      return nextPageParam;
+    },
+  });
 
   const { data: tagsData, isLoading: isTagsLoading } = useQuery(
     ['tags', 'global'],
@@ -35,52 +51,70 @@ export function HomePage() {
               </ul>
             </div>
 
-            {isArticlesLoading && (
+            {articlesStatus === 'loading' && (
               <div className="article-preview">Loading articles...</div>
             )}
 
-            {articlesData &&
-              articlesData.articles.length &&
-              articlesData.articles.map((article) => {
-                const {
-                  slug,
-                  createdAt,
-                  favoritesCount,
-                  title,
-                  description,
-                  author,
-                } = article;
-                const { username, image } = author;
+            {/* TODO: add error handler */}
+            {articlesStatus === 'error' && (
+              <div className="article-preview">Error: </div>
+            )}
 
-                return (
-                  <div key={slug} className="article-preview">
-                    <div className="article-meta">
-                      <a href="profile.html">
-                        <img src={image} alt={username} />
-                      </a>
-                      <div className="info">
-                        <a href="/#" className="author">
-                          {username}
+            {articlesStatus === 'success' &&
+              articlesData.pages.map((group) =>
+                group.articles.map((article) => {
+                  const {
+                    slug,
+                    createdAt,
+                    favoritesCount,
+                    title,
+                    description,
+                    author,
+                  } = article;
+                  const { username, image } = author;
+
+                  return (
+                    <div key={slug} className="article-preview">
+                      <div className="article-meta">
+                        <a href="profile.html">
+                          <img src={image} alt={username} />
                         </a>
-                        <span className="date">
-                          {dayjs(createdAt).format('MMMM D, YYYY')}
-                        </span>
+                        <div className="info">
+                          <a href="/#" className="author">
+                            {username}
+                          </a>
+                          <span className="date">
+                            {dayjs(createdAt).format('MMMM D, YYYY')}
+                          </span>
+                        </div>
+                        <button
+                          className="btn btn-outline-primary btn-sm pull-xs-right"
+                          type="button"
+                        >
+                          <i className="ion-heart" /> {favoritesCount}
+                        </button>
                       </div>
-                      <button
-                        className="btn btn-outline-primary btn-sm pull-xs-right"
-                        type="button"
-                      >
-                        <i className="ion-heart" /> {favoritesCount}
-                      </button>
+                      <a href="/#" className="preview-link">
+                        <h1>{title}</h1>
+                        <p>{description}</p>
+                        <span>Read more...</span>
+                      </a>
                     </div>
-                    <a href="/#" className="preview-link">
-                      <h1>{title}</h1>
-                      <p>{description}</p>
-                      <span>Read more...</span>
-                    </a>
-                  </div>
-                );
-              })}
+                  );
+                }),
+              )}
+            {hasNextPage && (
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={() => fetchNextPage()}
+                  disabled={!hasNextPage || isFetchingNextPage}
+                  type="button"
+                >
+                  {isFetchingNextPage ? 'Loading more...' : 'Load More'}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="col-md-3">

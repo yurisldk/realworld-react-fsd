@@ -82,7 +82,7 @@ export function MainLayout() {
           )}
         </div>
       </nav>
-      <Outlet />;
+      <Outlet />
       <footer>
         <div className="container">
           <NavLink className="logo-font" to={PATH_PAGE.root}>
