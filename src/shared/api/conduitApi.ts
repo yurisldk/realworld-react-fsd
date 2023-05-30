@@ -1,7 +1,11 @@
 const realworldHeaders = new Headers();
 
 export const setToken = (token: string) => {
-  realworldHeaders.append('Authorization', `Token ${token}`);
+  realworldHeaders.set('Authorization', `Token ${token}`);
+};
+
+export const deleteToken = () => {
+  realworldHeaders.delete('Authorization');
 };
 
 const fetcher = (input: string, init?: RequestInit): Promise<Response> => {
@@ -73,30 +77,6 @@ export const Articles = {
 };
 
 /**
- * Profile
- */
-
-type UserDto = {
-  user: {
-    email: string;
-    token: string;
-    username: string;
-    bio: string;
-    image: string;
-  };
-};
-
-export const Profile = {
-  getProfile: async (): Promise<UserDto> => {
-    const response = await fetcher('user');
-
-    if (!response.ok) throw new Error(response.statusText);
-
-    return response.json();
-  },
-};
-
-/**
  * Tags
  */
 type TagDto = string;
@@ -117,6 +97,16 @@ export const Tags = {
 /**
  * Auth
  */
+
+export type UserDto = {
+  user: {
+    email: string;
+    token: string;
+    username: string;
+    bio: string;
+    image: string;
+  };
+};
 
 export type LoginData = {
   user: {
@@ -150,6 +140,14 @@ export const Auth = {
       method: 'POST',
       body: JSON.stringify(data),
     });
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+
+  сurrentUser: async (): Promise<UserDto> => {
+    const response = await fetcher('user');
 
     if (!response.ok) throw new Error(response.statusText);
 

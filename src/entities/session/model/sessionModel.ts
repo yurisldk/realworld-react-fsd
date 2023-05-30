@@ -1,5 +1,6 @@
 import { StateCreator, createStore } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
+import { conduitApi } from '~shared/api';
 
 type Token = string;
 
@@ -17,8 +18,15 @@ const createSessionSlice: StateCreator<
 > = (set) => ({
   token: null,
 
-  addToken: (token: Token) => set({ token }, false, 'session/addToken'),
-  deleteToken: () => set({ token: null }, false, 'session/deleteToken'),
+  addToken: (token: Token) => {
+    set({ token }, false, 'session/addToken');
+    conduitApi.setToken(token);
+  },
+
+  deleteToken: () => {
+    set({ token: null }, false, 'session/deleteToken');
+    conduitApi.deleteToken();
+  },
 });
 
 export const sessionStore = createStore<SessionState>()(
@@ -29,6 +37,15 @@ export const sessionStore = createStore<SessionState>()(
       }),
       { name: 'Session Store' },
     ),
-    { name: 'session' },
+    {
+      name: 'session',
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+
+        const { token } = state;
+        if (token) conduitApi.setToken(token);
+        if (!token) conduitApi.deleteToken();
+      },
+    },
   ),
 );
