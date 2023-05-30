@@ -4,7 +4,7 @@ import { HomePage } from '~pages/home';
 import { MainLayout } from '~pages/layouts';
 import { LoginPage } from '~pages/login';
 import { RegisterPage } from '~pages/register';
-import { PATH_PAGE } from '~shared/lib';
+import { PATH_PAGE } from '~shared/lib/react-router';
 
 type GuestGuardProps = {
   children: React.ReactNode;

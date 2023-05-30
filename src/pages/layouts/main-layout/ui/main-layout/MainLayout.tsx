@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { sessionApi, sessionModel } from '~entities/session';
-import { PATH_PAGE } from '~shared/lib';
+import { PATH_PAGE } from '~shared/lib/react-router';
 
 function CurrentUserPreview() {
   const { data: userData, isLoading, isError } = sessionApi.useCurrentUser();
