@@ -1,13 +1,9 @@
-import { useMutation } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { object, string } from 'yup';
-import { sessionModel } from '~entities/session';
-import { conduitApi } from '~shared/api';
+import { sessionApi, sessionModel } from '~entities/session';
 
 export function LoginPage() {
-  const login = useMutation((userData: conduitApi.LoginData) =>
-    conduitApi.Auth.login(userData),
-  );
+  const login = sessionApi.useLoginUser();
 
   return (
     <div className="auth-page">

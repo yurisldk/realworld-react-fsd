@@ -1,13 +1,9 @@
-import { useMutation } from '@tanstack/react-query';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { object, string } from 'yup';
-import { sessionModel } from '~entities/session';
-import { conduitApi } from '~shared/api';
+import { sessionApi, sessionModel } from '~entities/session';
 
 export function RegisterPage() {
-  const register = useMutation((data: conduitApi.RegisterData) =>
-    conduitApi.Auth.register(data),
-  );
+  const register = sessionApi.useRegisterUser();
 
   return (
     <div className="auth-page">
@@ -33,9 +29,7 @@ export function RegisterPage() {
               })}
               // TODO: handle server errors
               onSubmit={async (values) => {
-                const data = await register.mutateAsync({
-                  user: values,
-                });
+                const data = await register.mutateAsync({ user: values });
                 sessionModel.sessionStore.getState().addToken(data.user.token);
               }}
             >

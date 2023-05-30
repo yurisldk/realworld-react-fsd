@@ -1,6 +1,6 @@
 import { Navigate, useRoutes } from 'react-router-dom';
 import { useStore } from 'zustand';
-import { sessionModel } from '~entities/session';
+import { sessionApi, sessionModel } from '~entities/session';
 import { HomePage } from '~pages/home';
 import { MainLayout } from '~pages/layouts';
 import { LoginPage } from '~pages/login';
@@ -20,6 +20,10 @@ function GuestGuard(props: GuestGuardProps) {
 }
 
 export function Router() {
+  const token = useStore(sessionModel.sessionStore, (state) => state.token);
+
+  sessionApi.useCurrentUser({ enabled: !!token });
+
   return useRoutes([
     {
       element: <MainLayout />,
