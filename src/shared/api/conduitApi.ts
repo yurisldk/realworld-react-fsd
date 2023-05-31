@@ -52,7 +52,7 @@ export type ArticlesDto = {
  * Articles
  */
 
-type ArticlesParams = {
+type ArticlesGlobalParams = {
   type?: string;
   author?: string;
   favorited?: string;
@@ -60,9 +60,14 @@ type ArticlesParams = {
   limit?: string;
 };
 
+type ArticlesUserFeedParams = {
+  offset?: string;
+  limit?: string;
+};
+
 export const Articles = {
   global: async (
-    params?: ArticlesParams,
+    params?: ArticlesGlobalParams,
     signal?: AbortSignal | undefined,
   ): Promise<ArticlesDto> => {
     const searchParams = new URLSearchParams({
@@ -72,6 +77,23 @@ export const Articles = {
     });
 
     const response = await fetcher(`articles?${searchParams}`, { signal });
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+
+  userFeed: async (
+    params?: ArticlesUserFeedParams,
+    signal?: AbortSignal | undefined,
+  ): Promise<ArticlesDto> => {
+    const searchParams = new URLSearchParams({
+      limit: '10',
+      offset: '0',
+      ...params,
+    });
+
+    const response = await fetcher(`articles/feed?${searchParams}`, { signal });
 
     if (!response.ok) throw new Error(response.statusText);
 
