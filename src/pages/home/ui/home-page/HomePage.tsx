@@ -1,7 +1,7 @@
 import { useReducer } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { conduitApi } from '~shared/api';
+import { tagApi } from '~entities/tag';
 import { GlobalArticlesList } from '~widgets/global-articles-list';
+import { TagArticlesList } from '~widgets/tag-articles-list';
 import { UserFeedArticlesList } from '~widgets/user-feed-articles-list';
 
 type TabsState = {
@@ -47,10 +47,7 @@ function toggleTag(dispatch: React.Dispatch<Action>, tag: string) {
 }
 
 export function HomePage() {
-  const { data: tagsData, isLoading: isTagsLoading } = useQuery(
-    ['tags', 'global'],
-    async () => conduitApi.Tags.global(),
-  );
+  const { data: tagsData, isLoading: isTagsLoading } = tagApi.useGlobalTags();
 
   const [tabs, dispatch] = useReducer(reducer, initialState);
 
@@ -103,6 +100,7 @@ export function HomePage() {
 
             {tabs.userfeed && <UserFeedArticlesList />}
             {tabs.global && <GlobalArticlesList />}
+            {tabs.tag && <TagArticlesList tag={tabs.tag as string} />}
           </div>
 
           <div className="col-md-3">
