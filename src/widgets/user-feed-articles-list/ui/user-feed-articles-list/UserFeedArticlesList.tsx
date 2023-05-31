@@ -9,6 +9,8 @@ import {
   FavoriteArticleButton,
 } from '~features/article';
 
+const queryKey = ['userfeed'];
+
 export function UserFeedArticlesList() {
   const {
     data: articlesData,
@@ -16,7 +18,7 @@ export function UserFeedArticlesList() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = articleApi.useUserFeedArticles();
+  } = articleApi.useUserFeedArticles(queryKey);
 
   return (
     <ArticlesList
@@ -31,9 +33,9 @@ export function UserFeedArticlesList() {
           article={article}
           actionSlot={
             article.favorited ? (
-              <UnfavoriteArticleButton article={article} />
+              <UnfavoriteArticleButton queryKey={queryKey} article={article} />
             ) : (
-              <FavoriteArticleButton article={article} />
+              <FavoriteArticleButton queryKey={queryKey} article={article} />
             )
           }
         />

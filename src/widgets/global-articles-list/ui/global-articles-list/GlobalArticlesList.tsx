@@ -9,6 +9,8 @@ import {
   FavoriteArticleButton,
 } from '~features/article';
 
+const queryKey = ['global'];
+
 export function GlobalArticlesList() {
   const {
     data: articlesData,
@@ -16,7 +18,7 @@ export function GlobalArticlesList() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = articleApi.useGlobalArticles();
+  } = articleApi.useInfinityArticles(queryKey);
 
   return (
     // TODO: pass error and handle it
@@ -32,9 +34,9 @@ export function GlobalArticlesList() {
           article={article}
           actionSlot={
             article.favorited ? (
-              <UnfavoriteArticleButton article={article} />
+              <UnfavoriteArticleButton queryKey={queryKey} article={article} />
             ) : (
-              <FavoriteArticleButton article={article} />
+              <FavoriteArticleButton queryKey={queryKey} article={article} />
             )
           }
         />

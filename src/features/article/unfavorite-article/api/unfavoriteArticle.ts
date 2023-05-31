@@ -5,13 +5,18 @@ import { conduitApi } from '~shared/api';
  * @see https://tanstack.com/query/v4/docs/react/guides/optimistic-updates
  * @see https://github.com/TanStack/query/discussions/3360
  */
-export const useUnfavoriteArticle = (queryClient: QueryClient) =>
+export const useUnfavoriteArticle = (
+  queryKey: string[],
+  queryClient: QueryClient,
+) =>
   useMutation(
     async (article: conduitApi.ArticleDto) =>
       conduitApi.Articles.unfavoriteArticle(article.slug),
     {
       onMutate: async (prevArticle) => {
-        await queryClient.cancelQueries({ queryKey: ['articles', 'global'] });
+        await queryClient.cancelQueries({
+          queryKey: ['articles', ...queryKey],
+        });
 
         const newArticle: conduitApi.ArticleDto = {
           ...prevArticle,
@@ -20,7 +25,7 @@ export const useUnfavoriteArticle = (queryClient: QueryClient) =>
         };
 
         queryClient.setQueryData<InfiniteData<conduitApi.ArticlesDto>>(
-          ['articles', 'global'],
+          ['articles', ...queryKey],
           (old) => {
             if (!old) return old;
             return {
@@ -43,7 +48,7 @@ export const useUnfavoriteArticle = (queryClient: QueryClient) =>
         if (!context) return;
 
         queryClient.setQueryData<InfiniteData<conduitApi.ArticlesDto>>(
-          ['articles', 'global'],
+          ['articles', ...queryKey],
           (old) => {
             if (!old) return old;
             return {
@@ -64,7 +69,7 @@ export const useUnfavoriteArticle = (queryClient: QueryClient) =>
 
       // Always refetch after error or success:
       onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: ['articles', 'global'] });
+        queryClient.invalidateQueries({ queryKey: ['articles', ...queryKey] });
       },
     },
   );

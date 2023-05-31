@@ -1,13 +1,11 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { conduitApi } from '~shared/api';
 
-// TODO: refactor these
-
-export const useGlobalArticles = () =>
+export const useUserFeedArticles = (queryKey: string[]) =>
   useInfiniteQuery({
-    queryKey: ['articles', 'global'],
+    queryKey: ['articles', ...queryKey],
     queryFn: async ({ pageParam = 0, signal }) =>
-      conduitApi.Articles.global({ limit: '10', offset: pageParam }, signal),
+      conduitApi.Articles.userFeed({ limit: 10, offset: pageParam }, signal),
     getNextPageParam: (lastPage, pages) => {
       const { articlesCount } = lastPage;
       const maybeNextPageParams = pages.length * 10; // 10 is limit value
@@ -19,33 +17,24 @@ export const useGlobalArticles = () =>
     },
   });
 
-export const useUserFeedArticles = () =>
-  useInfiniteQuery({
-    queryKey: ['articles', 'userfeed'],
-    queryFn: async ({ pageParam = 0, signal }) =>
-      conduitApi.Articles.userFeed({ limit: '10', offset: pageParam }, signal),
-    getNextPageParam: (lastPage, pages) => {
-      const { articlesCount } = lastPage;
-      const maybeNextPageParams = pages.length * 10; // 10 is limit value
+export const useInfinityArticles = (
+  queryKey: string[],
+  params?: conduitApi.ArticlesGlobalParams,
+) => {
+  const searchParams = { limit: 10, offset: 0, ...params };
 
-      const nextPageParam =
-        maybeNextPageParams >= articlesCount ? null : maybeNextPageParams;
+  return useInfiniteQuery({
+    queryKey: ['articles', ...queryKey],
 
-      return nextPageParam;
-    },
-  });
-
-export const useTagArticles = (tag: string) =>
-  useInfiniteQuery({
-    queryKey: ['articles', 'tag', tag],
-    queryFn: async ({ pageParam = 0, signal }) =>
+    queryFn: async ({ pageParam = searchParams.offset, signal }) =>
       conduitApi.Articles.global(
-        { limit: '10', offset: pageParam, tag },
+        { ...searchParams, offset: pageParam },
         signal,
       ),
+
     getNextPageParam: (lastPage, pages) => {
       const { articlesCount } = lastPage;
-      const maybeNextPageParams = pages.length * 10; // 10 is limit value
+      const maybeNextPageParams = pages.length * searchParams.limit;
 
       const nextPageParam =
         maybeNextPageParams >= articlesCount ? null : maybeNextPageParams;
@@ -53,3 +42,4 @@ export const useTagArticles = (tag: string) =>
       return nextPageParam;
     },
   });
+};

@@ -16,13 +16,15 @@ type TagArticlesListProps = {
 export function TagArticlesList(props: TagArticlesListProps) {
   const { tag } = props;
 
+  const queryKey = ['tag', tag];
+
   const {
     data: articlesData,
     status: articlesStatus,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = articleApi.useTagArticles(tag);
+  } = articleApi.useInfinityArticles(queryKey, { tag });
 
   return (
     <ArticlesList
@@ -37,9 +39,9 @@ export function TagArticlesList(props: TagArticlesListProps) {
           article={article}
           actionSlot={
             article.favorited ? (
-              <UnfavoriteArticleButton article={article} />
+              <UnfavoriteArticleButton queryKey={queryKey} article={article} />
             ) : (
-              <FavoriteArticleButton article={article} />
+              <FavoriteArticleButton queryKey={queryKey} article={article} />
             )
           }
         />

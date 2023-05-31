@@ -3,15 +3,16 @@ import { conduitApi } from '~shared/api';
 import { useFavoriteArticle } from '../../api/favoriteArticle';
 
 type FavoriteArticleButtonProps = {
+  queryKey: string[];
   article: conduitApi.ArticleDto;
 };
 
 export function FavoriteArticleButton(props: FavoriteArticleButtonProps) {
-  const { article } = props;
+  const { article, queryKey } = props;
 
   const queryClient = useQueryClient();
 
-  const favoriteArticle = useFavoriteArticle(queryClient);
+  const favoriteArticle = useFavoriteArticle(queryKey, queryClient);
 
   const handleFavorite = async () => {
     await favoriteArticle.mutateAsync(article);

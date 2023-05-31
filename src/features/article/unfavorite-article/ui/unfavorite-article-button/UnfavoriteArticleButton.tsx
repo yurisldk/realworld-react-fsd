@@ -3,15 +3,16 @@ import { conduitApi } from '~shared/api';
 import { useUnfavoriteArticle } from '../../api/unfavoriteArticle';
 
 type UnfavoriteArticleButtonProps = {
+  queryKey: string[];
   article: conduitApi.ArticleDto;
 };
 
 export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
-  const { article } = props;
+  const { article, queryKey } = props;
 
   const queryClient = useQueryClient();
 
-  const unfavoriteArticle = useUnfavoriteArticle(queryClient);
+  const unfavoriteArticle = useUnfavoriteArticle(queryKey, queryClient);
 
   const handleUnfavorite = async () => {
     await unfavoriteArticle.mutateAsync(article);
