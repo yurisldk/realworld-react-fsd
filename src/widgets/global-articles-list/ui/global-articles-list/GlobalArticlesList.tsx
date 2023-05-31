@@ -25,6 +25,12 @@ export function GlobalArticlesList() {
       )}
 
       {articlesStatus === 'success' &&
+        !hasNextPage &&
+        articlesData.pages.length === 1 && (
+          <div className="article-preview">No articles are here... yet.</div>
+        )}
+
+      {articlesStatus === 'success' &&
         articlesData.pages.map((group) =>
           group.articles.map((article) => (
             <ArticlePreviewCard
