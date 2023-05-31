@@ -53,7 +53,7 @@ export type ArticlesDto = {
  */
 
 type ArticlesGlobalParams = {
-  type?: string;
+  tag?: string;
   author?: string;
   favorited?: string;
   offset?: string;
