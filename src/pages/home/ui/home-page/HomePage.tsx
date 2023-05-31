@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { conduitApi } from '~shared/api';
 import { GlobalArticlesList } from '~widgets/global-articles-list';
+import { UserFeedArticlesList } from '~widgets/user-feed-articles-list';
 
 export function HomePage() {
   const { data: tagsData, isLoading: isTagsLoading } = useQuery(
     ['tags', 'global'],
     async () => conduitApi.Tags.global(),
   );
+
+  const [tab, setTab] = useState(0);
 
   return (
     <div className="home-page">
@@ -23,14 +27,28 @@ export function HomePage() {
             <div className="feed-toggle">
               <ul className="nav nav-pills outline-active">
                 <li className="nav-item">
-                  <a className="nav-link active" href="/#">
+                  <a
+                    className={`nav-link ${tab === 0 && 'active'}`}
+                    href="/#"
+                    onClick={() => setTab(0)}
+                  >
+                    Your Feed
+                  </a>
+                </li>
+                <li className="nav-item">
+                  <a
+                    className={`nav-link ${tab === 1 && 'active'}`}
+                    href="/#"
+                    onClick={() => setTab(1)}
+                  >
                     Global Feed
                   </a>
                 </li>
               </ul>
             </div>
 
-            <GlobalArticlesList />
+            {tab === 0 && <UserFeedArticlesList />}
+            {tab === 1 && <GlobalArticlesList />}
           </div>
 
           <div className="col-md-3">
