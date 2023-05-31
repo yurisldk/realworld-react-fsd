@@ -1,25 +1,17 @@
 import { ReactNode } from 'react';
 import dayjs from 'dayjs';
+import { conduitApi } from '~shared/api';
 
 type ArticlePreviewCardProps = {
-  authorName: string;
-  authorAvatar: string;
-  createdAt: DateIso;
-  title: string;
-  description: string;
+  article: conduitApi.ArticleDto;
   actionSlot?: ReactNode;
 };
 
 // TODO: add slot for feature
 export function ArticlePreviewCard(props: ArticlePreviewCardProps) {
-  const {
-    authorName,
-    authorAvatar,
-    createdAt,
-    title,
-    description,
-    actionSlot,
-  } = props;
+  const { article, actionSlot } = props;
+  const { title, description, createdAt, author } = article;
+  const { username, image } = author;
 
   const formatedDate = dayjs(createdAt).format('MMMM D, YYYY');
 
@@ -27,11 +19,11 @@ export function ArticlePreviewCard(props: ArticlePreviewCardProps) {
     <div className="article-preview">
       <div className="article-meta">
         <a href="profile.html">
-          <img src={authorAvatar} alt={authorName} />
+          <img src={image} alt={username} />
         </a>
         <div className="info">
           <a href="/#" className="author">
-            {authorName}
+            {username}
           </a>
           <span className="date">{formatedDate}</span>
         </div>
