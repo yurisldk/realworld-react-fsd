@@ -30,9 +30,12 @@ export function ArticlesList(props: ArticlesListProps) {
       {/* TODO: add error handler */}
       {isError && <div className="article-preview">Error: </div>}
 
-      {isSuccess && !hasNextPage && infinityArticles!.pages.length === 1 && (
-        <div className="article-preview">No articles are here... yet.</div>
-      )}
+      {isSuccess &&
+        !hasNextPage &&
+        infinityArticles!.pages.length === 1 &&
+        infinityArticles!.pages[0].articles.length === 0 && (
+          <div className="article-preview">No articles are here... yet.</div>
+        )}
 
       {isSuccess &&
         infinityArticles!.pages.map((group) =>
