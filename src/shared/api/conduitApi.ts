@@ -52,27 +52,28 @@ export type ArticlesDto = {
  * Articles
  */
 
-type ArticlesGlobalParams = {
+export type ArticlesGlobalParams = {
   tag?: string;
   author?: string;
   favorited?: string;
-  offset?: string;
-  limit?: string;
+  offset?: number;
+  limit?: number;
 };
 
 type ArticlesUserFeedParams = {
-  offset?: string;
-  limit?: string;
+  offset?: number;
+  limit?: number;
 };
 
 export const Articles = {
   global: async (
     params?: ArticlesGlobalParams,
-    signal?: AbortSignal | undefined,
+    signal?: AbortSignal,
   ): Promise<ArticlesDto> => {
+    // @ts-expect-error
     const searchParams = new URLSearchParams({
-      limit: '10',
-      offset: '0',
+      limit: 10,
+      offset: 0,
       ...params,
     });
 
@@ -85,11 +86,12 @@ export const Articles = {
 
   userFeed: async (
     params?: ArticlesUserFeedParams,
-    signal?: AbortSignal | undefined,
+    signal?: AbortSignal,
   ): Promise<ArticlesDto> => {
+    // @ts-expect-error
     const searchParams = new URLSearchParams({
-      limit: '10',
-      offset: '0',
+      limit: 10,
+      offset: 0,
       ...params,
     });
 
