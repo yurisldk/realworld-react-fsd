@@ -1,43 +1,42 @@
-import { useReducer } from 'react';
+import { useLayoutEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { StoreApi } from 'zustand';
+import { articleFilterModel } from '~entities/article';
 import { profileApi } from '~entities/profile';
-import { FavoritedArticlesList } from '~widgets/favorited-articles-list';
-import { ProfileArticlesList } from '~widgets/profile-articles-list';
-
-type TabsState = {
-  profile: boolean;
-  favorites: boolean;
-};
-
-type Action = { type: 'profile' } | { type: 'favorites' };
-
-function reducer(_: TabsState, action: Action): TabsState {
-  switch (action.type) {
-    case 'profile':
-      return { profile: true, favorites: false };
-    case 'favorites':
-      return { profile: false, favorites: true };
-
-    default:
-      throw new Error();
-  }
-}
-
-function toggleProfile(dispatch: React.Dispatch<Action>) {
-  return dispatch({ type: 'profile' });
-}
-
-function toggleFavorites(dispatch: React.Dispatch<Action>) {
-  return dispatch({ type: 'favorites' });
-}
+import { FilterArticleTabButton } from '~features/article';
+import { CommonArticlesList } from '~widgets/common-articles-list';
+import {
+  initialFilterState,
+  profilePageArticleFilterStore,
+} from '../../model/profilePageArticleFilter';
 
 type ProfilePageProps = {
+  model?: StoreApi<articleFilterModel.ArticleFilterState>;
   favorites?: boolean;
 };
 
 export function ProfilePage(props: ProfilePageProps) {
-  const { favorites } = props;
+  const { model = profilePageArticleFilterStore, favorites } = props;
   const { username } = useParams();
+
+  const filter = articleFilterModel.selectFilter(model);
+
+  /**
+   * Not sure that's the best way but the main point is init store with
+   * default falues that we can take from prop and react-router params.
+   * It works for now, have to check that later. sorry =)
+   */
+  useLayoutEffect(() => {
+    model.setState((state) => ({
+      filter: {
+        ...state.filter,
+        ...(!favorites && { author: username }),
+        ...(favorites && { favorited: username }),
+      },
+    }));
+
+    return () => model.setState(() => ({ filter: initialFilterState }));
+  }, []);
 
   // TODO: handle error
   // TODO: navigate to 404 username that doesnt exists (404)
@@ -47,13 +46,6 @@ export function ProfilePage(props: ProfilePageProps) {
     isError,
     isSuccess,
   } = profileApi.useProfile(username!);
-
-  const initialState: TabsState = {
-    profile: !favorites,
-    favorites: Boolean(favorites),
-  };
-
-  const [tabs, dispatch] = useReducer(reducer, initialState);
 
   return (
     <div className="profile-page">
@@ -90,33 +82,34 @@ export function ProfilePage(props: ProfilePageProps) {
             <div className="articles-toggle">
               <ul className="nav nav-pills outline-active">
                 <li className="nav-item">
-                  {/* FIXME: add classnames */}
-                  <button
-                    className={`nav-link ${tabs.profile && 'active'}`}
-                    type="button"
-                    onClick={() => toggleProfile(dispatch)}
-                  >
-                    My Articles
-                  </button>
+                  <FilterArticleTabButton
+                    model={model}
+                    filter={{ author: username }}
+                    title="My Articles"
+                  />
                 </li>
                 <li className="nav-item">
-                  <button
-                    className={`nav-link ${tabs.favorites && 'active'}`}
-                    type="button"
-                    onClick={() => toggleFavorites(dispatch)}
-                  >
-                    Favorited Articles
-                  </button>
+                  <FilterArticleTabButton
+                    model={model}
+                    filter={{ favorited: username }}
+                    title="Favorited Articles"
+                  />
                 </li>
               </ul>
             </div>
 
-            {tabs.profile && (
-              <ProfileArticlesList username={username as string} />
+            {filter.author && (
+              <CommonArticlesList
+                model={model}
+                queryKey={['username', filter.author]}
+              />
             )}
 
-            {tabs.favorites && (
-              <FavoritedArticlesList username={username as string} />
+            {filter.favorited && (
+              <CommonArticlesList
+                model={model}
+                queryKey={['username', filter.favorited, 'favorited']}
+              />
             )}
           </div>
         </div>
