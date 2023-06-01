@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
 import { conduitApi } from '~shared/api';
+import { PATH_PAGE } from '~shared/lib/react-router';
 
 type ArticlePreviewCardProps = {
   article: conduitApi.ArticleDto;
@@ -18,13 +20,13 @@ export function ArticlePreviewCard(props: ArticlePreviewCardProps) {
   return (
     <div className="article-preview">
       <div className="article-meta">
-        <a href="profile.html">
+        <Link to={PATH_PAGE.profile.root(username)}>
           <img src={image} alt={username} />
-        </a>
+        </Link>
         <div className="info">
-          <a href="/#" className="author">
+          <Link to={PATH_PAGE.profile.root(username)} className="author">
             {username}
-          </a>
+          </Link>
           <span className="date">{formatedDate}</span>
         </div>
         {actionSlot}
