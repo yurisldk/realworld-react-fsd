@@ -6,15 +6,34 @@ import {
 } from '@tanstack/react-query';
 import { conduitApi } from '~shared/api';
 
-type UseCurrentUserOptions = UseQueryOptions<
-  conduitApi.UserDto,
-  unknown,
-  conduitApi.UserDto,
-  string[]
->;
+export type User = {
+  email: string;
+  token: string;
+  username: string;
+  bio?: string;
+  image?: string;
+};
+
+type UseCurrentUserOptions = UseQueryOptions<User, unknown, User, string[]>;
+
+function mapUserDto(userDto: conduitApi.UserDto): User {
+  // @ts-expect-error
+  return {
+    ...userDto.user,
+    ...(!userDto.user.bio && { bio: undefined }),
+    ...(!userDto.user.image && { image: undefined }),
+  };
+}
 
 export const useCurrentUser = (options?: UseCurrentUserOptions) =>
-  useQuery(['currentUser'], async () => conduitApi.Auth.сurrentUser(), options);
+  useQuery(
+    ['currentUser'],
+    async ({ signal }) => {
+      const userDto = await conduitApi.Auth.сurrentUser(signal);
+      return mapUserDto(userDto);
+    },
+    options,
+  );
 
 type UseRegisterUserOptions = UseMutationOptions<
   conduitApi.UserDto,

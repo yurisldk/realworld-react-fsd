@@ -3,14 +3,14 @@ import { sessionApi, sessionModel } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
 function CurrentUserPreview() {
-  const { data: userData, isLoading, isError } = sessionApi.useCurrentUser();
+  const { data: user, isLoading, isError } = sessionApi.useCurrentUser();
 
   // TODO: Add error handle
   if (isError) return <div>error</div>;
   // TODO: Add fallback
   if (isLoading) return <div>loading</div>;
 
-  const { image, username } = userData.user;
+  const { image = '', username } = user;
 
   return (
     <>
@@ -68,7 +68,7 @@ export function MainLayout() {
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/qwerty">
+                <NavLink className="nav-link" to={PATH_PAGE.settings}>
                   <i className="ion-gear-a" />
                   &nbsp;Settings
                 </NavLink>

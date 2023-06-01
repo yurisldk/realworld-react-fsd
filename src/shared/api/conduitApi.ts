@@ -162,8 +162,8 @@ export type UserDto = {
     email: string;
     token: string;
     username: string;
-    bio: string;
-    image: string;
+    bio?: string | null;
+    image?: string | null;
   };
 };
 
@@ -183,10 +183,10 @@ export type RegisterData = {
 };
 
 export const Auth = {
-  login: async (params: LoginData): Promise<UserDto> => {
+  login: async (data: LoginData): Promise<UserDto> => {
     const response = await fetcher('users/login', {
       method: 'POST',
-      body: JSON.stringify(params),
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) throw new Error(response.statusText);
@@ -205,8 +205,19 @@ export const Auth = {
     return response.json();
   },
 
-  сurrentUser: async (): Promise<UserDto> => {
-    const response = await fetcher('user');
+  сurrentUser: async (signal?: AbortSignal): Promise<UserDto> => {
+    const response = await fetcher('user', { signal });
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+
+  updateCurrentUser: async (data: UserDto): Promise<UserDto> => {
+    const response = await fetcher('user', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
 
     if (!response.ok) throw new Error(response.statusText);
 

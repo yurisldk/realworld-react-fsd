@@ -4,6 +4,7 @@ import { HomePage } from '~pages/home';
 import { MainLayout } from '~pages/layouts';
 import { LoginPage } from '~pages/login';
 import { RegisterPage } from '~pages/register';
+import { SettingsPage } from '~pages/settings';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
 type GuestGuardProps = {
@@ -11,6 +12,19 @@ type GuestGuardProps = {
 };
 
 function GuestGuard(props: GuestGuardProps) {
+  const { children } = props;
+  const isAuth = sessionModel.useAuth();
+
+  if (!isAuth) return <Navigate to={PATH_PAGE.root} />;
+
+  return <> {children} </>;
+}
+
+type AuthGuardProps = {
+  children: React.ReactNode;
+};
+
+function AuthGuard(props: AuthGuardProps) {
   const { children } = props;
   const isAuth = sessionModel.useAuth();
 
@@ -28,16 +42,24 @@ export function Router() {
         {
           path: 'login',
           element: (
-            <GuestGuard>
-              <LoginPage />
-            </GuestGuard>
+            <AuthGuard>
+              <LoginPage />,
+            </AuthGuard>
           ),
         },
         {
           path: 'register',
           element: (
+            <AuthGuard>
+              <RegisterPage />,
+            </AuthGuard>
+          ),
+        },
+        {
+          path: 'settings',
+          element: (
             <GuestGuard>
-              <RegisterPage />
+              <SettingsPage />
             </GuestGuard>
           ),
         },
