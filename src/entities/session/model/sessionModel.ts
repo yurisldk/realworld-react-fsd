@@ -29,7 +29,7 @@ const createSessionSlice: StateCreator<
   },
 });
 
-const sessionStore = createStore<SessionState>()(
+export const sessionStore = createStore<SessionState>()(
   persist(
     devtools(
       (...a) => ({
