@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { conduitApi } from '~shared/api';
 
 type Profile = {
@@ -8,6 +8,8 @@ type Profile = {
   following: boolean;
 };
 
+type UseProfileOptions = UseQueryOptions<Profile, unknown, Profile, string[]>;
+
 function mapProfileDto(
   profileDto: Record<'profile', conduitApi.ProfileDto>,
 ): Profile {
@@ -16,9 +18,13 @@ function mapProfileDto(
   };
 }
 
-export function useProfile(profile: string) {
-  return useQuery(['profile', profile], async () => {
-    const profileDto = await conduitApi.Profile.profile(profile);
-    return mapProfileDto(profileDto);
-  });
+export function useProfile(profile: string, options?: UseProfileOptions) {
+  return useQuery(
+    ['profile', profile],
+    async () => {
+      const profileDto = await conduitApi.Profile.profile(profile);
+      return mapProfileDto(profileDto);
+    },
+    options,
+  );
 }

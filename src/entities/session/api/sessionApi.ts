@@ -5,19 +5,19 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 import { conduitApi } from '~shared/api';
+import { addUser } from '../model/sessionModel';
 
 export type User = {
   email: string;
   token: string;
   username: string;
-  bio?: string;
-  image?: string;
+  bio?: string | null;
+  image?: string | null;
 };
 
 type UseCurrentUserOptions = UseQueryOptions<User, unknown, User, string[]>;
 
 function mapUserDto(userDto: conduitApi.UserDto): User {
-  // @ts-expect-error
   return {
     ...userDto.user,
     ...(!userDto.user.bio && { bio: undefined }),
@@ -25,12 +25,17 @@ function mapUserDto(userDto: conduitApi.UserDto): User {
   };
 }
 
+// TODO: add DI model.addUser(user)
 export const useCurrentUser = (options?: UseCurrentUserOptions) =>
   useQuery(
     ['currentUser'],
     async ({ signal }) => {
       const userDto = await conduitApi.Auth.сurrentUser(signal);
-      return mapUserDto(userDto);
+      const user = mapUserDto(userDto);
+
+      addUser(user);
+
+      return user;
     },
     options,
   );

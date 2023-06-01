@@ -2,12 +2,18 @@ import { StateCreator, createStore, useStore } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { conduitApi } from '~shared/api';
 
-type Token = string;
+type User = {
+  email: string;
+  token: string;
+  username: string;
+  bio?: string | null;
+  image?: string | null;
+};
 
 type SessionState = {
-  token: Token | null;
-  addToken: (token: Token) => void;
-  deleteToken: () => void;
+  user: User | null;
+  addUser: (user: User) => void;
+  deleteUser: () => void;
 };
 
 const createSessionSlice: StateCreator<
@@ -16,15 +22,15 @@ const createSessionSlice: StateCreator<
   [],
   SessionState
 > = (set) => ({
-  token: null,
+  user: null,
 
-  addToken: (token: Token) => {
-    set({ token }, false, 'session/addToken');
-    conduitApi.setToken(token);
+  addUser: (user: User) => {
+    set({ user }, false, 'session/addUser');
+    conduitApi.setToken(user.token);
   },
 
-  deleteToken: () => {
-    set({ token: null }, false, 'session/deleteToken');
+  deleteUser: () => {
+    set({ user: null }, false, 'session/deleteUser');
     conduitApi.deleteToken();
   },
 });
@@ -42,17 +48,20 @@ export const sessionStore = createStore<SessionState>()(
       onRehydrateStorage: () => (state) => {
         if (!state) return;
 
-        const { token } = state;
-        if (token) conduitApi.setToken(token);
-        if (!token) conduitApi.deleteToken();
+        const { user } = state;
+        if (user) conduitApi.setToken(user.token);
+        if (!user) conduitApi.deleteToken();
       },
     },
   ),
 );
 
-export const useAuth = () => useStore(sessionStore, (state) => !!state.token);
+export const useAuth = () =>
+  useStore(sessionStore, (state) => !!state.user?.token);
 
-export const addToken = (token: string) =>
-  sessionStore.getState().addToken(token);
+export const useCurrentUser = () =>
+  useStore(sessionStore, (state) => state.user);
 
-export const deleteToken = () => sessionStore.getState().deleteToken();
+export const addUser = (user: User) => sessionStore.getState().addUser(user);
+
+export const deleteToken = () => sessionStore.getState().deleteUser();

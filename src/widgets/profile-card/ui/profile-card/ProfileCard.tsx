@@ -1,4 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { profileApi } from '~entities/profile';
+import { sessionModel } from '~entities/session';
 
 type ProfileCardProps = {
   username: string;
@@ -7,12 +9,21 @@ type ProfileCardProps = {
 export function ProfileCard(props: ProfileCardProps) {
   const { username } = props;
 
+  const queryClient = useQueryClient();
+
+  const user = sessionModel.useCurrentUser();
+  const isCurrentUser = user?.username === username;
+
+  if (isCurrentUser) {
+    queryClient.setQueryData(['profile', username], user);
+  }
+
   const {
     data: profile,
     isLoading,
     isError,
     isSuccess,
-  } = profileApi.useProfile(username);
+  } = profileApi.useProfile(username, { enabled: !isCurrentUser });
 
   return (
     <div className="user-info">

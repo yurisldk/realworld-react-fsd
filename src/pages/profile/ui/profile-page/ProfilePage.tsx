@@ -38,7 +38,7 @@ export function ProfilePage(props: ProfilePageProps) {
     }));
 
     return () => model.setState(() => ({ filter: initialFilterState }));
-  }, []);
+  }, [favorites, model, username]);
 
   return (
     <div className="profile-page">

@@ -28,7 +28,7 @@ export function LoginPage() {
               // TODO: handle server errors
               onSubmit={async (values) => {
                 const data = await login.mutateAsync({ user: values });
-                sessionModel.addToken(data.user.token);
+                sessionModel.addUser(data.user);
               }}
             >
               {({ isSubmitting }) => (

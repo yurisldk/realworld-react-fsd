@@ -3,13 +3,9 @@ import { sessionApi, sessionModel } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
 export function MainLayout() {
-  const isAuth = sessionModel.useAuth();
-  const {
-    data: user,
-    isLoading,
-    isError,
-    isSuccess,
-  } = sessionApi.useCurrentUser({ enabled: isAuth });
+  const user = sessionModel.useCurrentUser();
+
+  sessionApi.useCurrentUser({ enabled: !!user });
 
   return (
     <>
@@ -18,7 +14,7 @@ export function MainLayout() {
           <NavLink className="navbar-brand" to={PATH_PAGE.root}>
             conduit
           </NavLink>
-          {!isAuth && (
+          {!user && (
             <ul className="nav navbar-nav pull-xs-right">
               <li className="nav-item">
                 <NavLink className="nav-link" to={PATH_PAGE.root}>
@@ -37,7 +33,7 @@ export function MainLayout() {
               </li>
             </ul>
           )}
-          {isAuth && (
+          {user && (
             <ul className="nav navbar-nav pull-xs-right">
               <li className="nav-item">
                 <NavLink
@@ -62,21 +58,17 @@ export function MainLayout() {
                 </NavLink>
               </li>
               <li className="nav-item">
-                {isLoading && <div>loading</div>}
-                {isError && <div>error: </div>}
-                {isSuccess && (
-                  <NavLink
-                    className="nav-link"
-                    to={PATH_PAGE.profile.root(user.username)}
-                  >
-                    <img
-                      className="user-pic"
-                      src={user.image || ''}
-                      alt={user.username}
-                    />
-                    {user.username}
-                  </NavLink>
-                )}
+                <NavLink
+                  className="nav-link"
+                  to={PATH_PAGE.profile.root(user.username)}
+                >
+                  <img
+                    className="user-pic"
+                    src={user.image || ''}
+                    alt={user.username}
+                  />
+                  {user.username}
+                </NavLink>
               </li>
             </ul>
           )}

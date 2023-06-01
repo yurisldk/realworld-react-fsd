@@ -3,7 +3,7 @@ import { devtools } from 'zustand/middleware';
 import { articleFilterModel } from '~entities/article';
 import { sessionModel } from '~entities/session';
 
-const isAuth = Boolean(sessionModel.sessionStore.getState().token);
+const isAuth = Boolean(sessionModel.sessionStore.getState().user);
 
 const initialFilterState: articleFilterModel.ArticleFilter = {
   ...(isAuth && { userfeed: true }),
