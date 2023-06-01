@@ -23,13 +23,6 @@ const fetcher = (input: string, init?: RequestInit): Promise<Response> => {
   });
 };
 
-type ProfileDto = {
-  username: string;
-  bio: string;
-  image: string;
-  following: boolean;
-};
-
 export type ArticleDto = {
   slug: Slug;
   title: string;
@@ -128,6 +121,29 @@ export const Articles = {
     const response = await fetcher(`articles/${slug}/favorite`, {
       method: 'DELETE',
     });
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+};
+
+/**
+ * Profile
+ */
+export type ProfileDto = {
+  username: string;
+  bio: string;
+  image: string;
+  following: boolean;
+};
+
+export const Profile = {
+  profile: async (
+    profile: string,
+    signal?: AbortSignal,
+  ): Promise<Record<'profile', ProfileDto>> => {
+    const response = await fetcher(`/profiles/${profile}`, { signal });
 
     if (!response.ok) throw new Error(response.statusText);
 
