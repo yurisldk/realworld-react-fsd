@@ -1,58 +1,22 @@
-import { useReducer } from 'react';
+import { StoreApi } from 'zustand';
+import { articleFilterModel } from '~entities/article';
 import { sessionModel } from '~entities/session';
-import { tagApi } from '~entities/tag';
-import { GlobalArticlesList } from '~widgets/global-articles-list';
-import { TagArticlesList } from '~widgets/tag-articles-list';
+import { FilterArticleTabButton } from '~features/article';
+import { CommonArticlesList } from '~widgets/common-articles-list';
+import { PopularTags } from '~widgets/popular-tags';
 import { UserFeedArticlesList } from '~widgets/user-feed-articles-list';
+import { homePageArticleFilterStore } from '../../model/homePageArticleFilter';
 
-type TabsState = {
-  userfeed: boolean;
-  global: boolean;
-  tag: string | boolean;
+type HomePageProps = {
+  model?: StoreApi<articleFilterModel.ArticleFilterState>;
 };
 
-type Action =
-  | { type: 'global' }
-  | { type: 'userfeed' }
-  | { type: 'tag'; payload: boolean | string };
+export function HomePage(props: HomePageProps) {
+  const { model = homePageArticleFilterStore } = props;
 
-function reducer(_: TabsState, action: Action) {
-  switch (action.type) {
-    case 'userfeed':
-      return { userfeed: true, global: false, tag: false };
-    case 'global':
-      return { userfeed: false, global: true, tag: false };
-    case 'tag':
-      return { userfeed: false, global: false, tag: action.payload };
-    default:
-      throw new Error();
-  }
-}
+  const filter = articleFilterModel.selectFilter(model);
 
-function toggleGlobal(dispatch: React.Dispatch<Action>) {
-  return dispatch({ type: 'global' });
-}
-
-function toggleUserfeed(dispatch: React.Dispatch<Action>) {
-  return dispatch({ type: 'userfeed' });
-}
-
-function toggleTag(dispatch: React.Dispatch<Action>, tag: string) {
-  return dispatch({ type: 'tag', payload: tag });
-}
-
-export function HomePage() {
   const isAuth = sessionModel.useAuth();
-
-  const { data: tagsData, isLoading: isTagsLoading } = tagApi.useGlobalTags();
-
-  const initialState: TabsState = {
-    userfeed: isAuth,
-    global: !isAuth,
-    tag: false,
-  };
-
-  const [tabs, dispatch] = useReducer(reducer, initialState);
 
   return (
     <div className="home-page">
@@ -70,63 +34,47 @@ export function HomePage() {
               <ul className="nav nav-pills outline-active">
                 {isAuth && (
                   <li className="nav-item">
-                    <button
-                      className={`nav-link ${tabs.userfeed && 'active'}`}
-                      onClick={() => toggleUserfeed(dispatch)}
-                      type="button"
-                    >
-                      Your Feed
-                    </button>
+                    <FilterArticleTabButton
+                      model={model}
+                      filter={{ userfeed: true }}
+                      title="Your Feed"
+                    />
                   </li>
                 )}
                 <li className="nav-item">
-                  <button
-                    className={`nav-link ${tabs.global && 'active'}`}
-                    onClick={() => toggleGlobal(dispatch)}
-                    type="button"
-                  >
-                    Global Feed
-                  </button>
+                  <FilterArticleTabButton
+                    model={model}
+                    filter={{ global: true }}
+                    title="Global Feed"
+                  />
                 </li>
-                {tabs.tag && (
+                {filter.tag && (
                   <li className="nav-item">
-                    <button
-                      className={`nav-link ${tabs.tag && 'active'}`}
-                      onClick={() => toggleGlobal(dispatch)}
-                      type="button"
-                    >
-                      #{tabs.tag}
-                    </button>
+                    <FilterArticleTabButton
+                      model={model}
+                      filter={{ tag: filter.tag }}
+                      title={`#${filter.tag}`}
+                    />
                   </li>
                 )}
               </ul>
             </div>
 
-            {isAuth && tabs.userfeed && <UserFeedArticlesList />}
-            {tabs.global && <GlobalArticlesList />}
-            {tabs.tag && <TagArticlesList tag={tabs.tag as string} />}
+            {isAuth && filter.userfeed && <UserFeedArticlesList />}
+            {/* TODO: try to use queryKey from filter */}
+            {filter.global && (
+              <CommonArticlesList model={model} queryKey={['global']} />
+            )}
+            {filter.tag && (
+              <CommonArticlesList
+                model={model}
+                queryKey={['tag', filter.tag]}
+              />
+            )}
           </div>
 
           <div className="col-md-3">
-            <div className="sidebar">
-              <p>Popular Tags</p>
-              <div className="tag-list">
-                {isTagsLoading && 'Loading tags...'}
-
-                {tagsData &&
-                  tagsData.tags.length &&
-                  tagsData.tags.map((tag) => (
-                    <button
-                      key={tag}
-                      className="tag-pill tag-default"
-                      onClick={() => toggleTag(dispatch, tag)}
-                      type="button"
-                    >
-                      {tag}
-                    </button>
-                  ))}
-              </div>
-            </div>
+            <PopularTags model={model} />
           </div>
         </div>
       </div>
