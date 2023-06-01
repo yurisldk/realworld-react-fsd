@@ -4,10 +4,7 @@ import {
   ArticlesList,
   LoadMoreButton,
 } from '~entities/article';
-import {
-  UnfavoriteArticleButton,
-  FavoriteArticleButton,
-} from '~features/article';
+import { ToggleFavoriteArticleButton } from '~features/article';
 
 const queryKey = ['userfeed'];
 
@@ -32,11 +29,10 @@ export function UserFeedArticlesList() {
           key={article.slug}
           article={article}
           actionSlot={
-            article.favorited ? (
-              <UnfavoriteArticleButton queryKey={queryKey} article={article} />
-            ) : (
-              <FavoriteArticleButton queryKey={queryKey} article={article} />
-            )
+            <ToggleFavoriteArticleButton
+              queryKey={queryKey}
+              article={article}
+            />
           }
         />
       )}

@@ -4,10 +4,9 @@ import {
   ArticlesList,
   LoadMoreButton,
 } from '~entities/article';
-import {
-  UnfavoriteArticleButton,
-  FavoriteArticleButton,
-} from '~features/article';
+import { sessionModel } from '~entities/session';
+import { ToggleFavoriteArticleButton } from '~features/article';
+import { NavigateToLoginFavoriteButton } from '~features/session';
 
 const queryKey = ['global'];
 
@@ -19,6 +18,8 @@ export function GlobalArticlesList() {
     hasNextPage,
     isFetchingNextPage,
   } = articleApi.useInfinityArticles(queryKey);
+
+  const isAuth = sessionModel.useAuth();
 
   return (
     // TODO: pass error and handle it
@@ -33,10 +34,15 @@ export function GlobalArticlesList() {
           key={article.slug}
           article={article}
           actionSlot={
-            article.favorited ? (
-              <UnfavoriteArticleButton queryKey={queryKey} article={article} />
+            isAuth ? (
+              <ToggleFavoriteArticleButton
+                queryKey={queryKey}
+                article={article}
+              />
             ) : (
-              <FavoriteArticleButton queryKey={queryKey} article={article} />
+              <NavigateToLoginFavoriteButton
+                favoritesCount={article.favoritesCount}
+              />
             )
           }
         />

@@ -1,4 +1,5 @@
 import { useReducer } from 'react';
+import { sessionModel } from '~entities/session';
 import { tagApi } from '~entities/tag';
 import { GlobalArticlesList } from '~widgets/global-articles-list';
 import { TagArticlesList } from '~widgets/tag-articles-list';
@@ -8,12 +9,6 @@ type TabsState = {
   userfeed: boolean;
   global: boolean;
   tag: string | boolean;
-};
-
-const initialState: TabsState = {
-  userfeed: true,
-  global: false,
-  tag: false,
 };
 
 type Action =
@@ -47,7 +42,15 @@ function toggleTag(dispatch: React.Dispatch<Action>, tag: string) {
 }
 
 export function HomePage() {
+  const isAuth = sessionModel.useAuth();
+
   const { data: tagsData, isLoading: isTagsLoading } = tagApi.useGlobalTags();
+
+  const initialState: TabsState = {
+    userfeed: isAuth,
+    global: !isAuth,
+    tag: false,
+  };
 
   const [tabs, dispatch] = useReducer(reducer, initialState);
 
@@ -65,40 +68,41 @@ export function HomePage() {
           <div className="col-md-9">
             <div className="feed-toggle">
               <ul className="nav nav-pills outline-active">
+                {isAuth && (
+                  <li className="nav-item">
+                    <button
+                      className={`nav-link ${tabs.userfeed && 'active'}`}
+                      onClick={() => toggleUserfeed(dispatch)}
+                      type="button"
+                    >
+                      Your Feed
+                    </button>
+                  </li>
+                )}
                 <li className="nav-item">
-                  <a
-                    className={`nav-link ${tabs.userfeed && 'active'}`}
-                    href="/#"
-                    onClick={() => toggleUserfeed(dispatch)}
-                  >
-                    Your Feed
-                  </a>
-                </li>
-                <li className="nav-item">
-                  {/* TODO: remove href */}
-                  <a
+                  <button
                     className={`nav-link ${tabs.global && 'active'}`}
-                    href="/#"
                     onClick={() => toggleGlobal(dispatch)}
+                    type="button"
                   >
                     Global Feed
-                  </a>
+                  </button>
                 </li>
                 {tabs.tag && (
                   <li className="nav-item">
-                    <a
+                    <button
                       className={`nav-link ${tabs.tag && 'active'}`}
-                      href="/#"
                       onClick={() => toggleGlobal(dispatch)}
+                      type="button"
                     >
                       #{tabs.tag}
-                    </a>
+                    </button>
                   </li>
                 )}
               </ul>
             </div>
 
-            {tabs.userfeed && <UserFeedArticlesList />}
+            {isAuth && tabs.userfeed && <UserFeedArticlesList />}
             {tabs.global && <GlobalArticlesList />}
             {tabs.tag && <TagArticlesList tag={tabs.tag as string} />}
           </div>
@@ -112,14 +116,14 @@ export function HomePage() {
                 {tagsData &&
                   tagsData.tags.length &&
                   tagsData.tags.map((tag) => (
-                    <a
+                    <button
                       key={tag}
-                      href="/#"
                       className="tag-pill tag-default"
                       onClick={() => toggleTag(dispatch, tag)}
+                      type="button"
                     >
                       {tag}
-                    </a>
+                    </button>
                   ))}
               </div>
             </div>

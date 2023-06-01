@@ -4,10 +4,9 @@ import {
   ArticlesList,
   LoadMoreButton,
 } from '~entities/article';
-import {
-  UnfavoriteArticleButton,
-  FavoriteArticleButton,
-} from '~features/article';
+import { sessionModel } from '~entities/session';
+import { ToggleFavoriteArticleButton } from '~features/article';
+import { NavigateToLoginFavoriteButton } from '~features/session';
 
 type TagArticlesListProps = {
   tag: string;
@@ -26,6 +25,8 @@ export function TagArticlesList(props: TagArticlesListProps) {
     isFetchingNextPage,
   } = articleApi.useInfinityArticles(queryKey, { tag });
 
+  const isAuth = sessionModel.useAuth();
+
   return (
     <ArticlesList
       isLoading={articlesStatus === 'loading'}
@@ -38,10 +39,15 @@ export function TagArticlesList(props: TagArticlesListProps) {
           key={article.slug}
           article={article}
           actionSlot={
-            article.favorited ? (
-              <UnfavoriteArticleButton queryKey={queryKey} article={article} />
+            isAuth ? (
+              <ToggleFavoriteArticleButton
+                queryKey={queryKey}
+                article={article}
+              />
             ) : (
-              <FavoriteArticleButton queryKey={queryKey} article={article} />
+              <NavigateToLoginFavoriteButton
+                favoritesCount={article.favoritesCount}
+              />
             )
           }
         />
