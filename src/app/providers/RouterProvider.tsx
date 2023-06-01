@@ -3,6 +3,7 @@ import { sessionModel } from '~entities/session';
 import { HomePage } from '~pages/home';
 import { MainLayout } from '~pages/layouts';
 import { LoginPage } from '~pages/login';
+import { ProfilePage } from '~pages/profile';
 import { RegisterPage } from '~pages/register';
 import { SettingsPage } from '~pages/settings';
 import { PATH_PAGE } from '~shared/lib/react-router';
@@ -62,6 +63,17 @@ export function Router() {
               <SettingsPage />
             </GuestGuard>
           ),
+        },
+        {
+          path: 'profile',
+          children: [
+            {
+              element: <Navigate to={PATH_PAGE.page404} replace />,
+              index: true,
+            },
+            { path: ':username', element: <ProfilePage /> },
+            { path: ':username/favorites', element: <ProfilePage favorites /> },
+          ],
         },
       ],
     },

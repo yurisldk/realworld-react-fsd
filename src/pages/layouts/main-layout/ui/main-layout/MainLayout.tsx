@@ -2,26 +2,14 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { sessionApi, sessionModel } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
-function CurrentUserPreview() {
-  const { data: user, isLoading, isError } = sessionApi.useCurrentUser();
-
-  // TODO: Add error handle
-  if (isError) return <div>error</div>;
-  // TODO: Add fallback
-  if (isLoading) return <div>loading</div>;
-
-  const { image = '', username } = user;
-
-  return (
-    <>
-      <img className="user-pic" src={image} alt={username} />
-      {username}
-    </>
-  );
-}
-
 export function MainLayout() {
   const isAuth = sessionModel.useAuth();
+  const {
+    data: user,
+    isLoading,
+    isError,
+    isSuccess,
+  } = sessionApi.useCurrentUser({ enabled: isAuth });
 
   return (
     <>
@@ -74,9 +62,21 @@ export function MainLayout() {
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/qwerty">
-                  <CurrentUserPreview />
-                </NavLink>
+                {isLoading && <div>loading</div>}
+                {isError && <div>error: </div>}
+                {isSuccess && (
+                  <NavLink
+                    className="nav-link"
+                    to={PATH_PAGE.profile.root(user.username)}
+                  >
+                    <img
+                      className="user-pic"
+                      src={user.image || ''}
+                      alt={user.username}
+                    />
+                    {user.username}
+                  </NavLink>
+                )}
               </li>
             </ul>
           )}
