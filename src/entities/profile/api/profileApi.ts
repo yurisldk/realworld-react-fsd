@@ -1,7 +1,7 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { conduitApi } from '~shared/api';
 
-type Profile = {
+export type Profile = {
   username: string;
   bio: string;
   image: string;
@@ -21,8 +21,8 @@ function mapProfileDto(
 export function useProfile(profile: string, options?: UseProfileOptions) {
   return useQuery(
     ['profile', profile],
-    async () => {
-      const profileDto = await conduitApi.Profile.profile(profile);
+    async ({ signal }) => {
+      const profileDto = await conduitApi.Profile.profile(profile, signal);
       return mapProfileDto(profileDto);
     },
     options,

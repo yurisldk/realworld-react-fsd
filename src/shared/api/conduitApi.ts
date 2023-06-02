@@ -58,6 +58,15 @@ type ArticlesUserFeedParams = {
   limit?: number;
 };
 
+type ArticleData = {
+  article: {
+    title: string;
+    description: string;
+    body: string;
+    tagList: string[];
+  };
+};
+
 export const Articles = {
   global: async (
     params?: ArticlesGlobalParams,
@@ -97,6 +106,19 @@ export const Articles = {
 
   article: async (slug: Slug) => {
     const response = await fetcher(`articles/${slug}`);
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+
+  createArticle: async (
+    data: ArticleData,
+  ): Promise<Record<'article', ArticleDto>> => {
+    const response = await fetcher('articles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
 
     if (!response.ok) throw new Error(response.statusText);
 
@@ -144,6 +166,28 @@ export const Profile = {
     signal?: AbortSignal,
   ): Promise<Record<'profile', ProfileDto>> => {
     const response = await fetcher(`/profiles/${profile}`, { signal });
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+
+  follow: async (username: string): Promise<Record<'profile', ProfileDto>> => {
+    const response = await fetcher(`profiles/${username}/follow`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) throw new Error(response.statusText);
+
+    return response.json();
+  },
+
+  unfollow: async (
+    username: string,
+  ): Promise<Record<'profile', ProfileDto>> => {
+    const response = await fetcher(`profiles/${username}/follow`, {
+      method: 'DELETE',
+    });
 
     if (!response.ok) throw new Error(response.statusText);
 

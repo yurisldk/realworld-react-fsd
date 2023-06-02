@@ -1,6 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { profileApi } from '~entities/profile';
 import { sessionModel } from '~entities/session';
+import { ToggleFollowButton } from '~features/profile';
+import { PATH_PAGE } from '~shared/lib/react-router';
 
 type ProfileCardProps = {
   username: string;
@@ -40,13 +43,15 @@ export function ProfileCard(props: ProfileCardProps) {
               />
               <h4>{profile.username}</h4>
               <p>{profile.bio}</p>
-              <button
-                className="btn btn-sm btn-outline-secondary action-btn"
-                type="button"
-              >
-                <i className="ion-plus-round" />
-                &nbsp; Follow {profile.username}
-              </button>
+              {!isCurrentUser && <ToggleFollowButton profile={profile} />}
+              {isCurrentUser && (
+                <Link
+                  className="btn btn-sm btn-outline-secondary action-btn"
+                  to={PATH_PAGE.settings}
+                >
+                  <i className="ion-gear-a" /> Edit Profile Settings
+                </Link>
+              )}
             </div>
           )}
         </div>
