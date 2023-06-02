@@ -1,5 +1,6 @@
 import { Navigate, useRoutes } from 'react-router-dom';
 import { sessionModel } from '~entities/session';
+import { EditorPage } from '~pages/editor';
 import { HomePage } from '~pages/home';
 import { MainLayout } from '~pages/layouts';
 import { LoginPage } from '~pages/login';
@@ -63,6 +64,27 @@ export function Router() {
               <SettingsPage />
             </GuestGuard>
           ),
+        },
+        {
+          path: 'editor',
+          children: [
+            {
+              element: (
+                <GuestGuard>
+                  <EditorPage />
+                </GuestGuard>
+              ),
+              index: true,
+            },
+            {
+              path: ':slug',
+              element: (
+                <GuestGuard>
+                  <EditorPage edit />
+                </GuestGuard>
+              ),
+            },
+          ],
         },
         {
           path: 'profile',
