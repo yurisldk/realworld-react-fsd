@@ -36,17 +36,12 @@ export function MainLayout() {
           {user && (
             <ul className="nav navbar-nav pull-xs-right">
               <li className="nav-item">
-                <NavLink
-                  className={({ isActive }) =>
-                    isActive ? 'nav-link active' : 'nav-link'
-                  }
-                  to={PATH_PAGE.root}
-                >
+                <NavLink className="nav-link" to={PATH_PAGE.root}>
                   Home
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/qwerty">
+                <NavLink className="nav-link" to={PATH_PAGE.editor.root}>
                   <i className="ion-compose" />
                   &nbsp;New Article
                 </NavLink>
