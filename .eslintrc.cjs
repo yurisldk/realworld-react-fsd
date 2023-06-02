@@ -2,6 +2,7 @@ module.exports = {
   env: { browser: true, es2020: true },
   extends: [
     'plugin:eslint-plugin-import/recommended',
+    'plugin:react-hooks/recommended',
     'eslint-config-airbnb',
     'eslint-config-prettier',
   ],

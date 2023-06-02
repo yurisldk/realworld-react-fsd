@@ -47,5 +47,6 @@ export const createArticleFilterSlice: StateCreator<
 });
 
 export function selectFilter(model: StoreApi<ArticleFilterState>) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   return useStore(model, (state) => state.filter);
 }
