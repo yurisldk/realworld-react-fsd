@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { realworldApi } from '~shared/api/realworld';
 import { ArticleFilter } from '../model/articleFilterModel';
 
@@ -55,3 +55,9 @@ export const useCommonInfinityArticles = (
     },
   });
 };
+
+export const useArticle = (slug: string) =>
+  useQuery(['article', slug], async () => {
+    const response = await realworldApi.articles.getArticle(slug);
+    return response.data.article;
+  });

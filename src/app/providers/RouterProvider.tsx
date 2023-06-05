@@ -1,5 +1,6 @@
 import { Navigate, useRoutes } from 'react-router-dom';
 import { sessionModel } from '~entities/session';
+import { ArticlePage } from '~pages/article';
 import { EditorPage } from '~pages/editor';
 import { HomePage } from '~pages/home';
 import { MainLayout } from '~pages/layouts';
@@ -95,6 +96,16 @@ export function Router() {
             },
             { path: ':username', element: <ProfilePage /> },
             { path: ':username/favorites', element: <ProfilePage favorites /> },
+          ],
+        },
+        {
+          path: 'article',
+          children: [
+            {
+              element: <Navigate to={PATH_PAGE.page404} replace />,
+              index: true,
+            },
+            { path: ':slug', element: <ArticlePage /> },
           ],
         },
       ],

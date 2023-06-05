@@ -11,5 +11,8 @@ export const PATH_PAGE = {
     root: '/editor',
     edit: (slug: string) => `/editor/${slug}`,
   },
+  article: {
+    slug: (slug: string) => `article/${slug}`,
+  },
   page404: '/404',
 };
