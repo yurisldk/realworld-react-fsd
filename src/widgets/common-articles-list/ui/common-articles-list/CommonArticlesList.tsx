@@ -2,6 +2,7 @@ import { StoreApi } from 'zustand';
 import {
   articleApi,
   articleFilterModel,
+  ArticleMeta,
   ArticlePreviewCard,
   ArticlesList,
   LoadMoreButton,
@@ -42,17 +43,22 @@ export function CommonArticlesList(props: CommonArticlesListProps) {
         <ArticlePreviewCard
           key={article.slug}
           article={article}
-          actionSlot={
-            isAuth ? (
-              <ToggleFavoriteArticleButton
-                queryKey={queryKey}
-                article={article}
-              />
-            ) : (
-              <NavigateToLoginFavoriteButton
-                favoritesCount={article.favoritesCount}
-              />
-            )
+          meta={
+            <ArticleMeta
+              article={article}
+              actionSlot={
+                isAuth ? (
+                  <ToggleFavoriteArticleButton
+                    queryKey={queryKey}
+                    article={article}
+                  />
+                ) : (
+                  <NavigateToLoginFavoriteButton
+                    favoritesCount={article.favoritesCount}
+                  />
+                )
+              }
+            />
           }
         />
       )}

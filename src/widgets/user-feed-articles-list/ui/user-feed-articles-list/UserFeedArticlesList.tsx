@@ -1,5 +1,6 @@
 import {
   articleApi,
+  ArticleMeta,
   ArticlePreviewCard,
   ArticlesList,
   LoadMoreButton,
@@ -34,10 +35,15 @@ export function UserFeedArticlesList() {
         <ArticlePreviewCard
           key={article.slug}
           article={article}
-          actionSlot={
-            <ToggleFavoriteArticleButton
-              queryKey={queryKey}
+          meta={
+            <ArticleMeta
               article={article}
+              actionSlot={
+                <ToggleFavoriteArticleButton
+                  queryKey={queryKey}
+                  article={article}
+                />
+              }
             />
           }
         />
