@@ -1,5 +1,8 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useNavigate } from 'react-router-dom';
 import { object, string } from 'yup';
+import { useCreateArticle } from '~features/article';
+import { PATH_PAGE } from '~shared/lib/react-router';
 
 type EditorPageProps = {
   edit?: boolean;
@@ -8,6 +11,10 @@ type EditorPageProps = {
 export function EditorPage(props: EditorPageProps) {
   const { edit } = props;
   console.log(edit);
+
+  const createArtilce = useCreateArticle();
+
+  const navigate = useNavigate();
 
   return (
     <div className="editor-page">
@@ -29,8 +36,10 @@ export function EditorPage(props: EditorPageProps) {
                 tagList: string().required('required'),
               })}
               // TODO: handle server errors
+              // TODO: navigate to article page
               onSubmit={async (values) => {
-                console.log(values);
+                await createArtilce.mutateAsync(values);
+                navigate(PATH_PAGE.root);
               }}
             >
               {({ isSubmitting }) => (
