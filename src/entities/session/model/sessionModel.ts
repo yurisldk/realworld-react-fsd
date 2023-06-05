@@ -1,13 +1,13 @@
 import { StateCreator, createStore, useStore } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { conduitApi } from '~shared/api';
+import { realworldApi } from '~shared/api/realworld';
 
 type User = {
   email: string;
   token: string;
   username: string;
-  bio?: string | null;
-  image?: string | null;
+  bio: string;
+  image: string;
 };
 
 type SessionState = {
@@ -26,12 +26,12 @@ const createSessionSlice: StateCreator<
 
   addUser: (user: User) => {
     set({ user }, false, 'session/addUser');
-    conduitApi.setToken(user.token);
+    realworldApi.setSecurityData(user.token);
   },
 
   deleteUser: () => {
     set({ user: null }, false, 'session/deleteUser');
-    conduitApi.deleteToken();
+    realworldApi.setSecurityData(null);
   },
 });
 
@@ -49,8 +49,8 @@ export const sessionStore = createStore<SessionState>()(
         if (!state) return;
 
         const { user } = state;
-        if (user) conduitApi.setToken(user.token);
-        if (!user) conduitApi.deleteToken();
+        if (user) realworldApi.setSecurityData(user.token);
+        if (!user) realworldApi.setSecurityData(null);
       },
     },
   ),

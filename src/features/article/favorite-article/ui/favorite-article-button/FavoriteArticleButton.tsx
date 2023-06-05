@@ -1,10 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { conduitApi } from '~shared/api';
+import { ArticleDto } from '~shared/api/realworld';
 import { useFavoriteArticle } from '../../api/favoriteArticle';
 
 type FavoriteArticleButtonProps = {
   queryKey: string[];
-  article: conduitApi.ArticleDto;
+  article: ArticleDto;
 };
 
 export function FavoriteArticleButton(props: FavoriteArticleButtonProps) {

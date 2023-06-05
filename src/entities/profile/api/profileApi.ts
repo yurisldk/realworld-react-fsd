@@ -1,5 +1,5 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
-import { conduitApi } from '~shared/api';
+import { ProfileDto, realworldApi } from '~shared/api/realworld';
 
 export type Profile = {
   username: string;
@@ -10,20 +10,24 @@ export type Profile = {
 
 type UseProfileOptions = UseQueryOptions<Profile, unknown, Profile, string[]>;
 
-function mapProfileDto(
-  profileDto: Record<'profile', conduitApi.ProfileDto>,
-): Profile {
-  return {
-    ...profileDto.profile,
-  };
+function mapProfileDto(profileDto: ProfileDto): Profile {
+  return { ...profileDto };
 }
 
-export function useProfile(profile: string, options?: UseProfileOptions) {
+export function useProfile(
+  profile: string,
+  options?: UseProfileOptions,
+  secure?: boolean,
+) {
   return useQuery(
     ['profile', profile],
     async ({ signal }) => {
-      const profileDto = await conduitApi.Profile.profile(profile, signal);
-      return mapProfileDto(profileDto);
+      const response = await realworldApi.profiles.getProfileByUsername(
+        profile,
+        { signal, secure },
+      );
+
+      return mapProfileDto(response.data.profile);
     },
     options,
   );

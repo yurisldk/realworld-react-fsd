@@ -1,11 +1,11 @@
-import { conduitApi } from '~shared/api';
 // FIXME: crossimport!
+import { ArticleDto } from '~shared/api/realworld';
 import { FavoriteArticleButton } from '../../../favorite-article';
 import { UnfavoriteArticleButton } from '../../../unfavorite-article';
 
 type ToggleFavoriteArticleButtonProps = {
   queryKey: string[];
-  article: conduitApi.ArticleDto;
+  article: ArticleDto;
 };
 
 export function ToggleFavoriteArticleButton(

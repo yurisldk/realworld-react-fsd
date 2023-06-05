@@ -23,13 +23,17 @@ export function SettingsPage() {
             <h1 className="text-xs-center">Your Settings</h1>
 
             <Formik
-              initialValues={{ ...user!, password: undefined }}
+              initialValues={{
+                ...user!,
+                password: undefined,
+                ...(!user!.bio && { bio: undefined }),
+              }}
               // TODO: add correct validation
               validationSchema={object().shape({
                 email: string().required('required'),
                 token: string().required('required'),
                 username: string().required('required'),
-                bio: string(),
+                bio: string().required('required'),
                 image: string().required('required'),
                 password: string(),
               })}

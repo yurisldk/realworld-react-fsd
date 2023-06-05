@@ -1,4 +1,4 @@
-import { Api } from './Api';
+import { Api, ContentType } from './Api';
 import type {
   LoginUserDto,
   NewUserDto,
@@ -14,7 +14,13 @@ import type {
   HttpResponse,
 } from './Api';
 
-const realworldApi = new Api({
+const realworldApi = new Api<string>({
+  baseApiParams: {
+    headers: {
+      'Content-Type': ContentType.Json,
+    },
+    format: 'json',
+  },
   securityWorker: (token) =>
     token ? { headers: { Authorization: `Token ${token}` } } : {},
 });

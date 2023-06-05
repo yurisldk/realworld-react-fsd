@@ -1,14 +1,19 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { profileApi } from '~entities/profile';
-import { conduitApi } from '~shared/api';
+import { realworldApi } from '~shared/api/realworld';
 
 /**
  * @see https://tanstack.com/query/v4/docs/react/guides/optimistic-updates
  */
 export const useUnfollowUser = (queryClient: QueryClient) =>
   useMutation(
-    async (profile: profileApi.Profile) =>
-      conduitApi.Profile.unfollow(profile.username),
+    async (profile: profileApi.Profile) => {
+      const response = await realworldApi.profiles.unfollowUserByUsername(
+        profile.username,
+      );
+
+      return response.data.profile;
+    },
     {
       onMutate: async (profile) => {
         await queryClient.cancelQueries({
@@ -34,7 +39,7 @@ export const useUnfollowUser = (queryClient: QueryClient) =>
 
       onSettled: (updatedProfile) => {
         queryClient.invalidateQueries({
-          queryKey: ['profile', updatedProfile?.profile.username],
+          queryKey: ['profile', updatedProfile?.username],
         });
       },
     },

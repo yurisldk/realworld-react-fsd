@@ -1,14 +1,17 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { sessionApi } from '~entities/session';
-import { conduitApi } from '~shared/api';
+import { realworldApi } from '~shared/api/realworld';
 
 /**
  * @see https://tanstack.com/query/v4/docs/react/guides/optimistic-updates
  */
 export const useUpdateCurrentUser = (queryClient: QueryClient) =>
   useMutation(
-    async (user: sessionApi.User) =>
-      conduitApi.Auth.updateCurrentUser({ user }),
+    async (user: sessionApi.User) => {
+      const response = await realworldApi.user.updateCurrentUser({ user });
+
+      return response.data.user;
+    },
     {
       onMutate: async (newUser) => {
         await queryClient.cancelQueries({ queryKey: ['currentUser'] });

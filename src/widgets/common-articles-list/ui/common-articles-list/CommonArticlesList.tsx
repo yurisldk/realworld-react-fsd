@@ -18,6 +18,8 @@ type CommonArticlesListProps = {
 export function CommonArticlesList(props: CommonArticlesListProps) {
   const { model, queryKey } = props;
 
+  const isAuth = sessionModel.useAuth();
+
   const filter = articleFilterModel.selectFilter(model);
 
   const {
@@ -26,9 +28,7 @@ export function CommonArticlesList(props: CommonArticlesListProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = articleApi.useCommonInfinityArticles(queryKey, filter);
-
-  const isAuth = sessionModel.useAuth();
+  } = articleApi.useCommonInfinityArticles(queryKey, filter, isAuth);
 
   return (
     // TODO: pass error and handle it

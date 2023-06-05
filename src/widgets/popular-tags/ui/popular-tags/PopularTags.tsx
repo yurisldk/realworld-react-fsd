@@ -10,7 +10,7 @@ type PopularTagsProps = {
 export function PopularTags(props: PopularTagsProps) {
   const { model } = props;
 
-  const { data: tagsData, isLoading: isTagsLoading } = tagApi.useGlobalTags();
+  const { data: tags, isLoading: isTagsLoading } = tagApi.useGlobalTags();
 
   return (
     <div className="sidebar">
@@ -18,9 +18,9 @@ export function PopularTags(props: PopularTagsProps) {
       <div className="tag-list">
         {isTagsLoading && 'Loading tags...'}
 
-        {tagsData &&
-          tagsData.tags.length &&
-          tagsData.tags.map((tag) => (
+        {tags &&
+          tags.length &&
+          tags.map((tag) => (
             <FilterArticleTagButton
               key={tag}
               model={model}

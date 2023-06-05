@@ -1,14 +1,17 @@
 import { ReactNode } from 'react';
 import { InfiniteData } from '@tanstack/react-query';
-import { conduitApi } from '~shared/api';
+import { ArticleDto } from '~shared/api/realworld';
 
 type ArticlesListProps = {
   isLoading: boolean;
   isError: boolean;
   isSuccess: boolean;
   hasNextPage?: boolean;
-  infinityArticles?: InfiniteData<conduitApi.ArticlesDto>;
-  renderArticles: (article: conduitApi.ArticleDto) => ReactNode;
+  infinityArticles?: InfiniteData<{
+    articles: ArticleDto[];
+    articlesCount: number;
+  }>;
+  renderArticles: (article: ArticleDto) => ReactNode;
   nextPageAction: ReactNode;
 };
 

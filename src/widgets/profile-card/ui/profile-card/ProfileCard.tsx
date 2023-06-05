@@ -26,7 +26,7 @@ export function ProfileCard(props: ProfileCardProps) {
     isLoading,
     isError,
     isSuccess,
-  } = profileApi.useProfile(username, { enabled: !isCurrentUser });
+  } = profileApi.useProfile(username, { enabled: !isCurrentUser }, !!user);
 
   return (
     <div className="user-info">

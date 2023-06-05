@@ -1,6 +1,4 @@
 import { StateCreator, StoreApi, useStore } from 'zustand';
-// TODO: remove these
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 // @ts-expect-error
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { devtools } from 'zustand/middleware';

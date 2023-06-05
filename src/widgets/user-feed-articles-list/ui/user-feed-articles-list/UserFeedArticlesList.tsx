@@ -15,7 +15,13 @@ export function UserFeedArticlesList() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isError,
+    error,
   } = articleApi.useUserFeedArticles(queryKey);
+
+  if (isError) {
+    console.log(error);
+  }
 
   return (
     <ArticlesList

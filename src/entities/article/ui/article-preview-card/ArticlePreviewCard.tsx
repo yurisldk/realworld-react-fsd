@@ -1,11 +1,11 @@
 import { ReactNode } from 'react';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
-import { conduitApi } from '~shared/api';
+import { ArticleDto } from '~shared/api/realworld';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
 type ArticlePreviewCardProps = {
-  article: conduitApi.ArticleDto;
+  article: ArticleDto;
   actionSlot?: ReactNode;
 };
 
