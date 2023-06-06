@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { object, string } from 'yup';
-import { sessionModel } from '~entities/session';
+import { sessionApi, sessionModel } from '~entities/session';
 import { LogoutButton, useUpdateCurrentUser } from '~features/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
 import { ErrorsList } from '~shared/ui/errors-list';
@@ -14,7 +14,12 @@ export function SettingsPage() {
 
   const queryClient = useQueryClient();
 
-  const { mutate, isError, error } = useUpdateCurrentUser(queryClient);
+  const queryKey = sessionApi.sessionKeys.session.currentUser();
+
+  const { mutate, isError, error } = useUpdateCurrentUser(
+    queryKey,
+    queryClient,
+  );
 
   return (
     <div className="settings-page">

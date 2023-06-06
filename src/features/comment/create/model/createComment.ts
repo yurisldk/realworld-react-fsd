@@ -1,4 +1,5 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
+import { sessionApi } from '~entities/session';
 import {
   CommentDto,
   GenericErrorModelDto,
@@ -36,7 +37,9 @@ export function useCreateComment(
         await queryClient.cancelQueries({ queryKey });
 
         // TODO: add sessionKeys to sessionApi
-        const user = queryClient.getQueryData<UserDto>(['currentUser']);
+        const user = queryClient.getQueryData<UserDto>(
+          sessionApi.sessionKeys.session.currentUser(),
+        );
 
         if (!user) return undefined;
 

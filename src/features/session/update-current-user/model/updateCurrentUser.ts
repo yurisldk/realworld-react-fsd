@@ -7,7 +7,10 @@ import {
   realworldApi,
 } from '~shared/api/realworld';
 
-export const useUpdateCurrentUser = (queryClient: QueryClient) =>
+export const useUpdateCurrentUser = (
+  queryKey: unknown[],
+  queryClient: QueryClient,
+) =>
   useMutation<
     UserDto,
     HttpResponse<unknown, GenericErrorModelDto>,
@@ -24,21 +27,21 @@ export const useUpdateCurrentUser = (queryClient: QueryClient) =>
     },
     {
       onMutate: async (newUser) => {
-        await queryClient.cancelQueries({ queryKey: ['currentUser'] });
+        await queryClient.cancelQueries({ queryKey });
 
-        const prevUser = queryClient.getQueryData(['currentUser']);
+        const prevUser = queryClient.getQueryData(queryKey);
 
-        queryClient.setQueryData(['currentUser'], newUser);
+        queryClient.setQueryData(queryKey, newUser);
 
         return { prevUser, newUser };
       },
 
       onError: (_, __, context) => {
-        queryClient.setQueryData(['currentUser'], context?.prevUser);
+        queryClient.setQueryData(queryKey, context?.prevUser);
       },
 
       onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+        queryClient.invalidateQueries({ queryKey });
       },
     },
   );

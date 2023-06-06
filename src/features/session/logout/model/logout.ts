@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
-import { sessionModel } from '~entities/session';
+import { sessionApi, sessionModel } from '~entities/session';
 
 export function logout(queryClient: QueryClient) {
   sessionModel.deleteToken();
-  queryClient.removeQueries(['currentUser']);
+  queryClient.removeQueries(sessionApi.sessionKeys.session.currentUser());
 }

@@ -22,7 +22,20 @@ export type User = {
   image: string;
 };
 
-type UseCurrentUserOptions = UseQueryOptions<User, unknown, User, string[]>;
+export const sessionKeys = {
+  session: {
+    root: ['session'],
+    currentUser: () => [...sessionKeys.session.root, 'currentUser'],
+  },
+};
+
+type UseCurrentUserQuery = UseQueryOptions<
+  User,
+  HttpResponse<unknown, GenericErrorModelDto>,
+  User,
+  string[]
+>;
+type UseCurrentUserOptions = Omit<UseCurrentUserQuery, 'queryKey' | 'queryFn'>;
 
 function mapUserDto(userDto: UserDto): User {
   return { ...userDto };
@@ -30,9 +43,9 @@ function mapUserDto(userDto: UserDto): User {
 
 // TODO: add DI model.addUser(user)
 export const useCurrentUser = (options?: UseCurrentUserOptions) =>
-  useQuery(
-    ['currentUser'],
-    async ({ signal }) => {
+  useQuery({
+    queryKey: sessionKeys.session.currentUser(),
+    queryFn: async ({ signal }) => {
       const response = await realworldApi.user.getCurrentUser({ signal });
 
       const user = mapUserDto(response.data.user);
@@ -41,8 +54,8 @@ export const useCurrentUser = (options?: UseCurrentUserOptions) =>
 
       return user;
     },
-    options,
-  );
+    ...options,
+  });
 
 type UseRegisterUserMutation = UseMutationOptions<
   HttpResponse<{ user: UserDto }, unknown>,
