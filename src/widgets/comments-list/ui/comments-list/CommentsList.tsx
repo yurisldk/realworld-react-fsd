@@ -1,5 +1,6 @@
 import { CommentCard, commentApi } from '~entities/comment';
 import { sessionModel } from '~entities/session';
+import { DeleteCommentIconButtton } from '~features/comment';
 import { ErrorsList } from '~shared/ui/errors-list';
 
 type CommentsListProps = {
@@ -26,7 +27,11 @@ export function CommentsList(props: CommentsListProps) {
   return (
     <div>
       {comments.map((comment) => (
-        <CommentCard key={comment.id} comment={comment} />
+        <CommentCard
+          key={comment.id}
+          comment={comment}
+          actions={<DeleteCommentIconButtton slug={slug} id={comment.id} />}
+        />
       ))}
     </div>
   );

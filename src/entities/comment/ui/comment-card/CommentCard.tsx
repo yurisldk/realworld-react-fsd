@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 import { CommentDto } from '~shared/api/realworld';
@@ -5,10 +6,11 @@ import { PATH_PAGE } from '~shared/lib/react-router';
 
 type CommentCardProps = {
   comment: CommentDto;
+  actions?: ReactNode;
 };
 
 export function CommentCard(props: CommentCardProps) {
-  const { comment } = props;
+  const { comment, actions } = props;
   const { createdAt } = comment;
 
   const formatedDate = dayjs(createdAt).format('MMMM D, YYYY');
@@ -37,6 +39,7 @@ export function CommentCard(props: CommentCardProps) {
           {comment.author.username}
         </Link>
         <span className="date-posted">{formatedDate}</span>
+        {actions}
       </div>
     </div>
   );
