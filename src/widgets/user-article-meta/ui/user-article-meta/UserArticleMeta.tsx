@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArticleMeta } from '~entities/article';
+import { DeleteArticleButton } from '~features/article';
 import { ArticleDto } from '~shared/api/realworld';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
@@ -23,9 +24,7 @@ export function UserArticleMeta(props: UserArticleMetaProps) {
             <i className="ion-edit" /> Edit Article
           </Link>
           &nbsp;&nbsp;
-          <button className="btn btn-outline-danger btn-sm" type="button">
-            <i className="ion-trash-a" /> Delete Article
-          </button>
+          <DeleteArticleButton slug={slug} />
         </>
       }
     />
