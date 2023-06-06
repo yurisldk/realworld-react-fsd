@@ -1,9 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { realworldApi } from '~shared/api/realworld';
 
-export const useGlobalTags = () =>
-  useQuery(['tags', 'global'], async ({ signal }) => {
-    const response = await realworldApi.tags.getTags({ signal });
+export const tagKeys = {
+  tags: {
+    root: ['tags'],
+    global: () => [...tagKeys.tags.root, 'global'],
+  },
+};
 
-    return response.data.tags;
+export const useGlobalTags = () =>
+  useQuery({
+    queryKey: tagKeys.tags.global(),
+    queryFn: async ({ signal }) => {
+      const response = await realworldApi.tags.getTags({ signal });
+      return response.data.tags;
+    },
   });
