@@ -16,6 +16,7 @@ export type ArticleFilter = {
 export type ArticleFilterState = {
   filter: ArticleFilter;
   setFilter: (filter: ArticleFilter) => void;
+  resetFilter: (initialState: ArticleFilter) => void;
 };
 
 const initialFilterState: ArticleFilter = {
@@ -42,6 +43,9 @@ export const createArticleFilterSlice: StateCreator<
       false,
       'articleFilter/setFilter',
     ),
+
+  resetFilter: (initialState: ArticleFilter) =>
+    set(() => ({ filter: initialState }), false, 'articleFilter/resetFilter'),
 });
 
 export function selectFilter(model: StoreApi<ArticleFilterState>) {
