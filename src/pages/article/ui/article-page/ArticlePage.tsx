@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { articleApi } from '~entities/article';
 import { sessionModel } from '~entities/session';
+import { CommentsList } from '~widgets/comments-list';
 import { ProfileArticleMeta } from '~widgets/profile-article-meta';
 import { UserArticleMeta } from '~widgets/user-article-meta';
 
@@ -54,7 +55,7 @@ export function ArticlePage() {
           {isAuth && <UserArticleMeta slug={slug!} article={article} />}
         </div>
 
-        {/* <div className="row">
+        <div className="row">
           <div className="col-xs-12 col-md-8 offset-md-2">
             <form className="card comment-form">
               <div className="card-block">
@@ -76,57 +77,9 @@ export function ArticlePage() {
               </div>
             </form>
 
-            <div className="card">
-              <div className="card-block">
-                <p className="card-text">
-                  With supporting text below as a natural lead-in to additional
-                  content.
-                </p>
-              </div>
-              <div className="card-footer">
-                <a href="/" className="comment-author">
-                  <img
-                    src="http://i.imgur.com/Qr71crq.jpg"
-                    className="comment-author-img"
-                    alt="qwert"
-                  />
-                </a>
-                &nbsp;
-                <a href="/" className="comment-author">
-                  Jacob Schmidt
-                </a>
-                <span className="date-posted">Dec 29th</span>
-              </div>
-            </div>
-
-            <div className="card">
-              <div className="card-block">
-                <p className="card-text">
-                  With supporting text below as a natural lead-in to additional
-                  content.
-                </p>
-              </div>
-              <div className="card-footer">
-                <a href="/" className="comment-author">
-                  <img
-                    src="http://i.imgur.com/Qr71crq.jpg"
-                    className="comment-author-img"
-                    alt="qwert"
-                  />
-                </a>
-                &nbsp;
-                <a href="/" className="comment-author">
-                  Jacob Schmidt
-                </a>
-                <span className="date-posted">Dec 29th</span>
-                <span className="mod-options">
-                  <i className="ion-edit" />
-                  <i className="ion-trash-a" />
-                </span>
-              </div>
-            </div>
+            <CommentsList slug={slug!} />
           </div>
-        </div> */}
+        </div>
       </div>
     </div>
   );
