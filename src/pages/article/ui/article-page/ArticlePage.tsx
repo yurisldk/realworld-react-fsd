@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { articleApi } from '~entities/article';
 import { sessionModel } from '~entities/session';
 import { CommentsList } from '~widgets/comments-list';
+import { NewCommentEditor } from '~widgets/new-comment-editor';
 import { ProfileArticleMeta } from '~widgets/profile-article-meta';
 import { UserArticleMeta } from '~widgets/user-article-meta';
 
@@ -57,26 +58,7 @@ export function ArticlePage() {
 
         <div className="row">
           <div className="col-xs-12 col-md-8 offset-md-2">
-            <form className="card comment-form">
-              <div className="card-block">
-                <textarea
-                  className="form-control"
-                  placeholder="Write a comment..."
-                  rows={3}
-                />
-              </div>
-              <div className="card-footer">
-                <img
-                  src="http://i.imgur.com/Qr71crq.jpg"
-                  className="comment-author-img"
-                  alt="qwert"
-                />
-                <button className="btn btn-sm btn-primary" type="submit">
-                  Post Comment
-                </button>
-              </div>
-            </form>
-
+            <NewCommentEditor slug={slug!} />
             <CommentsList slug={slug!} />
           </div>
         </div>
