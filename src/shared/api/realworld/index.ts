@@ -12,6 +12,7 @@ import type {
   NewCommentDto,
   GenericErrorModelDto,
   HttpResponse,
+  RequestParams,
 } from './Api';
 
 const realworldApi = new Api<string>({
@@ -39,4 +40,5 @@ export {
   NewCommentDto,
   GenericErrorModelDto,
   HttpResponse,
+  RequestParams,
 };

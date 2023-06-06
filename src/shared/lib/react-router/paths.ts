@@ -12,7 +12,7 @@ export const PATH_PAGE = {
     edit: (slug: string) => `/editor/${slug}`,
   },
   article: {
-    slug: (slug: string) => `article/${slug}`,
+    slug: (slug: string) => `/article/${slug}`,
   },
   page404: '/404',
 };
