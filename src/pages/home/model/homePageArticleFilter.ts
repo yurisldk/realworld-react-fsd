@@ -1,13 +1,10 @@
 import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { articleFilterModel } from '~entities/article';
-import { sessionModel } from '~entities/session';
 
-const isAuth = Boolean(sessionModel.sessionStore.getState().user);
-
-const initialFilterState: articleFilterModel.ArticleFilter = {
-  ...(isAuth && { userfeed: true }),
-  ...(!isAuth && { global: true }),
+export const initialFilterState: articleFilterModel.ArticleFilter = {
+  limit: 10,
+  offset: 0,
 };
 
 export const homePageArticleFilterStore =

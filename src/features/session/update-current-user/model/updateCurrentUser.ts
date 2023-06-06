@@ -1,12 +1,22 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { sessionApi } from '~entities/session';
-import { realworldApi } from '~shared/api/realworld';
+import {
+  GenericErrorModelDto,
+  HttpResponse,
+  UserDto,
+  realworldApi,
+} from '~shared/api/realworld';
 
-/**
- * @see https://tanstack.com/query/v4/docs/react/guides/optimistic-updates
- */
 export const useUpdateCurrentUser = (queryClient: QueryClient) =>
-  useMutation(
+  useMutation<
+    UserDto,
+    HttpResponse<unknown, GenericErrorModelDto>,
+    sessionApi.User,
+    {
+      prevUser: unknown;
+      newUser: sessionApi.User;
+    }
+  >(
     async (user: sessionApi.User) => {
       const response = await realworldApi.user.updateCurrentUser({ user });
 

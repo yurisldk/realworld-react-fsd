@@ -1,5 +1,5 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
-import { ProfileDto, realworldApi } from '~shared/api/realworld';
+import { RequestParams, realworldApi } from '~shared/api/realworld';
 
 export type Profile = {
   username: string;
@@ -8,27 +8,31 @@ export type Profile = {
   following: boolean;
 };
 
-type UseProfileOptions = UseQueryOptions<Profile, unknown, Profile, string[]>;
+export const profileKeys = {
+  profile: {
+    root: ['profile'],
+    username: (username: string) => [...profileKeys.profile.root, username],
+  },
+};
 
-function mapProfileDto(profileDto: ProfileDto): Profile {
-  return { ...profileDto };
-}
+type UseProfileQuery = UseQueryOptions<Profile, unknown, Profile, string[]>;
+type UseProfileQueryOptions = Omit<UseProfileQuery, 'queryKey' | 'queryFn'>;
 
 export function useProfile(
-  profile: string,
-  options?: UseProfileOptions,
-  secure?: boolean,
+  username: string,
+  params?: RequestParams,
+  options?: UseProfileQueryOptions,
 ) {
-  return useQuery(
-    ['profile', profile],
-    async ({ signal }) => {
+  return useQuery({
+    queryKey: profileKeys.profile.username(username),
+    queryFn: async ({ signal }) => {
       const response = await realworldApi.profiles.getProfileByUsername(
-        profile,
-        { signal, secure },
+        username,
+        { signal, ...params },
       );
 
-      return mapProfileDto(response.data.profile);
+      return { ...response.data.profile };
     },
-    options,
-  );
+    ...options,
+  });
 }

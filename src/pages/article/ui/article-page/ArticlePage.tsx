@@ -1,73 +1,60 @@
+import { useParams } from 'react-router-dom';
+import { articleApi } from '~entities/article';
+import { sessionModel } from '~entities/session';
+import { ProfileArticleMeta } from '~widgets/profile-article-meta';
+import { UserArticleMeta } from '~widgets/user-article-meta';
+
 export function ArticlePage() {
+  const { slug } = useParams();
+
+  const isAuth = sessionModel.useAuth();
+
+  const {
+    data: article,
+    isLoading,
+    isError,
+  } = articleApi.useArticle(slug!, { secure: isAuth });
+
+  if (isLoading) return <div>loading</div>;
+  if (isError) return <div>error</div>;
+
+  const { title, body, tagList } = article;
+
   return (
     <div className="article-page">
       <div className="banner">
         <div className="container">
-          <h1>How to build webapps that scale</h1>
+          <h1>{title}</h1>
 
-          <div className="article-meta">
-            <a href="/">
-              <img src="http://i.imgur.com/Qr71crq.jpg" alt="qwert" />
-            </a>
-            <div className="info">
-              <a href="/" className="author">
-                Eric Simons
-              </a>
-              <span className="date">January 20th</span>
-            </div>
-            <button className="btn btn-sm btn-outline-secondary" type="button">
-              <i className="ion-plus-round" />
-              &nbsp; Follow Eric Simons <span className="counter">(10)</span>
-            </button>
-            &nbsp;&nbsp;
-            <button className="btn btn-sm btn-outline-primary" type="button">
-              <i className="ion-heart" />
-              &nbsp; Favorite Post <span className="counter">(29)</span>
-            </button>
-          </div>
+          {!isAuth && <ProfileArticleMeta slug={slug!} article={article} />}
+          {isAuth && <UserArticleMeta slug={slug!} article={article} />}
         </div>
       </div>
 
       <div className="container page">
         <div className="row article-content">
           <div className="col-md-12">
-            <p>
-              Web development technologies have evolved at an incredible clip
-              over the past few years.
-            </p>
-            <h2 id="introducing-ionic">Introducing RealWorld.</h2>
-            <p>
-              It&apos;s a great solution for learning how other frameworks work.
-            </p>
+            <div>
+              <p>{body}</p>
+            </div>
+            <ul className="tag-list">
+              {tagList.map((tag) => (
+                <li key={tag} className="tag-default tag-pill tag-outline">
+                  {tag}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
         <hr />
 
         <div className="article-actions">
-          <div className="article-meta">
-            <a href="profile.html">
-              <img src="http://i.imgur.com/Qr71crq.jpg" alt="qwerty" />
-            </a>
-            <div className="info">
-              <a href="/" className="author">
-                Eric Simons
-              </a>
-              <span className="date">January 20th</span>
-            </div>
-            <button className="btn btn-sm btn-outline-secondary" type="button">
-              <i className="ion-plus-round" />
-              &nbsp; Follow Eric Simons
-            </button>
-            &nbsp;
-            <button className="btn btn-sm btn-outline-primary" type="button">
-              <i className="ion-heart" />
-              &nbsp; Favorite Post <span className="counter">(29)</span>
-            </button>
-          </div>
+          {!isAuth && <ProfileArticleMeta slug={slug!} article={article} />}
+          {isAuth && <UserArticleMeta slug={slug!} article={article} />}
         </div>
 
-        <div className="row">
+        {/* <div className="row">
           <div className="col-xs-12 col-md-8 offset-md-2">
             <form className="card comment-form">
               <div className="card-block">
@@ -139,7 +126,7 @@ export function ArticlePage() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

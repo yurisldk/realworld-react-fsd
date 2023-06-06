@@ -13,15 +13,16 @@ import { NavigateToLoginFavoriteButton } from '~features/session';
 
 type CommonArticlesListProps = {
   model: StoreApi<articleFilterModel.ArticleFilterState>;
-  queryKey: string[];
 };
 
 export function CommonArticlesList(props: CommonArticlesListProps) {
-  const { model, queryKey } = props;
+  const { model } = props;
 
   const isAuth = sessionModel.useAuth();
 
   const filter = articleFilterModel.selectFilter(model);
+
+  const queryKey = articleApi.articleKeys.articles.query(filter);
 
   const {
     data: articlesData,
@@ -29,7 +30,7 @@ export function CommonArticlesList(props: CommonArticlesListProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = articleApi.useCommonInfinityArticles(queryKey, filter, isAuth);
+  } = articleApi.useCommonInfinityArticles(filter, { secure: isAuth });
 
   return (
     // TODO: pass error and handle it
@@ -51,6 +52,9 @@ export function CommonArticlesList(props: CommonArticlesListProps) {
                   <ToggleFavoriteArticleButton
                     queryKey={queryKey}
                     article={article}
+                    followTitle={article.favoritesCount.toString()}
+                    unfollowTitle={article.favoritesCount.toString()}
+                    float="right"
                   />
                 ) : (
                   <NavigateToLoginFavoriteButton

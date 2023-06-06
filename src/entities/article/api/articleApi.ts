@@ -1,63 +1,105 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { realworldApi } from '~shared/api/realworld';
+import {
+  UseQueryOptions,
+  useInfiniteQuery,
+  useQuery,
+} from '@tanstack/react-query';
+import {
+  ArticleDto,
+  GenericErrorModelDto,
+  HttpResponse,
+  RequestParams,
+  realworldApi,
+} from '~shared/api/realworld';
 import { ArticleFilter } from '../model/articleFilterModel';
 
-export const useUserFeedArticles = (queryKey: string[]) =>
-  useInfiniteQuery({
-    queryKey: ['articles', ...queryKey],
-    queryFn: async ({ pageParam = 0, signal }) => {
-      const response = await realworldApi.articles.getArticlesFeed(
-        { limit: 10, offset: pageParam },
-        { signal },
-      );
-      return response.data;
-    },
+export const articleKeys = {
+  articles: {
+    root: ['articles'],
+    query: (query: ArticleFilter) => [...articleKeys.articles.root, query],
+  },
 
-    getNextPageParam: (lastPage, pages) => {
-      const { articlesCount } = lastPage;
-      const maybeNextPageParams = pages.length * 10; // 10 is limit value
+  article: {
+    root: ['article'],
+    slug: (slug: string) => [...articleKeys.article.root, slug],
+  },
+};
 
-      const nextPageParam =
-        maybeNextPageParams >= articlesCount ? null : maybeNextPageParams;
+type UseInfinityArticlesProps = {
+  queryKey: unknown[];
+  query?: ArticleFilter;
+  params?: RequestParams;
+};
 
-      return nextPageParam;
-    },
-  });
-
-// TODO: try to use queryKey from filter
-export const useCommonInfinityArticles = (
-  queryKey: string[],
-  query?: Omit<ArticleFilter, 'userfeed' | 'global'>,
-  secure?: boolean,
-) => {
-  const searchParams = { limit: 10, offset: 0, ...query };
+const useInfinityArticles = ({
+  queryKey,
+  query,
+  params,
+}: UseInfinityArticlesProps) => {
+  const { userfeed, global, ...validQuery } = query || {};
+  const searchParams = { limit: 10, offset: 0, ...validQuery };
 
   return useInfiniteQuery({
-    queryKey: ['articles', ...queryKey],
+    queryKey,
 
     queryFn: async ({ pageParam = searchParams.offset, signal }) => {
-      const response = await realworldApi.articles.getArticles(
+      const queryFn = query?.userfeed
+        ? realworldApi.articles.getArticlesFeed
+        : realworldApi.articles.getArticles;
+
+      const response = await queryFn(
         { ...searchParams, offset: pageParam },
-        { signal, secure },
+        { signal, ...params },
       );
 
-      return response.data;
+      return response.data.articles;
     },
 
     getNextPageParam: (lastPage, pages) => {
-      const { articlesCount } = lastPage;
-      const maybeNextPageParams = pages.length * searchParams.limit;
-
-      const nextPageParam =
-        maybeNextPageParams >= articlesCount ? null : maybeNextPageParams;
+      const nextPageParam = lastPage.length ? pages.length * 10 : null;
 
       return nextPageParam;
     },
   });
 };
 
-export const useArticle = (slug: string) =>
-  useQuery(['article', slug], async () => {
-    const response = await realworldApi.articles.getArticle(slug);
-    return response.data.article;
+export const useCommonInfinityArticles = (
+  query?: ArticleFilter,
+  params?: RequestParams,
+) =>
+  useInfinityArticles({
+    queryKey: articleKeys.articles.query({
+      limit: 0,
+      offset: 10,
+      ...query,
+    }),
+    query,
+    params,
+  });
+
+type UseArticleQuery = UseQueryOptions<
+  ArticleDto,
+  HttpResponse<unknown, GenericErrorModelDto>,
+  ArticleDto,
+  string[]
+>;
+type UseArticleQueryOptions = Omit<UseArticleQuery, 'queryKey' | 'queryFn'>;
+
+export const useArticle = (
+  slug: string,
+  params?: RequestParams,
+  options?: UseArticleQueryOptions,
+) =>
+  useQuery({
+    queryKey: articleKeys.article.slug(slug),
+
+    queryFn: async ({ signal }) => {
+      const response = await realworldApi.articles.getArticle(slug, {
+        signal,
+        ...params,
+      });
+
+      return response.data.article;
+    },
+
+    ...options,
   });

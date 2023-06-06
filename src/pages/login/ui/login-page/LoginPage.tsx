@@ -1,9 +1,10 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { object, string } from 'yup';
 import { sessionApi, sessionModel } from '~entities/session';
+import { ErrorsList } from '~shared/ui/errors-list';
 
 export function LoginPage() {
-  const login = sessionApi.useLoginUser();
+  const { mutate, isError, error } = sessionApi.useLoginUser();
 
   return (
     <div className="auth-page">
@@ -15,6 +16,8 @@ export function LoginPage() {
               <a href="/#">Need an account?</a>
             </p>
 
+            {isError && <ErrorsList errors={error!.error.errors} />}
+
             <Formik
               initialValues={{
                 email: '',
@@ -25,14 +28,15 @@ export function LoginPage() {
                 email: string().required('requared'),
                 password: string().required('requared'),
               })}
-              // TODO: handle server errors
-              onSubmit={async (values) => {
-                const response = await login.mutateAsync(values);
-
-                if (!response.ok)
-                  throw new Error(response.error.errors.body.join(', '));
-
-                sessionModel.addUser(response.data.user);
+              onSubmit={(values, { setSubmitting }) => {
+                mutate(values, {
+                  onSuccess: (response) => {
+                    sessionModel.addUser(response.data.user);
+                  },
+                  onSettled: () => {
+                    setSubmitting(false);
+                  },
+                });
               }}
             >
               {({ isSubmitting }) => (

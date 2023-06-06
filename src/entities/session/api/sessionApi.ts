@@ -64,8 +64,8 @@ export const useRegisterUser = (options?: UseRegisterUserOptions) =>
   );
 
 type UseLoginUserOptions = UseMutationOptions<
-  HttpResponse<{ user: UserDto }, GenericErrorModelDto>,
-  unknown,
+  HttpResponse<{ user: UserDto }, unknown>,
+  HttpResponse<unknown, GenericErrorModelDto>,
   LoginUserDto,
   unknown
 >;

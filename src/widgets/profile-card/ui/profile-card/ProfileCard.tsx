@@ -26,7 +26,13 @@ export function ProfileCard(props: ProfileCardProps) {
     isLoading,
     isError,
     isSuccess,
-  } = profileApi.useProfile(username, { enabled: !isCurrentUser }, !!user);
+  } = profileApi.useProfile(
+    username,
+    { secure: !!user },
+    { enabled: !isCurrentUser },
+  );
+
+  const queryKey = profileApi.profileKeys.profile.username(username);
 
   return (
     <div className="user-info">
@@ -43,7 +49,9 @@ export function ProfileCard(props: ProfileCardProps) {
               />
               <h4>{profile.username}</h4>
               <p>{profile.bio}</p>
-              {!isCurrentUser && <ToggleFollowButton profile={profile} />}
+              {!isCurrentUser && (
+                <ToggleFollowButton queryKey={queryKey} profile={profile} />
+              )}
               {isCurrentUser && (
                 <Link
                   className="btn btn-sm btn-outline-secondary action-btn"

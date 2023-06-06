@@ -1,9 +1,10 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { object, string } from 'yup';
 import { sessionApi, sessionModel } from '~entities/session';
+import { ErrorsList } from '~shared/ui/errors-list';
 
 export function RegisterPage() {
-  const { mutateAsync, isError, error } = sessionApi.useRegisterUser();
+  const { mutate, isError, error } = sessionApi.useRegisterUser();
 
   return (
     <div className="auth-page">
@@ -15,17 +16,7 @@ export function RegisterPage() {
               <a href="/#">Have an account?</a>
             </p>
 
-            {isError && (
-              <ul className="error-messages">
-                {Object.entries(error.error.errors).map(([key, value]) =>
-                  value.map((e) => (
-                    <li key={e}>
-                      That {key} {e}
-                    </li>
-                  )),
-                )}
-              </ul>
-            )}
+            {isError && <ErrorsList errors={error!.error.errors} />}
 
             <Formik
               initialValues={{
@@ -39,10 +30,15 @@ export function RegisterPage() {
                 email: string().required('requared'),
                 password: string().required('requared'),
               })}
-              // TODO: handle server errors
-              onSubmit={async (values) => {
-                const { data } = await mutateAsync(values);
-                sessionModel.addUser(data.user);
+              onSubmit={(values, { setSubmitting }) => {
+                mutate(values, {
+                  onSuccess: (response) => {
+                    sessionModel.addUser(response.data.user);
+                  },
+                  onSettled: () => {
+                    setSubmitting(false);
+                  },
+                });
               }}
             >
               {({ isSubmitting }) => (

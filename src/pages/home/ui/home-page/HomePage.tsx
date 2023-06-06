@@ -1,11 +1,14 @@
+import { useLayoutEffect } from 'react';
 import { StoreApi } from 'zustand';
 import { articleFilterModel } from '~entities/article';
 import { sessionModel } from '~entities/session';
 import { FilterArticleTabButton } from '~features/article';
 import { CommonArticlesList } from '~widgets/common-articles-list';
 import { PopularTags } from '~widgets/popular-tags';
-import { UserFeedArticlesList } from '~widgets/user-feed-articles-list';
-import { homePageArticleFilterStore } from '../../model/homePageArticleFilter';
+import {
+  homePageArticleFilterStore,
+  initialFilterState,
+} from '../../model/homePageArticleFilter';
 
 type HomePageProps = {
   model?: StoreApi<articleFilterModel.ArticleFilterState>;
@@ -17,6 +20,15 @@ export function HomePage(props: HomePageProps) {
   const filter = articleFilterModel.selectFilter(model);
 
   const isAuth = sessionModel.useAuth();
+
+  useLayoutEffect(() => {
+    model.getState().setFilter({
+      ...(isAuth && { userfeed: true }),
+      ...(!isAuth && { global: true }),
+    });
+
+    return () => model.getState().resetFilter(initialFilterState);
+  }, [isAuth, model]);
 
   return (
     <div className="home-page">
@@ -60,17 +72,7 @@ export function HomePage(props: HomePageProps) {
               </ul>
             </div>
 
-            {isAuth && filter.userfeed && <UserFeedArticlesList />}
-            {/* TODO: try to use queryKey from filter */}
-            {filter.global && (
-              <CommonArticlesList model={model} queryKey={['global']} />
-            )}
-            {filter.tag && (
-              <CommonArticlesList
-                model={model}
-                queryKey={['tag', filter.tag]}
-              />
-            )}
+            <CommonArticlesList model={model} />
           </div>
 
           <div className="col-md-3">

@@ -5,6 +5,7 @@ import { object, string } from 'yup';
 import { sessionModel } from '~entities/session';
 import { LogoutButton, useUpdateCurrentUser } from '~features/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
+import { ErrorsList } from '~shared/ui/errors-list';
 
 export function SettingsPage() {
   const user = sessionModel.useCurrentUser();
@@ -13,7 +14,7 @@ export function SettingsPage() {
 
   const queryClient = useQueryClient();
 
-  const updateCurrentUser = useUpdateCurrentUser(queryClient);
+  const { mutate, isError, error } = useUpdateCurrentUser(queryClient);
 
   return (
     <div className="settings-page">
@@ -21,6 +22,8 @@ export function SettingsPage() {
         <div className="row">
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Your Settings</h1>
+
+            {isError && <ErrorsList errors={error!.error.errors} />}
 
             <Formik
               initialValues={{
@@ -37,10 +40,15 @@ export function SettingsPage() {
                 image: string().required('required'),
                 password: string(),
               })}
-              onSubmit={async (values) => {
-                await updateCurrentUser.mutateAsync(values);
-                // TODO: replace with user profile page
-                navigate(PATH_PAGE.root);
+              onSubmit={(values, { setSubmitting }) => {
+                mutate(values, {
+                  onSuccess: () => {
+                    navigate(PATH_PAGE.profile.root(user!.username));
+                  },
+                  onSettled: () => {
+                    setSubmitting(false);
+                  },
+                });
               }}
             >
               {({ isSubmitting }) => (

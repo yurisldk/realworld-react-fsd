@@ -7,10 +7,7 @@ type ArticlesListProps = {
   isError: boolean;
   isSuccess: boolean;
   hasNextPage?: boolean;
-  infinityArticles?: InfiniteData<{
-    articles: ArticleDto[];
-    articlesCount: number;
-  }>;
+  infinityArticles?: InfiniteData<ArticleDto[]>;
   renderArticles: (article: ArticleDto) => ReactNode;
   nextPageAction: ReactNode;
 };
@@ -36,14 +33,12 @@ export function ArticlesList(props: ArticlesListProps) {
       {isSuccess &&
         !hasNextPage &&
         infinityArticles!.pages.length === 1 &&
-        infinityArticles!.pages[0].articles.length === 0 && (
+        infinityArticles!.pages[0].length === 0 && (
           <div className="article-preview">No articles are here... yet.</div>
         )}
 
       {isSuccess &&
-        infinityArticles!.pages.map((group) =>
-          group.articles.map(renderArticles),
-        )}
+        infinityArticles!.pages.map((group) => group.map(renderArticles))}
 
       {hasNextPage && (
         <div style={{ display: 'flex', justifyContent: 'center' }}>

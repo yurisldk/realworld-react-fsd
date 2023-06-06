@@ -21,23 +21,18 @@ export function ProfilePage(props: ProfilePageProps) {
   const { model = profilePageArticleFilterStore, favorites } = props;
   const { username } = useParams();
 
-  const filter = articleFilterModel.selectFilter(model);
-
   /**
    * Not sure that's the best way but the main point is init store with
    * default falues that we can take from prop and react-router params.
    * It works for now, have to check that later. sorry =)
    */
   useLayoutEffect(() => {
-    model.setState((state) => ({
-      filter: {
-        ...state.filter,
-        ...(!favorites && { author: username }),
-        ...(favorites && { favorited: username }),
-      },
-    }));
+    model.getState().setFilter({
+      ...(!favorites && { author: username }),
+      ...(favorites && { favorited: username }),
+    });
 
-    return () => model.setState(() => ({ filter: initialFilterState }));
+    return () => model.getState().resetFilter(initialFilterState);
   }, [favorites, model, username]);
 
   return (
@@ -66,19 +61,7 @@ export function ProfilePage(props: ProfilePageProps) {
               </ul>
             </div>
 
-            {filter.author && (
-              <CommonArticlesList
-                model={model}
-                queryKey={['username', filter.author]}
-              />
-            )}
-
-            {filter.favorited && (
-              <CommonArticlesList
-                model={model}
-                queryKey={['username', filter.favorited, 'favorited']}
-              />
-            )}
+            <CommonArticlesList model={model} />
           </div>
         </div>
       </div>
