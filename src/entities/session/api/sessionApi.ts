@@ -1,14 +1,7 @@
-import {
-  UseMutationOptions,
-  UseQueryOptions,
-  useMutation,
-  useQuery,
-} from '@tanstack/react-query';
+import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import {
   GenericErrorModelDto,
   HttpResponse,
-  LoginUserDto,
-  NewUserDto,
   UserDto,
   realworldApi,
 } from '~shared/api/realworld';
@@ -26,6 +19,11 @@ export const sessionKeys = {
   session: {
     root: ['session'],
     currentUser: () => [...sessionKeys.session.root, 'currentUser'],
+  },
+
+  mutation: {
+    login: () => [...sessionKeys.session.root, 'login'],
+    create: () => [...sessionKeys.session.root, 'create'],
   },
 };
 
@@ -56,35 +54,3 @@ export const useCurrentUser = (options?: UseCurrentUserOptions) =>
     },
     ...options,
   });
-
-type UseRegisterUserMutation = UseMutationOptions<
-  HttpResponse<{ user: UserDto }, unknown>,
-  HttpResponse<unknown, GenericErrorModelDto>,
-  NewUserDto,
-  unknown
->;
-type UseRegisterUserOptions = Omit<
-  UseRegisterUserMutation,
-  'mutationKey' | 'mutationFn'
->;
-
-// TODO: move to features
-export const useRegisterUser = (options?: UseRegisterUserOptions) =>
-  useMutation(
-    (user: NewUserDto): Promise<HttpResponse<{ user: UserDto }, unknown>> =>
-      realworldApi.users.createUser({ user }),
-    options,
-  );
-
-type UseLoginUserOptions = UseMutationOptions<
-  HttpResponse<{ user: UserDto }, unknown>,
-  HttpResponse<unknown, GenericErrorModelDto>,
-  LoginUserDto,
-  unknown
->;
-
-export const useLoginUser = (oprions?: UseLoginUserOptions) =>
-  useMutation(
-    (user: LoginUserDto) => realworldApi.users.login({ user }),
-    oprions,
-  );

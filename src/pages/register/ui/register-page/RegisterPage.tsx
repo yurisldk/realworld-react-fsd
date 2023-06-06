@@ -1,10 +1,11 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { object, string } from 'yup';
-import { sessionApi, sessionModel } from '~entities/session';
+import { sessionModel } from '~entities/session';
+import { useCreateUser } from '~features/session';
 import { ErrorsList } from '~shared/ui/errors-list';
 
 export function RegisterPage() {
-  const { mutate, isError, error } = sessionApi.useRegisterUser();
+  const { mutate, isError, error } = useCreateUser();
 
   return (
     <div className="auth-page">

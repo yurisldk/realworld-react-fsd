@@ -1,10 +1,11 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { object, string } from 'yup';
-import { sessionApi, sessionModel } from '~entities/session';
+import { sessionModel } from '~entities/session';
+import { useLoginUser } from '~features/session';
 import { ErrorsList } from '~shared/ui/errors-list';
 
 export function LoginPage() {
-  const { mutate, isError, error } = sessionApi.useLoginUser();
+  const { mutate, isError, error } = useLoginUser();
 
   return (
     <div className="auth-page">
