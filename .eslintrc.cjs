@@ -94,6 +94,16 @@ module.exports = {
       plugins: ['@typescript-eslint/eslint-plugin'],
       rules: {
         '@typescript-eslint/indent': 'off',
+        'import/no-extraneous-dependencies': [
+          'error',
+          {
+            devDependencies: [
+              '**/msw/**',
+              '**/react-query/utils.tsx',
+              '**/react-router/utils.ts',
+            ],
+          },
+        ],
       },
     },
     // tests
