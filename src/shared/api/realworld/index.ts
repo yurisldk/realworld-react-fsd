@@ -15,6 +15,11 @@ import type {
   RequestParams,
 } from './Api';
 
+type GenericErrorModel = HttpResponse<
+  unknown,
+  GenericErrorModelDto | { message: string }
+>;
+
 const realworldApi = new Api<string>({
   baseApiParams: {
     headers: {
@@ -26,8 +31,8 @@ const realworldApi = new Api<string>({
     token ? { headers: { Authorization: `Token ${token}` } } : {},
 });
 
-export {
-  realworldApi,
+export { realworldApi };
+export type {
   LoginUserDto,
   NewUserDto,
   UserDto,
@@ -41,4 +46,5 @@ export {
   GenericErrorModelDto,
   HttpResponse,
   RequestParams,
+  GenericErrorModel,
 };
