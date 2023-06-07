@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   CommentDto,
-  GenericErrorModelDto,
-  HttpResponse,
+  GenericErrorModel,
   RequestParams,
   realworldApi,
 } from '~shared/api/realworld';
@@ -15,12 +14,7 @@ export const commentKeys = {
 };
 
 export const useCommentsQuery = (slug: string, params?: RequestParams) =>
-  useQuery<
-    CommentDto[],
-    HttpResponse<unknown, GenericErrorModelDto>,
-    CommentDto[],
-    string[]
-  >({
+  useQuery<CommentDto[], GenericErrorModel, CommentDto[], string[]>({
     queryKey: commentKeys.comments.slug(slug),
 
     queryFn: async ({ signal }) => {

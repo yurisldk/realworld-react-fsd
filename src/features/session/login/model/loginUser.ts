@@ -3,14 +3,14 @@ import { sessionApi } from '~entities/session';
 import {
   HttpResponse,
   UserDto,
-  GenericErrorModelDto,
   LoginUserDto,
   realworldApi,
+  GenericErrorModel,
 } from '~shared/api/realworld';
 
 type UseLoginUserMutation = UseMutationOptions<
   HttpResponse<{ user: UserDto }, unknown>,
-  HttpResponse<unknown, GenericErrorModelDto>,
+  GenericErrorModel,
   LoginUserDto,
   unknown
 >;

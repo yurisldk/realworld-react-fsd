@@ -1,17 +1,17 @@
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from 'formik';
 import { object, string } from 'yup';
 import {
-  GenericErrorModelDto,
+  GenericErrorModel,
   NewArticleDto,
   UpdateArticleDto,
 } from '~shared/api/realworld';
-import { ErrorsList } from '~shared/ui/errors-list';
+import { ErrorHandler } from '~shared/ui/error-handler';
 
 type ArticleEditorProps = {
   article?: NewArticleDto | UpdateArticleDto;
   isLoading: boolean;
   isError: boolean;
-  error?: GenericErrorModelDto;
+  error: GenericErrorModel | null;
   onSubmit: (
     values: NewArticleDto | UpdateArticleDto,
     helpers: FormikHelpers<NewArticleDto | UpdateArticleDto>,
@@ -41,7 +41,7 @@ export function ArticleEditor(props: ArticleEditorProps) {
       <div className="container page">
         <div className="row">
           <div className="col-md-10 offset-md-1 col-xs-12">
-            {isError && <ErrorsList errors={error!.errors} />}
+            {isError && <ErrorHandler errorData={error!} />}
 
             <Formik
               initialValues={article || initialArticle}

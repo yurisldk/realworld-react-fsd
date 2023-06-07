@@ -1,11 +1,13 @@
 import { ReactNode } from 'react';
 import { InfiniteData } from '@tanstack/react-query';
-import { ArticleDto } from '~shared/api/realworld';
+import { ArticleDto, GenericErrorModel } from '~shared/api/realworld';
+import { ErrorHandler } from '~shared/ui/error-handler';
 
 type ArticlesListProps = {
   isLoading: boolean;
   isError: boolean;
   isSuccess: boolean;
+  error: GenericErrorModel | null;
   hasNextPage?: boolean;
   infinityArticles?: InfiniteData<ArticleDto[]>;
   renderArticles: (article: ArticleDto) => ReactNode;
@@ -17,6 +19,7 @@ export function ArticlesList(props: ArticlesListProps) {
     isLoading,
     isError,
     isSuccess,
+    error,
     hasNextPage,
     infinityArticles,
     renderArticles,
@@ -27,8 +30,11 @@ export function ArticlesList(props: ArticlesListProps) {
     <>
       {isLoading && <div className="article-preview">Loading articles...</div>}
 
-      {/* TODO: add error handler */}
-      {isError && <div className="article-preview">Error: </div>}
+      {isError && (
+        <div className="article-preview">
+          <ErrorHandler errorData={error!} />
+        </div>
+      )}
 
       {isSuccess &&
         !hasNextPage &&

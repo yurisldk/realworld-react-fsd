@@ -5,7 +5,7 @@ import { object, string } from 'yup';
 import { sessionApi, sessionModel } from '~entities/session';
 import { LogoutButton, useUpdateCurrentUser } from '~features/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
-import { ErrorsList } from '~shared/ui/errors-list';
+import { ErrorHandler } from '~shared/ui/error-handler';
 
 export function SettingsPage() {
   const user = sessionModel.useCurrentUser();
@@ -28,7 +28,7 @@ export function SettingsPage() {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Your Settings</h1>
 
-            {isError && <ErrorsList errors={error!.error.errors} />}
+            {isError && <ErrorHandler errorData={error} />}
 
             <Formik
               initialValues={{

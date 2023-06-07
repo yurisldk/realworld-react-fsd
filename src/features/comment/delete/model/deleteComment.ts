@@ -1,8 +1,7 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import {
   CommentDto,
-  GenericErrorModelDto,
-  HttpResponse,
+  GenericErrorModel,
   realworldApi,
 } from '~shared/api/realworld';
 
@@ -17,7 +16,7 @@ export function useDeleteComment(
 ) {
   return useMutation<
     void,
-    HttpResponse<unknown, GenericErrorModelDto>,
+    GenericErrorModel,
     UseDeleteCommentProps,
     { prevComments: CommentDto[] }
   >(

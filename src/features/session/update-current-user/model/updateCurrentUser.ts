@@ -1,8 +1,7 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { sessionApi } from '~entities/session';
 import {
-  GenericErrorModelDto,
-  HttpResponse,
+  GenericErrorModel,
   UserDto,
   realworldApi,
 } from '~shared/api/realworld';
@@ -13,7 +12,7 @@ export const useUpdateCurrentUser = (
 ) =>
   useMutation<
     UserDto,
-    HttpResponse<unknown, GenericErrorModelDto>,
+    GenericErrorModel,
     sessionApi.User,
     {
       prevUser: unknown;

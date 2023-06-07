@@ -1,7 +1,7 @@
 import { CommentCard, commentApi } from '~entities/comment';
 import { sessionModel } from '~entities/session';
 import { DeleteCommentIconButtton } from '~features/comment';
-import { ErrorsList } from '~shared/ui/errors-list';
+import { ErrorHandler } from '~shared/ui/error-handler';
 
 type CommentsListProps = {
   slug: string;
@@ -22,7 +22,7 @@ export function CommentsList(props: CommentsListProps) {
   });
 
   if (isLoading) return <div>loading</div>;
-  if (isError) return <ErrorsList errors={error.error.errors} />;
+  if (isError) return <ErrorHandler errorData={error} />;
 
   return (
     <div>

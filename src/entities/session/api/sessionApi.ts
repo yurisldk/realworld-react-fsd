@@ -1,7 +1,6 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import {
-  GenericErrorModelDto,
-  HttpResponse,
+  GenericErrorModel,
   UserDto,
   realworldApi,
 } from '~shared/api/realworld';
@@ -29,7 +28,7 @@ export const sessionKeys = {
 
 type UseCurrentUserQuery = UseQueryOptions<
   User,
-  HttpResponse<unknown, GenericErrorModelDto>,
+  GenericErrorModel,
   User,
   string[]
 >;

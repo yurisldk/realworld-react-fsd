@@ -2,7 +2,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { object, string } from 'yup';
 import { sessionModel } from '~entities/session';
 import { useCreateUser } from '~features/session';
-import { ErrorsList } from '~shared/ui/errors-list';
+import { ErrorHandler } from '~shared/ui/error-handler';
 
 export function RegisterPage() {
   const { mutate, isError, error } = useCreateUser();
@@ -17,7 +17,7 @@ export function RegisterPage() {
               <a href="/#">Have an account?</a>
             </p>
 
-            {isError && <ErrorsList errors={error!.error.errors} />}
+            {isError && <ErrorHandler errorData={error} />}
 
             <Formik
               initialValues={{

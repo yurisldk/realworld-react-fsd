@@ -5,8 +5,7 @@ import {
 } from '@tanstack/react-query';
 import {
   ArticleDto,
-  GenericErrorModelDto,
-  HttpResponse,
+  GenericErrorModel,
   RequestParams,
   realworldApi,
 } from '~shared/api/realworld';
@@ -40,7 +39,12 @@ const useInfinityArticles = ({
   const { userfeed, global, ...validQuery } = query || {};
   const searchParams = { limit: 10, offset: 0, ...validQuery };
 
-  return useInfiniteQuery({
+  return useInfiniteQuery<
+    ArticleDto[],
+    GenericErrorModel,
+    ArticleDto[],
+    unknown[]
+  >({
     queryKey,
 
     queryFn: async ({ pageParam = searchParams.offset, signal }) => {
@@ -53,7 +57,9 @@ const useInfinityArticles = ({
     },
 
     getNextPageParam: (lastPage, pages) => {
-      const nextPageParam = lastPage.length ? pages.length * 10 : null;
+      const nextPageParam = lastPage.length
+        ? pages.length * searchParams.limit
+        : null;
 
       return nextPageParam;
     },
@@ -92,7 +98,7 @@ export const useFeedInfinityArticles = (
 
 type UseArticleQuery = UseQueryOptions<
   ArticleDto,
-  HttpResponse<unknown, GenericErrorModelDto>,
+  GenericErrorModel,
   ArticleDto,
   string[]
 >;

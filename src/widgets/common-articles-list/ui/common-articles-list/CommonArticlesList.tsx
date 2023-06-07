@@ -27,17 +27,18 @@ export function CommonArticlesList(props: CommonArticlesListProps) {
   const {
     data: articlesData,
     status: articlesStatus,
+    error,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
   } = articleApi.useCommonInfinityArticles(filter, { secure: isAuth });
 
   return (
-    // TODO: pass error and handle it
     <ArticlesList
       isLoading={articlesStatus === 'loading'}
       isError={articlesStatus === 'error'}
       isSuccess={articlesStatus === 'success'}
+      error={error}
       hasNextPage={hasNextPage}
       infinityArticles={articlesData}
       renderArticles={(article) => (

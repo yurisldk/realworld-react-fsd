@@ -2,8 +2,7 @@ import { QueryClient, useMutation } from '@tanstack/react-query';
 import { sessionApi } from '~entities/session';
 import {
   CommentDto,
-  GenericErrorModelDto,
-  HttpResponse,
+  GenericErrorModel,
   NewCommentDto,
   ProfileDto,
   UserDto,
@@ -21,7 +20,7 @@ export function useCreateComment(
 ) {
   return useMutation<
     CommentDto,
-    HttpResponse<unknown, GenericErrorModelDto>,
+    GenericErrorModel,
     UseCreateCommentProps,
     { prevComments: CommentDto[] }
   >(

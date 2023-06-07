@@ -21,7 +21,7 @@ export function NewArticleEditor() {
       article={initialArticle}
       isLoading={false}
       isError={isError}
-      error={error?.error}
+      error={error}
       onSubmit={(values, { setSubmitting }) => {
         const newArticle = values as NewArticleDto;
 

@@ -27,7 +27,7 @@ export function CurrentArticleEditor(props: CurrentArticleEditorProps) {
       article={initialData}
       isLoading={isLoading}
       isError={isError}
-      error={error?.error}
+      error={error}
       onSubmit={(values, { setSubmitting }) => {
         const newArticle = values as UpdateArticleDto;
 

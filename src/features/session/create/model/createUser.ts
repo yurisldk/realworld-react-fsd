@@ -3,14 +3,14 @@ import { sessionApi } from '~entities/session';
 import {
   HttpResponse,
   UserDto,
-  GenericErrorModelDto,
   NewUserDto,
   realworldApi,
+  GenericErrorModel,
 } from '~shared/api/realworld';
 
 type UseCreateUserMutation = UseMutationOptions<
   HttpResponse<{ user: UserDto }, unknown>,
-  HttpResponse<unknown, GenericErrorModelDto>,
+  GenericErrorModel,
   NewUserDto,
   unknown
 >;
