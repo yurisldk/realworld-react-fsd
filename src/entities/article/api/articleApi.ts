@@ -26,12 +26,14 @@ export const articleKeys = {
 
 type UseInfinityArticlesProps = {
   queryKey: unknown[];
+  queryFn: typeof realworldApi.articles.getArticles;
   query?: ArticleFilter;
   params?: RequestParams;
 };
 
 const useInfinityArticles = ({
   queryKey,
+  queryFn,
   query,
   params,
 }: UseInfinityArticlesProps) => {
@@ -42,10 +44,6 @@ const useInfinityArticles = ({
     queryKey,
 
     queryFn: async ({ pageParam = searchParams.offset, signal }) => {
-      const queryFn = query?.userfeed
-        ? realworldApi.articles.getArticlesFeed
-        : realworldApi.articles.getArticles;
-
       const response = await queryFn(
         { ...searchParams, offset: pageParam },
         { signal, ...params },
@@ -72,6 +70,22 @@ export const useCommonInfinityArticles = (
       offset: 10,
       ...query,
     }),
+    queryFn: realworldApi.articles.getArticles,
+    query,
+    params,
+  });
+
+export const useFeedInfinityArticles = (
+  query?: ArticleFilter,
+  params?: RequestParams,
+) =>
+  useInfinityArticles({
+    queryKey: articleKeys.articles.query({
+      limit: 0,
+      offset: 10,
+      ...query,
+    }),
+    queryFn: realworldApi.articles.getArticlesFeed,
     query,
     params,
   });

@@ -4,6 +4,7 @@ import { articleFilterModel } from '~entities/article';
 import { sessionModel } from '~entities/session';
 import { FilterArticleTabButton } from '~features/article';
 import { CommonArticlesList } from '~widgets/common-articles-list';
+import { FeedArticlesList } from '~widgets/feed-articles-list';
 import { PopularTags } from '~widgets/popular-tags';
 import {
   homePageArticleFilterStore,
@@ -72,7 +73,8 @@ export function HomePage(props: HomePageProps) {
               </ul>
             </div>
 
-            <CommonArticlesList model={model} />
+            {filter.userfeed && <FeedArticlesList model={model} />}
+            {!filter.userfeed && <CommonArticlesList model={model} />}
           </div>
 
           <div className="col-md-3">
