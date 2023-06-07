@@ -79,6 +79,7 @@ module.exports = {
     ],
   },
   overrides: [
+    // typescript
     {
       files: ['./src/**/*.ts', './src/**/*.tsx'],
       extends: [
@@ -93,6 +94,14 @@ module.exports = {
       plugins: ['@typescript-eslint/eslint-plugin'],
       rules: {
         '@typescript-eslint/indent': 'off',
+      },
+    },
+    // tests
+    {
+      files: ['./src/**/*.test.ts', './src/**/*.test.tsx'],
+      extends: ['plugin:testing-library/react', 'plugin:jest-dom/recommended'],
+      rules: {
+        'testing-library/no-debugging-utils': 'warn',
       },
     },
   ],
