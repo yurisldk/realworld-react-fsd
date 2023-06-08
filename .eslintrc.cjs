@@ -112,6 +112,10 @@ module.exports = {
       extends: ['plugin:testing-library/react', 'plugin:jest-dom/recommended'],
       rules: {
         'testing-library/no-debugging-utils': 'warn',
+        'import/no-extraneous-dependencies': [
+          'error',
+          { devDependencies: true },
+        ],
       },
     },
   ],
