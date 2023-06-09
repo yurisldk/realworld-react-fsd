@@ -1,40 +1,61 @@
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from 'formik';
-import { object, string } from 'yup';
-import {
-  GenericErrorModel,
-  NewArticleDto,
-  UpdateArticleDto,
-} from '~shared/api/realworld';
+import { GenericErrorModel } from '~shared/api/realworld';
 import { ErrorHandler } from '~shared/ui/error-handler';
 
+type EditorArticle = {
+  title?: string;
+  description?: string;
+  body?: string;
+  tagList?: string[];
+};
+
+type FormikArticle = {
+  title?: string;
+  description?: string;
+  body?: string;
+  tagList?: string;
+};
+
 type ArticleEditorProps = {
-  article?: NewArticleDto | UpdateArticleDto;
+  article?: EditorArticle;
+  validationSchema: any | (() => any);
   isLoading: boolean;
   isError: boolean;
   error: GenericErrorModel | null;
   onSubmit: (
-    values: NewArticleDto | UpdateArticleDto,
-    helpers: FormikHelpers<NewArticleDto | UpdateArticleDto>,
+    values: EditorArticle,
+    helpers: FormikHelpers<FormikArticle>,
   ) => void;
 };
 
-// TODO: add correct validation
-const validationSchema = object().shape({
-  title: string().required('required'),
-  description: string().required('required'),
-  body: string().required('required'),
-  tagList: string().required('required'),
-});
-
-const initialArticle: NewArticleDto = {
+const initialArticle: EditorArticle = {
   title: '',
   description: '',
   body: '',
   tagList: [''],
 };
 
+function mapFormikArticle(article: FormikArticle): EditorArticle {
+  const tagList = article?.tagList && article.tagList.split(', ');
+  return { ...article, tagList } as EditorArticle;
+}
+
+function mapEditorArticle(article: EditorArticle): FormikArticle {
+  const tagList = article?.tagList && article.tagList.join(', ');
+  return { ...article, tagList };
+}
+
 export function ArticleEditor(props: ArticleEditorProps) {
-  const { article, isLoading, isError, error, onSubmit } = props;
+  const {
+    article = initialArticle,
+    validationSchema,
+    isLoading,
+    isError,
+    error,
+    onSubmit,
+  } = props;
+
+  const formikArticle = mapEditorArticle(article);
 
   return (
     <div className="editor-page">
@@ -44,9 +65,12 @@ export function ArticleEditor(props: ArticleEditorProps) {
             {isError && <ErrorHandler errorData={error!} />}
 
             <Formik
-              initialValues={article || initialArticle}
+              initialValues={formikArticle}
               validationSchema={validationSchema}
-              onSubmit={onSubmit}
+              onSubmit={(newFormikArticle, formikHelpers) => {
+                const editorArticle = mapFormikArticle(newFormikArticle);
+                onSubmit(editorArticle, formikHelpers);
+              }}
               enableReinitialize
             >
               {({ isSubmitting }) => (

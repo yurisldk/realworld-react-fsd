@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { object, string } from 'yup';
 import { ArticleEditor } from '~entities/article';
 import { useCreateArticle } from '~features/article';
 import { NewArticleDto } from '~shared/api/realworld';
@@ -11,6 +12,13 @@ const initialArticle: NewArticleDto = {
   tagList: [''],
 };
 
+const validationSchema = object().shape({
+  title: string().required('required'),
+  description: string().required('required'),
+  body: string().required('required'),
+  tagList: string(),
+});
+
 export function NewArticleEditor() {
   const { mutate, isError, error } = useCreateArticle();
 
@@ -19,6 +27,7 @@ export function NewArticleEditor() {
   return (
     <ArticleEditor
       article={initialArticle}
+      validationSchema={validationSchema}
       isLoading={false}
       isError={isError}
       error={error}
