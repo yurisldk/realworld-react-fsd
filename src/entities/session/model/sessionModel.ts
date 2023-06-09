@@ -46,11 +46,11 @@ export const sessionStore = createStore<SessionState>()(
     {
       name: 'session',
       onRehydrateStorage: () => (state) => {
-        if (!state) return;
-
-        const { user } = state;
-        if (user) realworldApi.setSecurityData(user.token);
-        if (!user) realworldApi.setSecurityData(null);
+        if (state?.user) {
+          const { user } = state;
+          if (user) realworldApi.setSecurityData(user.token);
+          if (!user) realworldApi.setSecurityData(null);
+        }
       },
     },
   ),
