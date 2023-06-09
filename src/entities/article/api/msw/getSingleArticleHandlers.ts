@@ -1,9 +1,9 @@
 import { rest } from 'msw';
-import { realworldApi } from '~shared/api/realworld';
+import { ArticleDto, realworldApi } from '~shared/api/realworld';
 import { server } from '~shared/lib/msw';
 
-const articleDto = {
-  article: {
+const articles: Record<string, ArticleDto> = {
+  'how-to-train-your-dragon': {
     slug: 'how-to-train-your-dragon',
     title: 'How to train your dragon',
     description: 'Ever wonder how?',
@@ -26,13 +26,15 @@ const getSingleArticleHandlers = [
   rest.get(`${realworldApi.baseUrl}/articles/:slug`, (req, res, ctx) => {
     const { slug } = req.params;
 
-    if (slug === 'how-to-train-your-dragon')
-      return res(ctx.status(200), ctx.json(articleDto));
+    const article = articles[slug as string];
 
-    return res(
-      ctx.status(404),
-      ctx.json({ errors: { article: ['not found'] } }),
-    );
+    if (!article)
+      return res(
+        ctx.status(404),
+        ctx.json({ errors: { article: ['not found'] } }),
+      );
+
+    return res(ctx.status(200), ctx.json({ article }));
   }),
 ];
 
