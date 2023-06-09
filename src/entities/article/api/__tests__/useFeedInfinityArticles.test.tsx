@@ -5,7 +5,10 @@ import { useFeedInfinityArticles } from '../articleApi';
 import { setupGetFeedArticlesHandlers } from '../msw/getFeedArticlesHandlers';
 
 describe('useFeedInfinityArticles', () => {
-  beforeEach(() => setupGetFeedArticlesHandlers());
+  beforeEach(() => {
+    setupGetFeedArticlesHandlers();
+    realworldApi.setSecurityData(null);
+  });
 
   it('success', async () => {
     realworldApi.setSecurityData('jwtToken');
