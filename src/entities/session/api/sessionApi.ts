@@ -1,6 +1,7 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import {
   GenericErrorModel,
+  RequestParams,
   UserDto,
   realworldApi,
 } from '~shared/api/realworld';
@@ -38,12 +39,17 @@ function mapUserDto(userDto: UserDto): User {
   return { ...userDto };
 }
 
-// TODO: add DI model.addUser(user)
-export const useCurrentUser = (options?: UseCurrentUserOptions) =>
+export const useCurrentUser = (
+  options?: UseCurrentUserOptions,
+  params?: RequestParams,
+) =>
   useQuery({
     queryKey: sessionKeys.session.currentUser(),
     queryFn: async ({ signal }) => {
-      const response = await realworldApi.user.getCurrentUser({ signal });
+      const response = await realworldApi.user.getCurrentUser({
+        signal,
+        ...params,
+      });
 
       const user = mapUserDto(response.data.user);
 
