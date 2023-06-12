@@ -1,6 +1,9 @@
 import { useParams } from 'react-router-dom';
 import { articleApi } from '~entities/article';
 import { sessionModel } from '~entities/session';
+import { ErrorHandler } from '~shared/ui/error-handler';
+import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
+import { Spinner } from '~shared/ui/spinner';
 import { CommentsList } from '~widgets/comments-list';
 import { NewCommentEditor } from '~widgets/new-comment-editor';
 import { ProfileArticleMeta } from '~widgets/profile-article-meta';
@@ -15,10 +18,22 @@ export function ArticlePage() {
     data: article,
     isLoading,
     isError,
+    error,
   } = articleApi.useArticle(slug!, { secure: isAuth });
 
-  if (isLoading) return <div>loading</div>;
-  if (isError) return <div>error</div>;
+  if (isLoading)
+    return (
+      <FullPageWrapper>
+        <Spinner />
+      </FullPageWrapper>
+    );
+
+  if (isError)
+    return (
+      <FullPageWrapper>
+        <ErrorHandler errorData={error} />
+      </FullPageWrapper>
+    );
 
   const { title, body, tagList } = article;
 
