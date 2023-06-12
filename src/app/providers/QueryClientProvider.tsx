@@ -12,7 +12,32 @@ export function QueryClientProvider(props: QueryClientProviderProps) {
   return (
     <TanStackQueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ReactQueryDevtools
+        initialIsOpen={false}
+        errorTypes={[
+          {
+            name: '422',
+            initializer: () => ({
+              status: 422,
+              error: {
+                errors: {
+                  field1: ['error message 1', 'error message 2'],
+                  field2: ['error message 3'],
+                },
+              },
+            }),
+          },
+          {
+            name: '500',
+            initializer: () => ({
+              status: 500,
+              error: {
+                message: 'Internal server error',
+              },
+            }),
+          },
+        ]}
+      />
     </TanStackQueryClientProvider>
   );
 }
