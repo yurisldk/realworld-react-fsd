@@ -2,6 +2,7 @@ import { CommentCard, commentApi } from '~entities/comment';
 import { sessionModel } from '~entities/session';
 import { DeleteCommentIconButtton } from '~features/comment';
 import { ErrorHandler } from '~shared/ui/error-handler';
+import { Spinner } from '~shared/ui/spinner';
 
 type CommentsListProps = {
   slug: string;
@@ -21,7 +22,13 @@ export function CommentsList(props: CommentsListProps) {
     secure: isAuth,
   });
 
-  if (isLoading) return <div>loading</div>;
+  if (isLoading)
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <Spinner />
+      </div>
+    );
+
   if (isError) return <ErrorHandler errorData={error} />;
 
   return (
