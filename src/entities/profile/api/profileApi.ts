@@ -1,5 +1,9 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
-import { RequestParams, realworldApi } from '~shared/api/realworld';
+import {
+  GenericErrorModel,
+  RequestParams,
+  realworldApi,
+} from '~shared/api/realworld';
 
 export type Profile = {
   username: string;
@@ -15,7 +19,12 @@ export const profileKeys = {
   },
 };
 
-type UseProfileQuery = UseQueryOptions<Profile, unknown, Profile, string[]>;
+type UseProfileQuery = UseQueryOptions<
+  Profile,
+  GenericErrorModel,
+  Profile,
+  string[]
+>;
 type UseProfileQueryOptions = Omit<UseProfileQuery, 'queryKey' | 'queryFn'>;
 
 export function useProfile(
