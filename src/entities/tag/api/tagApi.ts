@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { realworldApi } from '~shared/api/realworld';
+import { GenericErrorModel, realworldApi } from '~shared/api/realworld';
 
 export const tagKeys = {
   tags: {
@@ -9,7 +9,7 @@ export const tagKeys = {
 };
 
 export const useGlobalTags = () =>
-  useQuery({
+  useQuery<string[], GenericErrorModel, string[], string[]>({
     queryKey: tagKeys.tags.global(),
     queryFn: async ({ signal }) => {
       const response = await realworldApi.tags.getTags({ signal });
