@@ -1,0 +1,1 @@
+export { FullPageWrapper } from './FullPageWrapper';
