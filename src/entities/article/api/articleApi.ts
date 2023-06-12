@@ -57,6 +57,8 @@ const useInfinityArticles = ({
     },
 
     getNextPageParam: (lastPage, pages) => {
+      if (lastPage.length < searchParams.limit) return null;
+
       const nextPageParam = lastPage.length
         ? pages.length * searchParams.limit
         : null;
