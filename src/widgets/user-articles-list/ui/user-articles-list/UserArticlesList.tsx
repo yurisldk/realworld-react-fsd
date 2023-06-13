@@ -5,9 +5,7 @@ import {
   ArticlesList,
   LoadMoreButton,
 } from '~entities/article';
-import { sessionModel } from '~entities/session';
 import { ToggleFavoriteArticleButton } from '~features/article';
-import { NavigateToLoginFavoriteButton } from '~features/session';
 
 type UserArticlesListProps = {
   query: articleApi.UserfeedQuery;
@@ -15,8 +13,6 @@ type UserArticlesListProps = {
 
 export function UserArticlesList(props: UserArticlesListProps) {
   const { query } = props;
-
-  const isAuth = sessionModel.useAuth();
 
   const queryKey = articleApi.articleKeys.articles.userfeed.query(query);
 
@@ -45,19 +41,13 @@ export function UserArticlesList(props: UserArticlesListProps) {
             <ArticleMeta
               article={article}
               actionSlot={
-                isAuth ? (
-                  <ToggleFavoriteArticleButton
-                    queryKey={queryKey}
-                    article={article}
-                    followTitle={article.favoritesCount.toString()}
-                    unfollowTitle={article.favoritesCount.toString()}
-                    float="right"
-                  />
-                ) : (
-                  <NavigateToLoginFavoriteButton
-                    favoritesCount={article.favoritesCount}
-                  />
-                )
+                <ToggleFavoriteArticleButton
+                  queryKey={queryKey}
+                  article={article}
+                  followTitle={article.favoritesCount.toString()}
+                  unfollowTitle={article.favoritesCount.toString()}
+                  float="right"
+                />
               }
             />
           }
