@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { profileApi } from '~entities/profile';
+import { FollowButton, profileApi } from '~entities/profile';
 import { useMutationUnfollowUser } from '../../model/unfollowUser';
 
 type UnfollowUserButtonProps = {
@@ -23,13 +23,6 @@ export function UnfollowUserButton(props: UnfollowUserButtonProps) {
   };
 
   return (
-    <button
-      className="btn btn-sm btn-secondary action-btn"
-      type="button"
-      onClick={handleClick}
-    >
-      <i className="ion-minus-round" />
-      &nbsp; Unfollow {profile.username}
-    </button>
+    <FollowButton title={profile.username} following onClick={handleClick} />
   );
 }

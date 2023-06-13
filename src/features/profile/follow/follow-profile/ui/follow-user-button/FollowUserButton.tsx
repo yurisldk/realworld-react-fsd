@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { profileApi } from '~entities/profile';
+import { FollowButton, profileApi } from '~entities/profile';
 import { useMutationFollowUser } from '../../model/followUser';
 
 type FollowUserButtonProps = {
@@ -22,14 +22,5 @@ export function FollowUserButton(props: FollowUserButtonProps) {
     followUser.mutate(newUser);
   };
 
-  return (
-    <button
-      className="btn btn-sm btn-outline-secondary action-btn"
-      type="button"
-      onClick={handleClick}
-    >
-      <i className="ion-plus-round" />
-      &nbsp; Follow {profile.username}
-    </button>
-  );
+  return <FollowButton title={profile.username} onClick={handleClick} />;
 }
