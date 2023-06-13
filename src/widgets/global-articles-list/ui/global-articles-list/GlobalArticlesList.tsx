@@ -9,16 +9,16 @@ import { sessionModel } from '~entities/session';
 import { ToggleFavoriteArticleButton } from '~features/article';
 import { NavigateToLoginFavoriteButton } from '~features/session';
 
-type FeedArticlesListProps = {
-  query: articleApi.UserfeedQuery;
+type GlobalArticlesListProps = {
+  query: articleApi.GlobalfeedQuery;
 };
 
-export function FeedArticlesList(props: FeedArticlesListProps) {
+export function GlobalArticlesList(props: GlobalArticlesListProps) {
   const { query } = props;
 
   const isAuth = sessionModel.useAuth();
 
-  const queryKey = articleApi.articleKeys.articles.userfeed.query(query);
+  const queryKey = articleApi.articleKeys.articles.globalfeed.query(query);
 
   const {
     data: articlesData,
@@ -27,7 +27,7 @@ export function FeedArticlesList(props: FeedArticlesListProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = articleApi.useFeedInfinityArticles(query);
+  } = articleApi.useGlobalInfinityArticles(query, { secure: isAuth });
 
   return (
     <ArticlesList

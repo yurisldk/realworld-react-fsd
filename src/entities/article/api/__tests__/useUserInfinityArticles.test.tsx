@@ -1,19 +1,19 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
-import { useFeedInfinityArticles } from '../articleApi';
-import { setupGetFeedArticlesHandlers } from '../msw/getFeedArticlesHandlers';
+import { useUserInfinityArticles } from '../articleApi';
+import { setupGetUserArticlesHandlers } from '../msw/getUserArticlesHandlers';
 
-describe('useFeedInfinityArticles', () => {
+describe('useUserInfinityArticles', () => {
   beforeEach(() => {
-    setupGetFeedArticlesHandlers();
+    setupGetUserArticlesHandlers();
     realworldApi.setSecurityData(null);
   });
 
   it('success', async () => {
     realworldApi.setSecurityData('jwtToken');
     const { result } = renderHook(
-      () => useFeedInfinityArticles({ limit: 1, offset: 0 }),
+      () => useUserInfinityArticles({ limit: 1, offset: 0 }),
       {
         wrapper: createWrapper(),
       },
@@ -32,7 +32,7 @@ describe('useFeedInfinityArticles', () => {
 
   it('error', async () => {
     const { result } = renderHook(
-      () => useFeedInfinityArticles({ limit: 1, offset: 0 }),
+      () => useUserInfinityArticles({ limit: 1, offset: 0 }),
       {
         wrapper: createWrapper(),
       },

@@ -2,7 +2,7 @@ import { rest } from 'msw';
 import { realworldApi } from '~shared/api/realworld';
 import { server } from '~shared/lib/msw';
 
-const feedArticlesDto = {
+const userArticlesDto = {
   articles: [
     {
       slug: 'how-to-train-your-dragon',
@@ -59,21 +59,21 @@ const feedArticlesDto = {
   articlesCount: 3,
 };
 
-const getFeedArticlesHandlers = [
+const getUserArticlesHandlers = [
   rest.get(`${realworldApi.baseUrl}/articles/feed`, (req, res, ctx) => {
     const isAuth = req.headers.get('authorization')?.startsWith('Token ');
 
     const offset = Number(req.url.searchParams.get('offset'));
     const limit = Number(req.url.searchParams.get('limit'));
 
-    const articles = feedArticlesDto.articles.slice(offset, limit + offset);
+    const articles = userArticlesDto.articles.slice(offset, limit + offset);
 
     if (isAuth)
       return res(
         ctx.status(200),
         ctx.json({
           articles,
-          articlesCount: feedArticlesDto.articlesCount,
+          articlesCount: userArticlesDto.articlesCount,
         }),
       );
 
@@ -87,6 +87,6 @@ const getFeedArticlesHandlers = [
   }),
 ];
 
-export const setupGetFeedArticlesHandlers = () => {
-  server.use(...getFeedArticlesHandlers);
+export const setupGetUserArticlesHandlers = () => {
+  server.use(...getUserArticlesHandlers);
 };

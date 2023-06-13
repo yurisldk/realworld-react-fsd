@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import cn from 'classnames';
-import { CommonArticlesList } from '~widgets/common-articles-list';
-import { FeedArticlesList } from '~widgets/feed-articles-list';
+import { GlobalArticlesList } from '~widgets/global-articles-list';
 import { PopularTags } from '~widgets/popular-tags';
+import { UserArticlesList } from '~widgets/user-articles-list';
 
 type HomePageProps = {
   auth?: boolean;
@@ -76,15 +76,15 @@ export function HomePage(props: HomePageProps) {
             </div>
 
             {tabs.userfeed && (
-              <FeedArticlesList query={{ limit: 10, offset: 0 }} />
+              <UserArticlesList query={{ limit: 10, offset: 0 }} />
             )}
 
             {tabs.globalfeed && (
-              <CommonArticlesList query={{ limit: 10, offset: 0 }} />
+              <GlobalArticlesList query={{ limit: 10, offset: 0 }} />
             )}
 
             {tabs.tagfeed && (
-              <CommonArticlesList
+              <GlobalArticlesList
                 query={{ limit: 10, offset: 0, tag: tabs.tagfeed }}
               />
             )}

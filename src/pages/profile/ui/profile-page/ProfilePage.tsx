@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import cn from 'classnames';
 import { useParams } from 'react-router-dom';
-import { CommonArticlesList } from '~widgets/common-articles-list';
+import { GlobalArticlesList } from '~widgets/global-articles-list';
 import { ProfileCard } from '~widgets/profile-card';
 
 type ProfilePageProps = {
@@ -59,13 +59,13 @@ export function ProfilePage(props: ProfilePageProps) {
             </div>
 
             {tabs.author && (
-              <CommonArticlesList
+              <GlobalArticlesList
                 query={{ limit: 10, offset: 0, author: tabs.author }}
               />
             )}
 
             {tabs.favorited && (
-              <CommonArticlesList
+              <GlobalArticlesList
                 query={{ limit: 10, offset: 0, favorited: tabs.favorited }}
               />
             )}

@@ -2,7 +2,7 @@ import { rest } from 'msw';
 import { realworldApi } from '~shared/api/realworld';
 import { server } from '~shared/lib/msw';
 
-const articlesDto = {
+const globalArticlesDto = {
   articles: [
     {
       slug: 'how-to-train-your-dragon',
@@ -60,7 +60,7 @@ const articlesDto = {
 };
 
 // TODO: add params cases
-const getMultipleArticlesHandlers = [
+const getGlobalArticlesHandlers = [
   rest.get(`${realworldApi.baseUrl}/articles`, (req, res, ctx) => {
     // const tag = req.url.searchParams.get('tag');
     // const author = req.url.searchParams.get('author');
@@ -68,18 +68,18 @@ const getMultipleArticlesHandlers = [
     const offset = Number(req.url.searchParams.get('offset'));
     const limit = Number(req.url.searchParams.get('limit'));
 
-    const articles = articlesDto.articles.slice(offset, limit + offset);
+    const articles = globalArticlesDto.articles.slice(offset, limit + offset);
 
     return res(
       ctx.status(200),
       ctx.json({
         articles,
-        articlesCount: articlesDto.articlesCount,
+        articlesCount: globalArticlesDto.articlesCount,
       }),
     );
   }),
 ];
 
-export const setupGetMultipleArticlesHandlers = () => {
-  server.use(...getMultipleArticlesHandlers);
+export const setupGetGlobalArticlesHandlers = () => {
+  server.use(...getGlobalArticlesHandlers);
 };

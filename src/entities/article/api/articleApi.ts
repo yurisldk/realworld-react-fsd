@@ -90,7 +90,7 @@ const useInfinityArticles = ({
   });
 };
 
-export const useCommonInfinityArticles = (
+export const useGlobalInfinityArticles = (
   query: GlobalfeedQuery,
   params?: RequestParams,
 ) =>
@@ -101,7 +101,7 @@ export const useCommonInfinityArticles = (
     params,
   });
 
-export const useFeedInfinityArticles = (
+export const useUserInfinityArticles = (
   query: UserfeedQuery,
   params?: RequestParams,
 ) =>
