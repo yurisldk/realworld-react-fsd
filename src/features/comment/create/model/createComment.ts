@@ -35,7 +35,6 @@ export function useCreateComment(
       onMutate: async ({ slug, comment }) => {
         await queryClient.cancelQueries({ queryKey });
 
-        // TODO: add sessionKeys to sessionApi
         const user = queryClient.getQueryData<UserDto>(
           sessionApi.sessionKeys.session.currentUser(),
         );
