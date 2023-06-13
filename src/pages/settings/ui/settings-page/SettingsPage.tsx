@@ -36,14 +36,13 @@ export function SettingsPage() {
                 password: undefined,
                 ...(!user!.bio && { bio: undefined }),
               }}
-              // TODO: add correct validation
               validationSchema={object().shape({
-                email: string().required('required'),
-                token: string().required('required'),
-                username: string().required('required'),
-                bio: string().required('required'),
-                image: string().required('required'),
-                password: string(),
+                email: string().email(),
+                token: string(),
+                username: string().min(5),
+                bio: string(),
+                image: string(),
+                password: string().min(5),
               })}
               onSubmit={(values, { setSubmitting }) => {
                 mutate(values, {
