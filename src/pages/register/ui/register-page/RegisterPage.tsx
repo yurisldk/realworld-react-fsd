@@ -25,11 +25,10 @@ export function RegisterPage() {
                 email: '',
                 password: '',
               }}
-              // TODO: add correct validation
               validationSchema={object().shape({
-                username: string().required('requared'),
-                email: string().required('requared'),
-                password: string().required('requared'),
+                username: string().min(5).required(),
+                email: string().email().required(),
+                password: string().min(5).required(),
               })}
               onSubmit={(values, { setSubmitting }) => {
                 mutate(values, {
