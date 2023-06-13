@@ -1,13 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 import {
   articleApi,
   ArticleMeta,
   ArticlePreviewCard,
   ArticlesList,
+  FavoriteButton,
   LoadMoreButton,
 } from '~entities/article';
 import { sessionModel } from '~entities/session';
 import { ToggleFavoriteArticleButton } from '~features/article';
-import { NavigateToLoginFavoriteButton } from '~features/session';
+import { PATH_PAGE } from '~shared/lib/react-router';
 
 type GlobalArticlesListProps = {
   query: articleApi.GlobalfeedQuery;
@@ -17,6 +19,8 @@ export function GlobalArticlesList(props: GlobalArticlesListProps) {
   const { query } = props;
 
   const isAuth = sessionModel.useAuth();
+
+  const navigate = useNavigate();
 
   const queryKey = articleApi.articleKeys.articles.globalfeed.query(query);
 
@@ -54,8 +58,10 @@ export function GlobalArticlesList(props: GlobalArticlesListProps) {
                     float="right"
                   />
                 ) : (
-                  <NavigateToLoginFavoriteButton
-                    favoritesCount={article.favoritesCount}
+                  <FavoriteButton
+                    title={article.favoritesCount}
+                    float="right"
+                    onClick={() => navigate(PATH_PAGE.login)}
                   />
                 )
               }
