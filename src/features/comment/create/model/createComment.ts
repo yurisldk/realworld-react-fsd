@@ -1,17 +1,13 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
-import { sessionApi } from '~entities/session';
 import {
   CommentDto,
   GenericErrorModel,
-  NewCommentDto,
-  ProfileDto,
-  UserDto,
   realworldApi,
 } from '~shared/api/realworld';
 
 type UseCreateCommentProps = {
   slug: string;
-  comment: NewCommentDto;
+  newComment: CommentDto;
 };
 
 export function useCreateComment(
@@ -24,37 +20,19 @@ export function useCreateComment(
     UseCreateCommentProps,
     { prevComments: CommentDto[] }
   >(
-    async ({ slug, comment }: UseCreateCommentProps) => {
+    async ({ slug, newComment }: UseCreateCommentProps) => {
       const response = await realworldApi.articles.createArticleComment(slug, {
-        comment,
+        comment: { body: newComment.body },
       });
 
       return response.data.comment;
     },
     {
-      onMutate: async ({ slug, comment }) => {
+      onMutate: async ({ newComment }) => {
         await queryClient.cancelQueries({ queryKey });
-
-        const user = queryClient.getQueryData<UserDto>(
-          sessionApi.sessionKeys.session.currentUser(),
-        );
-
-        if (!user) return undefined;
-
-        const { token, ...other } = user;
-        const author: ProfileDto = { ...other, following: false };
 
         const prevComments =
           queryClient.getQueryData<CommentDto[]>(queryKey) || [];
-
-        const newComment: CommentDto = {
-          // @ts-expect-error
-          id: slug,
-          createdAt: Date.now().toString(),
-          updatedAt: Date.now().toString(),
-          author,
-          body: comment.body,
-        };
 
         const newComments: CommentDto[] = [...prevComments, newComment];
 

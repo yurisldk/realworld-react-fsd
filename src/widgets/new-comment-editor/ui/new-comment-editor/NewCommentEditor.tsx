@@ -1,11 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
 import { commentApi } from '~entities/comment';
 import { sessionModel } from '~entities/session';
 import { useCreateComment } from '~features/comment';
-import { NewCommentDto } from '~shared/api/realworld';
+import { CommentDto, NewCommentDto, ProfileDto } from '~shared/api/realworld';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
 const initialValues: NewCommentDto = { body: '' };
@@ -44,8 +45,19 @@ export function NewCommentEditor(props: NewCommentEditorProps) {
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={(values, { setSubmitting, resetForm }) => {
+        const { token, ...other } = user;
+        const author: ProfileDto = { ...other, following: false };
+
+        const newComment: CommentDto = {
+          id: +Infinity,
+          createdAt: dayjs().toISOString(),
+          updatedAt: dayjs().toISOString(),
+          body: values.body,
+          author,
+        };
+
         mutate(
-          { slug, comment: values },
+          { slug, newComment },
           {
             onSuccess: () => {
               resetForm();
