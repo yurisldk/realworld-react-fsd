@@ -1,6 +1,6 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { profileApi } from '~entities/profile';
-import { realworldApi } from '~shared/api/realworld';
+import { ArticleDto, realworldApi } from '~shared/api/realworld';
 
 type MutateFnType = typeof realworldApi.profiles.followUserByUsername;
 
@@ -17,12 +17,36 @@ export const useMutateFollowUser = (
 
     {
       onMutate: async (newProfile) => {
+        const isArticle = queryKey[0] === 'article';
+
         await queryClient.cancelQueries({ queryKey });
 
-        const prevQueryData =
-          queryClient.getQueryData<profileApi.Profile>(queryKey);
+        const prevQueryData = queryClient.getQueryData<
+          ArticleDto | profileApi.Profile
+        >(queryKey);
 
-        queryClient.setQueryData<profileApi.Profile>(queryKey, newProfile);
+        let newQueryData: ArticleDto | profileApi.Profile | undefined;
+
+        switch (true) {
+          case isArticle:
+            newQueryData = {
+              ...prevQueryData,
+              author: newProfile,
+            } as ArticleDto;
+            break;
+
+          case !isArticle:
+            newQueryData = newProfile;
+            break;
+
+          default:
+            newQueryData = undefined;
+        }
+
+        queryClient.setQueryData<ArticleDto | profileApi.Profile>(
+          queryKey,
+          newQueryData,
+        );
 
         return { prevQueryData };
       },
