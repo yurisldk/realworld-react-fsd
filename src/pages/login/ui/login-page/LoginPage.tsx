@@ -24,10 +24,9 @@ export function LoginPage() {
                 email: '',
                 password: '',
               }}
-              // TODO: add correct validation
               validationSchema={object().shape({
-                email: string().required('requared'),
-                password: string().required('requared'),
+                email: string().email().required(),
+                password: string().min(5).required(),
               })}
               onSubmit={(values, { setSubmitting }) => {
                 mutate(values, {
