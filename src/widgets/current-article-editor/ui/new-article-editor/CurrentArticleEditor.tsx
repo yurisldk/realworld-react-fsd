@@ -3,6 +3,8 @@ import { object, string } from 'yup';
 import { ArticleEditor, articleApi } from '~entities/article';
 import { useUpdateArticle } from '~features/article';
 import { PATH_PAGE } from '~shared/lib/react-router';
+import { ErrorHandler } from '~shared/ui/error-handler';
+import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
 
 type CurrentArticleEditorProps = {
   slug: string;
@@ -20,22 +22,33 @@ export function CurrentArticleEditor(props: CurrentArticleEditorProps) {
 
   const {
     data: initialData,
-    isLoading,
-    isError,
-    error,
+    isLoading: isArticleLoading,
+    isError: isArticleError,
+    error: articleError,
   } = articleApi.useArticle(slug);
 
-  const { mutate } = useUpdateArticle();
+  const {
+    mutate,
+    isError: isUpdateError,
+    error: updateError,
+  } = useUpdateArticle();
 
   const navigate = useNavigate();
+
+  if (isArticleError)
+    return (
+      <FullPageWrapper>
+        <ErrorHandler errorData={articleError} />;
+      </FullPageWrapper>
+    );
 
   return (
     <ArticleEditor
       article={initialData}
       validationSchema={validationSchema}
-      isLoading={isLoading}
-      isError={isError}
-      error={error}
+      isLoading={isArticleLoading}
+      isError={isUpdateError}
+      error={updateError}
       onSubmit={(values, { setSubmitting }) => {
         const newArticle = values;
 
