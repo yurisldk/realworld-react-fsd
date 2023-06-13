@@ -4,22 +4,25 @@ import { sessionModel } from '~entities/session';
 import { ErrorHandler } from '~shared/ui/error-handler';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
 import { Spinner } from '~shared/ui/spinner';
+import {
+  GuestArticleMeta,
+  CurrentUserArticleMeta,
+  UserArticleMeta,
+} from '~widgets/article-meta';
 import { CommentsList } from '~widgets/comments-list';
 import { NewCommentEditor } from '~widgets/new-comment-editor';
-import { ProfileArticleMeta } from '~widgets/profile-article-meta';
-import { UserArticleMeta } from '~widgets/user-article-meta';
 
 export function ArticlePage() {
   const { slug } = useParams();
 
-  const isAuth = sessionModel.useAuth();
+  const user = sessionModel.useCurrentUser();
 
   const {
     data: article,
     isLoading,
     isError,
     error,
-  } = articleApi.useArticle(slug!, { secure: isAuth });
+  } = articleApi.useArticle(slug!, { secure: !!user });
 
   if (isLoading)
     return (
@@ -35,7 +38,12 @@ export function ArticlePage() {
       </FullPageWrapper>
     );
 
-  const { title, body, tagList } = article;
+  const { title, body, tagList, author } = article;
+
+  const isAuth = Boolean(user);
+  const isGuest = !isAuth;
+  const isUser = isAuth && !(user!.username === author.username);
+  const isCurrentUser = isAuth && user!.username === author.username;
 
   return (
     <div className="article-page">
@@ -43,8 +51,13 @@ export function ArticlePage() {
         <div className="container">
           <h1>{title}</h1>
 
-          {!isAuth && <ProfileArticleMeta slug={slug!} article={article} />}
-          {isAuth && <UserArticleMeta slug={slug!} article={article} />}
+          {isCurrentUser && (
+            <CurrentUserArticleMeta slug={slug!} article={article} />
+          )}
+
+          {isUser && <UserArticleMeta slug={slug!} article={article} />}
+
+          {isGuest && <GuestArticleMeta article={article} />}
         </div>
       </div>
 
@@ -67,8 +80,13 @@ export function ArticlePage() {
         <hr />
 
         <div className="article-actions">
-          {!isAuth && <ProfileArticleMeta slug={slug!} article={article} />}
-          {isAuth && <UserArticleMeta slug={slug!} article={article} />}
+          {isCurrentUser && (
+            <CurrentUserArticleMeta slug={slug!} article={article} />
+          )}
+
+          {isUser && <UserArticleMeta slug={slug!} article={article} />}
+
+          {isGuest && <GuestArticleMeta article={article} />}
         </div>
 
         <div className="row">
