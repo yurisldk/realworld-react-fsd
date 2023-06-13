@@ -12,9 +12,12 @@ describe('useFeedInfinityArticles', () => {
 
   it('success', async () => {
     realworldApi.setSecurityData('jwtToken');
-    const { result } = renderHook(() => useFeedInfinityArticles({ limit: 1 }), {
-      wrapper: createWrapper(),
-    });
+    const { result } = renderHook(
+      () => useFeedInfinityArticles({ limit: 1, offset: 0 }),
+      {
+        wrapper: createWrapper(),
+      },
+    );
     await waitFor(() => expect(result.current.isFetching).toBe(false));
     expect(result.current.data?.pageParams).toStrictEqual([undefined]);
 
@@ -28,9 +31,12 @@ describe('useFeedInfinityArticles', () => {
   });
 
   it('error', async () => {
-    const { result } = renderHook(() => useFeedInfinityArticles(), {
-      wrapper: createWrapper(),
-    });
+    const { result } = renderHook(
+      () => useFeedInfinityArticles({ limit: 1, offset: 0 }),
+      {
+        wrapper: createWrapper(),
+      },
+    );
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBeDefined();
   });

@@ -9,12 +9,37 @@ import {
   RequestParams,
   realworldApi,
 } from '~shared/api/realworld';
-import { ArticleFilter } from '../model/articleFilterModel';
+
+export type GlobalfeedQuery = {
+  tag?: string;
+  author?: string;
+  favorited?: string;
+  offset: number;
+  limit: number;
+};
+
+export type UserfeedQuery = {
+  offset: number;
+  limit: number;
+};
 
 export const articleKeys = {
   articles: {
     root: ['articles'],
-    query: (query: ArticleFilter) => [...articleKeys.articles.root, query],
+    globalfeed: {
+      root: () => [...articleKeys.articles.root, 'globalfeed'],
+      query: (query: GlobalfeedQuery) => [
+        ...articleKeys.articles.globalfeed.root(),
+        query,
+      ],
+    },
+    userfeed: {
+      root: () => [...articleKeys.articles.root, 'userfeed'],
+      query: (query: GlobalfeedQuery) => [
+        ...articleKeys.articles.userfeed.root(),
+        query,
+      ],
+    },
   },
 
   article: {
@@ -26,7 +51,7 @@ export const articleKeys = {
 type UseInfinityArticlesProps = {
   queryKey: unknown[];
   queryFn: typeof realworldApi.articles.getArticles;
-  query?: ArticleFilter;
+  query: GlobalfeedQuery | UserfeedQuery;
   params?: RequestParams;
 };
 
@@ -36,8 +61,7 @@ const useInfinityArticles = ({
   query,
   params,
 }: UseInfinityArticlesProps) => {
-  const { userfeed, global, ...validQuery } = query || {};
-  const searchParams = { limit: 10, offset: 0, ...validQuery };
+  const { offset, limit } = query;
 
   return useInfiniteQuery<
     ArticleDto[],
@@ -47,9 +71,9 @@ const useInfinityArticles = ({
   >({
     queryKey,
 
-    queryFn: async ({ pageParam = searchParams.offset, signal }) => {
+    queryFn: async ({ pageParam = offset, signal }) => {
       const response = await queryFn(
-        { ...searchParams, offset: pageParam },
+        { ...query, offset: pageParam },
         { signal, ...params },
       );
 
@@ -57,11 +81,9 @@ const useInfinityArticles = ({
     },
 
     getNextPageParam: (lastPage, pages) => {
-      if (lastPage.length < searchParams.limit) return null;
+      if (lastPage.length < limit) return null;
 
-      const nextPageParam = lastPage.length
-        ? pages.length * searchParams.limit
-        : null;
+      const nextPageParam = lastPage.length ? pages.length * limit : null;
 
       return nextPageParam;
     },
@@ -69,30 +91,22 @@ const useInfinityArticles = ({
 };
 
 export const useCommonInfinityArticles = (
-  query?: ArticleFilter,
+  query: GlobalfeedQuery,
   params?: RequestParams,
 ) =>
   useInfinityArticles({
-    queryKey: articleKeys.articles.query({
-      limit: 0,
-      offset: 10,
-      ...query,
-    }),
+    queryKey: articleKeys.articles.globalfeed.query(query),
     queryFn: realworldApi.articles.getArticles,
     query,
     params,
   });
 
 export const useFeedInfinityArticles = (
-  query?: ArticleFilter,
+  query: UserfeedQuery,
   params?: RequestParams,
 ) =>
   useInfinityArticles({
-    queryKey: articleKeys.articles.query({
-      limit: 0,
-      offset: 10,
-      ...query,
-    }),
+    queryKey: articleKeys.articles.userfeed.query(query),
     queryFn: realworldApi.articles.getArticlesFeed,
     query,
     params,

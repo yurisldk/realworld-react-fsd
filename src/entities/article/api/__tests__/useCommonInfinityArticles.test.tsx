@@ -9,7 +9,7 @@ describe('useCommonInfinityArticles', () => {
 
   it('success', async () => {
     const { result } = renderHook(
-      () => useCommonInfinityArticles({ limit: 1 }),
+      () => useCommonInfinityArticles({ limit: 1, offset: 0 }),
       { wrapper: createWrapper() },
     );
 

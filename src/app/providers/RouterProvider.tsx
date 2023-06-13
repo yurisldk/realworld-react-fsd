@@ -37,11 +37,16 @@ function AuthGuard(props: AuthGuardProps) {
 }
 
 export function Router() {
+  const isAuth = sessionModel.useAuth();
+
   return useRoutes([
     {
       element: <MainLayout />,
       children: [
-        { element: <HomePage />, index: true },
+        {
+          path: PATH_PAGE.root,
+          element: isAuth ? <HomePage auth /> : <HomePage />,
+        },
         {
           path: 'login',
           element: (

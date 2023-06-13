@@ -1,15 +1,12 @@
-import { StoreApi } from 'zustand';
-import { articleFilterModel } from '~entities/article';
 import { tagApi } from '~entities/tag';
-import { FilterArticleTagButton } from '~features/article';
 import { ErrorHandler } from '~shared/ui/error-handler';
 
 type PopularTagsProps = {
-  model: StoreApi<articleFilterModel.ArticleFilterState>;
+  onTagClick: (tag: string) => void;
 };
 
 export function PopularTags(props: PopularTagsProps) {
-  const { model } = props;
+  const { onTagClick } = props;
 
   const { data: tags, isLoading, isError, error } = tagApi.useGlobalTags();
 
@@ -24,12 +21,16 @@ export function PopularTags(props: PopularTagsProps) {
         {tags &&
           tags.length &&
           tags.map((tag) => (
-            <FilterArticleTagButton
+            <button
               key={tag}
-              model={model}
-              filter={{ tag }}
-              title={tag}
-            />
+              className="tag-pill tag-default"
+              type="button"
+              onClick={() => {
+                onTagClick(tag);
+              }}
+            >
+              {tag}
+            </button>
           ))}
       </div>
     </div>

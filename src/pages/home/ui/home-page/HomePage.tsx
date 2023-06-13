@@ -1,35 +1,32 @@
-import { useLayoutEffect } from 'react';
-import { StoreApi } from 'zustand';
-import { articleFilterModel } from '~entities/article';
-import { sessionModel } from '~entities/session';
-import { FilterArticleTabButton } from '~features/article';
+import { useState } from 'react';
+import cn from 'classnames';
 import { CommonArticlesList } from '~widgets/common-articles-list';
 import { FeedArticlesList } from '~widgets/feed-articles-list';
 import { PopularTags } from '~widgets/popular-tags';
-import {
-  homePageArticleFilterStore,
-  initialFilterState,
-} from '../../model/homePageArticleFilter';
 
 type HomePageProps = {
-  model?: StoreApi<articleFilterModel.ArticleFilterState>;
+  auth?: boolean;
+};
+
+type TabsState = {
+  globalfeed?: boolean;
+  userfeed?: boolean;
+  tagfeed?: string;
 };
 
 export function HomePage(props: HomePageProps) {
-  const { model = homePageArticleFilterStore } = props;
+  const { auth } = props;
 
-  const filter = articleFilterModel.selectFilter(model);
+  const initTabsState: TabsState = {
+    ...(auth && { userfeed: true }),
+    ...(!auth && { globalfeed: true }),
+  };
 
-  const isAuth = sessionModel.useAuth();
+  const [tabs, setTabs] = useState<TabsState>(initTabsState);
 
-  useLayoutEffect(() => {
-    model.getState().setFilter({
-      ...(isAuth && { userfeed: true }),
-      ...(!isAuth && { global: true }),
-    });
-
-    return () => model.getState().resetFilter(initialFilterState);
-  }, [isAuth, model]);
+  const onUserfeedClick = () => setTabs({ userfeed: true });
+  const onGlobalfeedClick = () => setTabs({ globalfeed: true });
+  const onTabfeedClick = (tag: string) => setTabs({ tagfeed: tag });
 
   return (
     <div className="home-page">
@@ -45,40 +42,56 @@ export function HomePage(props: HomePageProps) {
           <div className="col-md-9">
             <div className="feed-toggle">
               <ul className="nav nav-pills outline-active">
-                {isAuth && (
+                {auth && (
                   <li className="nav-item">
-                    <FilterArticleTabButton
-                      model={model}
-                      filter={{ userfeed: true }}
-                      title="Your Feed"
-                    />
+                    <button
+                      className={cn('nav-link', { active: tabs.userfeed })}
+                      type="button"
+                      onClick={onUserfeedClick}
+                    >
+                      Your Feed
+                    </button>
                   </li>
                 )}
                 <li className="nav-item">
-                  <FilterArticleTabButton
-                    model={model}
-                    filter={{ global: true }}
-                    title="Global Feed"
-                  />
+                  <button
+                    className={cn('nav-link', { active: tabs.globalfeed })}
+                    type="button"
+                    onClick={onGlobalfeedClick}
+                  >
+                    Global Feed
+                  </button>
                 </li>
-                {filter.tag && (
+                {tabs.tagfeed && (
                   <li className="nav-item">
-                    <FilterArticleTabButton
-                      model={model}
-                      filter={{ tag: filter.tag }}
-                      title={`#${filter.tag}`}
-                    />
+                    <button
+                      className={cn('nav-link', { active: tabs.tagfeed })}
+                      type="button"
+                    >
+                      #{tabs.tagfeed}
+                    </button>
                   </li>
                 )}
               </ul>
             </div>
 
-            {filter.userfeed && <FeedArticlesList model={model} />}
-            {!filter.userfeed && <CommonArticlesList model={model} />}
+            {tabs.userfeed && (
+              <FeedArticlesList query={{ limit: 10, offset: 0 }} />
+            )}
+
+            {tabs.globalfeed && (
+              <CommonArticlesList query={{ limit: 10, offset: 0 }} />
+            )}
+
+            {tabs.tagfeed && (
+              <CommonArticlesList
+                query={{ limit: 10, offset: 0, tag: tabs.tagfeed }}
+              />
+            )}
           </div>
 
           <div className="col-md-3">
-            <PopularTags model={model} />
+            <PopularTags onTagClick={onTabfeedClick} />
           </div>
         </div>
       </div>

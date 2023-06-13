@@ -1,7 +1,5 @@
-import { StoreApi } from 'zustand';
 import {
   articleApi,
-  articleFilterModel,
   ArticleMeta,
   ArticlePreviewCard,
   ArticlesList,
@@ -12,17 +10,15 @@ import { ToggleFavoriteArticleButton } from '~features/article';
 import { NavigateToLoginFavoriteButton } from '~features/session';
 
 type CommonArticlesListProps = {
-  model: StoreApi<articleFilterModel.ArticleFilterState>;
+  query: articleApi.GlobalfeedQuery;
 };
 
 export function CommonArticlesList(props: CommonArticlesListProps) {
-  const { model } = props;
+  const { query } = props;
 
   const isAuth = sessionModel.useAuth();
 
-  const filter = articleFilterModel.selectFilter(model);
-
-  const queryKey = articleApi.articleKeys.articles.query(filter);
+  const queryKey = articleApi.articleKeys.articles.globalfeed.query(query);
 
   const {
     data: articlesData,
@@ -31,7 +27,7 @@ export function CommonArticlesList(props: CommonArticlesListProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = articleApi.useCommonInfinityArticles(filter, { secure: isAuth });
+  } = articleApi.useCommonInfinityArticles(query, { secure: isAuth });
 
   return (
     <ArticlesList

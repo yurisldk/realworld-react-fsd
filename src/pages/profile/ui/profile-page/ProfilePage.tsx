@@ -1,39 +1,32 @@
-import { useLayoutEffect } from 'react';
+import { useState } from 'react';
+import cn from 'classnames';
 import { useParams } from 'react-router-dom';
-import { StoreApi } from 'zustand';
-import { articleFilterModel } from '~entities/article';
-import { FilterArticleTabButton } from '~features/article';
 import { CommonArticlesList } from '~widgets/common-articles-list';
 import { ProfileCard } from '~widgets/profile-card';
-import {
-  initialFilterState,
-  profilePageArticleFilterStore,
-} from '../../model/profilePageArticleFilter';
 
 type ProfilePageProps = {
-  model?: StoreApi<articleFilterModel.ArticleFilterState>;
   favorites?: boolean;
 };
 
-// TODO: handle error
-// TODO: navigate to 404 username that doesnt exists (404)
+type TabsState = {
+  author?: string;
+  favorited?: string;
+};
+
 export function ProfilePage(props: ProfilePageProps) {
-  const { model = profilePageArticleFilterStore, favorites } = props;
+  const { favorites } = props;
+
   const { username } = useParams();
 
-  /**
-   * Not sure that's the best way but the main point is init store with
-   * default falues that we can take from prop and react-router params.
-   * It works for now, have to check that later. sorry =)
-   */
-  useLayoutEffect(() => {
-    model.getState().setFilter({
-      ...(!favorites && { author: username }),
-      ...(favorites && { favorited: username }),
-    });
+  const initTabsState: TabsState = {
+    ...(favorites && { favorited: username }),
+    ...(!favorites && { author: username }),
+  };
 
-    return () => model.getState().resetFilter(initialFilterState);
-  }, [favorites, model, username]);
+  const [tabs, setTabs] = useState<TabsState>(initTabsState);
+
+  const onAuthorfeedClick = () => setTabs({ author: username });
+  const onFavoritedfeedClick = () => setTabs({ favorited: username });
 
   return (
     <div className="profile-page">
@@ -45,23 +38,37 @@ export function ProfilePage(props: ProfilePageProps) {
             <div className="articles-toggle">
               <ul className="nav nav-pills outline-active">
                 <li className="nav-item">
-                  <FilterArticleTabButton
-                    model={model}
-                    filter={{ author: username }}
-                    title="My Articles"
-                  />
+                  <button
+                    className={cn('nav-link', { active: tabs.author })}
+                    type="button"
+                    onClick={onAuthorfeedClick}
+                  >
+                    My Articles
+                  </button>
                 </li>
                 <li className="nav-item">
-                  <FilterArticleTabButton
-                    model={model}
-                    filter={{ favorited: username }}
-                    title="Favorited Articles"
-                  />
+                  <button
+                    className={cn('nav-link', { active: tabs.favorited })}
+                    type="button"
+                    onClick={onFavoritedfeedClick}
+                  >
+                    Favorited Articles
+                  </button>
                 </li>
               </ul>
             </div>
 
-            <CommonArticlesList model={model} />
+            {tabs.author && (
+              <CommonArticlesList
+                query={{ limit: 10, offset: 0, author: tabs.author }}
+              />
+            )}
+
+            {tabs.favorited && (
+              <CommonArticlesList
+                query={{ limit: 10, offset: 0, favorited: tabs.favorited }}
+              />
+            )}
           </div>
         </div>
       </div>
