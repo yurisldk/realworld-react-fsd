@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Link, Navigate } from 'react-router-dom';
-import { profileApi } from '~entities/profile';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { FollowButton, profileApi } from '~entities/profile';
 import { sessionModel } from '~entities/session';
 import { ToggleFollowButton } from '~features/profile';
 import { PATH_PAGE } from '~shared/lib/react-router';
@@ -40,8 +40,14 @@ export function ProfileCard(props: ProfileCardProps) {
 
   const queryClient = useQueryClient();
 
+  const navigate = useNavigate();
+
   const user = sessionModel.useCurrentUser();
-  const isCurrentUser = user?.username === username;
+
+  const isAuth = Boolean(user);
+  const isGuest = !isAuth;
+  const isUser = isAuth && !(user?.username === username);
+  const isCurrentUser = isAuth && user?.username === username;
 
   if (isCurrentUser) {
     queryClient.setQueryData(['profile', username], user);
@@ -89,9 +95,18 @@ export function ProfileCard(props: ProfileCardProps) {
               />
               <h4>{profile.username}</h4>
               <p>{profile.bio}</p>
-              {!isCurrentUser && (
+
+              {isGuest && (
+                <FollowButton
+                  title={profile.username}
+                  onClick={() => navigate(PATH_PAGE.login)}
+                />
+              )}
+
+              {isUser && (
                 <ToggleFollowButton queryKey={queryKey} profile={profile} />
               )}
+
               {isCurrentUser && (
                 <Link
                   className="btn btn-sm btn-outline-secondary action-btn"
