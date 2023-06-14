@@ -1,7 +1,9 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
 import { sessionModel } from '~entities/session';
 import { useLoginUser } from '~features/session';
+import { PATH_PAGE } from '~shared/lib/react-router';
 import { ErrorHandler } from '~shared/ui/error-handler';
 
 export function LoginPage() {
@@ -14,7 +16,7 @@ export function LoginPage() {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Sign in</h1>
             <p className="text-xs-center">
-              <a href="/#">Need an account?</a>
+              <Link to={PATH_PAGE.register}>Need an account?</Link>
             </p>
 
             {isError && <ErrorHandler errorData={error!} />}
