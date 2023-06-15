@@ -1,4 +1,5 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
+import { commentApi } from '~entities/comment';
 import {
   CommentDto,
   GenericErrorModel,
@@ -10,15 +11,12 @@ type UseCreateCommentProps = {
   newComment: CommentDto;
 };
 
-export function useCreateComment(
-  queryKey: unknown[],
-  queryClient: QueryClient,
-) {
+export function useCreateComment(queryClient: QueryClient) {
   return useMutation<
     CommentDto,
     GenericErrorModel,
     UseCreateCommentProps,
-    { prevComments: CommentDto[] }
+    { queryKey: unknown[]; prevComments: CommentDto[] }
   >(
     async ({ slug, newComment }: UseCreateCommentProps) => {
       const response = await realworldApi.articles.createArticleComment(slug, {
@@ -28,7 +26,9 @@ export function useCreateComment(
       return response.data.comment;
     },
     {
-      onMutate: async ({ newComment }) => {
+      onMutate: async ({ slug, newComment }) => {
+        const queryKey = commentApi.commentKeys.comments.slug(slug);
+
         await queryClient.cancelQueries({ queryKey });
 
         const prevComments =
@@ -38,15 +38,17 @@ export function useCreateComment(
 
         queryClient.setQueryData<CommentDto[]>(queryKey, newComments);
 
-        return { prevComments };
+        return { queryKey, prevComments };
       },
 
-      onError: (_, __, context) => {
-        queryClient.setQueryData(queryKey, context?.prevComments);
+      onError: (_error, _variables, context) => {
+        if (!context) return;
+        queryClient.setQueryData(context.queryKey, context.prevComments);
       },
 
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey });
+      onSettled: (_data, _error, _valiables, context) => {
+        if (!context) return;
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
       },
     },
   );

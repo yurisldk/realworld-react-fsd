@@ -3,7 +3,6 @@ import dayjs from 'dayjs';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
-import { commentApi } from '~entities/comment';
 import { sessionModel } from '~entities/session';
 import { useCreateComment } from '~features/comment';
 import { CommentDto, NewCommentDto, ProfileDto } from '~shared/api/realworld';
@@ -24,10 +23,9 @@ export function NewCommentEditor(props: NewCommentEditorProps) {
 
   const user = sessionModel.useCurrentUser();
 
-  const queryKey = commentApi.commentKeys.comments.slug(slug);
   const queryClient = useQueryClient();
 
-  const { mutate } = useCreateComment(queryKey, queryClient);
+  const { mutate } = useCreateComment(queryClient);
 
   if (!user)
     return (
