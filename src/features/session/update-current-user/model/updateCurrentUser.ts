@@ -6,41 +6,42 @@ import {
   realworldApi,
 } from '~shared/api/realworld';
 
-export const useUpdateCurrentUser = (
-  queryKey: unknown[],
-  queryClient: QueryClient,
-) =>
+export const useUpdateCurrentUser = (queryClient: QueryClient) =>
   useMutation<
     UserDto,
     GenericErrorModel,
-    sessionApi.User,
+    UserDto,
     {
-      prevUser: unknown;
-      newUser: sessionApi.User;
+      queryKey: string[];
+      prevUser: UserDto | undefined;
     }
   >(
-    async (user: sessionApi.User) => {
+    async (user: UserDto) => {
       const response = await realworldApi.user.updateCurrentUser({ user });
 
       return response.data.user;
     },
     {
       onMutate: async (newUser) => {
+        const queryKey = sessionApi.sessionKeys.session.currentUser();
+
         await queryClient.cancelQueries({ queryKey });
 
-        const prevUser = queryClient.getQueryData(queryKey);
+        const prevUser = queryClient.getQueryData<UserDto>(queryKey);
 
-        queryClient.setQueryData(queryKey, newUser);
+        queryClient.setQueryData<UserDto>(queryKey, newUser);
 
-        return { prevUser, newUser };
+        return { queryKey, prevUser };
       },
 
-      onError: (_, __, context) => {
-        queryClient.setQueryData(queryKey, context?.prevUser);
+      onError: (_error, _variables, context) => {
+        if (!context) return;
+        queryClient.setQueryData(context.queryKey, context.prevUser);
       },
 
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey });
+      onSettled: (_data, _error, _valiables, context) => {
+        if (!context) return;
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
       },
     },
   );
