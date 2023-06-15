@@ -1,47 +1,13 @@
 import { InfiniteData, QueryClient, useMutation } from '@tanstack/react-query';
+import { articleApi } from '~entities/article';
 import { ArticleDto, realworldApi } from '~shared/api/realworld';
+import { updateInfinityData } from '../lib';
 
 type ArticlesInfinityData = InfiniteData<ArticleDto[]>;
 
 type MutateFnType = typeof realworldApi.articles.createArticleFavorite;
 
-const updateInfinityData = (
-  infinityData: ArticlesInfinityData,
-  newArticle: ArticleDto,
-) => {
-  const articleOrderIdx = infinityData.pages
-    .flat()
-    .findIndex((article) => article.slug === newArticle.slug);
-
-  const [pageIdx, articleIdx] = [
-    Math.floor(articleOrderIdx / 10),
-    articleOrderIdx % 10,
-  ];
-
-  const newArticlesInfinityData: ArticlesInfinityData = {
-    pages: [
-      ...infinityData.pages.slice(0, pageIdx),
-      [
-        ...infinityData.pages[pageIdx].slice(0, articleIdx),
-        newArticle,
-        ...infinityData.pages[pageIdx].slice(articleIdx + 1),
-      ],
-      ...infinityData.pages.slice(pageIdx + 1),
-    ],
-
-    pageParams: [
-      undefined,
-      ...infinityData.pages
-        .slice(0, -1)
-        .map((page, idx) => page.length * idx + 1),
-    ],
-  };
-
-  return newArticlesInfinityData;
-};
-
 export const useMutateFavoriteArticle = (
-  queryKey: unknown[],
   mutateFn: MutateFnType,
   queryClient: QueryClient,
 ) =>
@@ -52,49 +18,64 @@ export const useMutateFavoriteArticle = (
     },
 
     {
+      // We have to optimistic update article as part of articles list and single article to avoid desynchronize when user favorite article then instant switch beetwen single page / articles list etc... and have old state before our query refetched.
       onMutate: async (newArticle) => {
-        // FIXME: add types
-        const isArticle = queryKey[0] === 'article';
-
-        await queryClient.cancelQueries({ queryKey });
-
-        const prevQueryData = queryClient.getQueryData<
-          ArticleDto | ArticlesInfinityData
-        >(queryKey);
-
-        let newQueryData: ArticleDto | ArticlesInfinityData | undefined;
-
-        switch (true) {
-          case !isArticle:
-            newQueryData = updateInfinityData(
-              prevQueryData as ArticlesInfinityData,
-              newArticle,
-            );
-            break;
-
-          case isArticle:
-            newQueryData = newArticle;
-            break;
-
-          default:
-            newQueryData = undefined;
-        }
-
-        queryClient.setQueryData<ArticleDto | ArticlesInfinityData>(
-          queryKey,
-          newQueryData,
+        const articlesQueryKey = articleApi.articleKeys.articles.root;
+        const articleQueryKey = articleApi.articleKeys.article.slug(
+          newArticle.slug,
         );
 
-        return { prevQueryData };
+        // Cancel any articles and article with slug refetches
+        await queryClient.cancelQueries({ queryKey: articlesQueryKey });
+        await queryClient.cancelQueries({ queryKey: articleQueryKey });
+
+        // Snapshot the previous article.
+        const prevArticle: ArticleDto = {
+          ...newArticle,
+          favorited: !newArticle.favorited,
+        };
+
+        // Optimistically update to the new value
+        queryClient.setQueriesData<ArticlesInfinityData>(
+          articlesQueryKey,
+          (prevInfinityData) => {
+            if (!prevInfinityData) return undefined;
+            return updateInfinityData(prevInfinityData, newArticle);
+          },
+        );
+
+        queryClient.setQueryData<ArticleDto>(articleQueryKey, newArticle);
+
+        // Return a context object with the snapshotted value and query keys
+        return { articlesQueryKey, articleQueryKey, prevArticle };
       },
 
-      onError: (_, __, context) => {
+      // If the mutation fails,
+      // use the context returned from onMutate to roll back
+      onError: (_error, _variables, context) => {
         if (!context) return;
-        queryClient.setQueryData(queryKey, context.prevQueryData);
+
+        const { articlesQueryKey, articleQueryKey, prevArticle } = context;
+
+        queryClient.setQueriesData<ArticlesInfinityData>(
+          articlesQueryKey,
+          (newInfinityData) => {
+            if (!newInfinityData) return undefined;
+            return updateInfinityData(newInfinityData, prevArticle);
+          },
+        );
+
+        queryClient.setQueryData<ArticleDto>(articleQueryKey, prevArticle);
       },
 
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey });
+      // Always refetch after error or success:
+      onSettled: (_data, _error, _variables, context) => {
+        if (!context) return;
+
+        const { articlesQueryKey, articleQueryKey } = context;
+
+        queryClient.invalidateQueries({ queryKey: articlesQueryKey });
+        queryClient.invalidateQueries({ queryKey: articleQueryKey });
       },
     },
   );

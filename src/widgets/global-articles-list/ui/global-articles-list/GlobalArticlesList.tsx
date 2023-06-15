@@ -22,8 +22,6 @@ export function GlobalArticlesList(props: GlobalArticlesListProps) {
 
   const navigate = useNavigate();
 
-  const queryKey = articleApi.articleKeys.articles.globalfeed.query(query);
-
   const {
     data: articlesData,
     status: articlesStatus,
@@ -51,7 +49,6 @@ export function GlobalArticlesList(props: GlobalArticlesListProps) {
               actionSlot={
                 isAuth ? (
                   <ToggleFavoriteArticleButton
-                    queryKey={queryKey}
                     article={article}
                     followTitle={article.favoritesCount.toString()}
                     unfollowTitle={article.favoritesCount.toString()}

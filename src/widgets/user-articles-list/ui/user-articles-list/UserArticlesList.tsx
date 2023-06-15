@@ -14,8 +14,6 @@ type UserArticlesListProps = {
 export function UserArticlesList(props: UserArticlesListProps) {
   const { query } = props;
 
-  const queryKey = articleApi.articleKeys.articles.userfeed.query(query);
-
   const {
     data: articlesData,
     status: articlesStatus,
@@ -42,7 +40,6 @@ export function UserArticlesList(props: UserArticlesListProps) {
               article={article}
               actionSlot={
                 <ToggleFavoriteArticleButton
-                  queryKey={queryKey}
                   article={article}
                   followTitle={article.favoritesCount.toString()}
                   unfollowTitle={article.favoritesCount.toString()}

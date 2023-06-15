@@ -24,7 +24,6 @@ export function UserArticleMeta(props: UserArticleMetaProps) {
           />
           &nbsp;&nbsp;
           <ToggleFavoriteArticleButton
-            queryKey={queryArticleKey}
             article={article}
             followTitle={
               <>

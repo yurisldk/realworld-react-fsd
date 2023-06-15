@@ -5,18 +5,17 @@ import { ArticleDto } from '~shared/api/realworld';
 import { useMutationFavoriteArticle } from '../../model/favoriteArticle';
 
 type FavoriteArticleButtonProps = {
-  queryKey: unknown[];
   article: ArticleDto;
   title?: ReactNode;
   float?: 'none' | 'left' | 'right';
 };
 
 export function FavoriteArticleButton(props: FavoriteArticleButtonProps) {
-  const { queryKey, article, title, float = 'none' } = props;
+  const { article, title, float = 'none' } = props;
 
   const queryClient = useQueryClient();
 
-  const favoriteArticle = useMutationFavoriteArticle(queryKey, queryClient);
+  const favoriteArticle = useMutationFavoriteArticle(queryClient);
 
   const handleFavorite = async () => {
     const newArticle: ArticleDto = {

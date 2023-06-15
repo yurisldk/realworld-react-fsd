@@ -1,13 +1,9 @@
 import { QueryClient } from '@tanstack/react-query';
 import { realworldApi } from '~shared/api/realworld';
-import { useMutateFavoriteArticle } from '../../base/model/baseModel';
+import { useMutateFavoriteArticle } from '../../base';
 
-export const useMutationFavoriteArticle = (
-  queryKey: unknown[],
-  queryClient: QueryClient,
-) =>
+export const useMutationFavoriteArticle = (queryClient: QueryClient) =>
   useMutateFavoriteArticle(
-    queryKey,
     realworldApi.articles.createArticleFavorite,
     queryClient,
   );

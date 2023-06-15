@@ -5,18 +5,17 @@ import { ArticleDto } from '~shared/api/realworld';
 import { useMutationUnfavoriteArticle } from '../../model/unfavoriteArticle';
 
 type UnfavoriteArticleButtonProps = {
-  queryKey: unknown[];
   article: ArticleDto;
   title?: ReactNode;
   float?: 'none' | 'left' | 'right';
 };
 
 export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
-  const { queryKey, article, title, float = 'none' } = props;
+  const { article, title, float = 'none' } = props;
 
   const queryClient = useQueryClient();
 
-  const unfavoriteArticle = useMutationUnfavoriteArticle(queryKey, queryClient);
+  const unfavoriteArticle = useMutationUnfavoriteArticle(queryClient);
 
   const handleUnfavorite = () => {
     const newArticle: ArticleDto = {
