@@ -33,6 +33,9 @@ export const useMutateFavoriteArticle = (
         const prevArticle: ArticleDto = {
           ...newArticle,
           favorited: !newArticle.favorited,
+          favoritesCount: newArticle.favorited
+            ? newArticle.favoritesCount - 1
+            : newArticle.favoritesCount + 1,
         };
 
         // Optimistically update to the new value
