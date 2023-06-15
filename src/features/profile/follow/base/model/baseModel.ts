@@ -1,14 +1,15 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
+import { articleApi } from '~entities/article';
 import { profileApi } from '~entities/profile';
-import { ArticleDto, realworldApi } from '~shared/api/realworld';
+import { ArticleDto, ProfileDto, realworldApi } from '~shared/api/realworld';
 
 type MutateFnType = typeof realworldApi.profiles.followUserByUsername;
 
 export const useMutateFollowUser = (
-  queryKey: unknown[],
   mutateFn: MutateFnType,
   queryClient: QueryClient,
 ) =>
+  // We have to optimistic update profile as part of article and profile to avoid desynchronize when user follow profile then instant switch beetwen article page and profile page and have old state before our query refetched.
   useMutation(
     async (profile: profileApi.Profile) => {
       const response = await mutateFn(profile.username);
@@ -17,47 +18,66 @@ export const useMutateFollowUser = (
 
     {
       onMutate: async (newProfile) => {
-        const isArticle = queryKey[0] === 'article';
-
-        await queryClient.cancelQueries({ queryKey });
-
-        const prevQueryData = queryClient.getQueryData<
-          ArticleDto | profileApi.Profile
-        >(queryKey);
-
-        let newQueryData: ArticleDto | profileApi.Profile | undefined;
-
-        switch (true) {
-          case isArticle:
-            newQueryData = {
-              ...prevQueryData,
-              author: newProfile,
-            } as ArticleDto;
-            break;
-
-          case !isArticle:
-            newQueryData = newProfile;
-            break;
-
-          default:
-            newQueryData = undefined;
-        }
-
-        queryClient.setQueryData<ArticleDto | profileApi.Profile>(
-          queryKey,
-          newQueryData,
+        const articleQueryKey = articleApi.articleKeys.article.root;
+        const profileQueryKey = profileApi.profileKeys.profile.username(
+          newProfile.username,
         );
 
-        return { prevQueryData };
+        // Cancel any profile and article with slug refetches
+        await queryClient.cancelQueries({ queryKey: articleQueryKey });
+        await queryClient.cancelQueries({ queryKey: profileQueryKey });
+
+        // Snapshot the previous article
+        const prevProfile: ProfileDto = {
+          ...newProfile,
+          following: !newProfile.following,
+        };
+
+        // Optimistically update to the new value
+        queryClient.setQueriesData<ArticleDto>(
+          articleQueryKey,
+          (prevArticle) => {
+            if (!prevArticle) return undefined;
+            return prevArticle.author.username === newProfile.username
+              ? { ...prevArticle, author: newProfile }
+              : prevArticle;
+          },
+        );
+
+        queryClient.setQueryData(profileQueryKey, newProfile);
+
+        // Return a context object with the snapshotted value and query keys
+        return { profileQueryKey, articleQueryKey, prevProfile };
       },
 
-      onError: (_, __, context) => {
+      // If the mutation fails,
+      // use the context returned from onMutate to roll back
+      onError: (_error, _variables, context) => {
         if (!context) return;
-        queryClient.setQueryData(queryKey, context.prevQueryData);
+
+        const { profileQueryKey, articleQueryKey, prevProfile } = context;
+
+        queryClient.setQueriesData<ArticleDto>(
+          articleQueryKey,
+          (newArticle) => {
+            if (!newArticle) return undefined;
+            return newArticle.author.username === prevProfile.username
+              ? { ...newArticle, author: prevProfile }
+              : newArticle;
+          },
+        );
+
+        queryClient.setQueryData(profileQueryKey, prevProfile);
       },
 
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey });
+      // Always refetch after error or success:
+      onSettled: (_data, _error, _variables, context) => {
+        if (!context) return;
+
+        const { profileQueryKey, articleQueryKey } = context;
+
+        queryClient.invalidateQueries({ queryKey: articleQueryKey });
+        queryClient.invalidateQueries({ queryKey: profileQueryKey });
       },
     },
   );

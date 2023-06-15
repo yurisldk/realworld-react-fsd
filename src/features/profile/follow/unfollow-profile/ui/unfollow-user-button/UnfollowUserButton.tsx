@@ -3,16 +3,15 @@ import { FollowButton, profileApi } from '~entities/profile';
 import { useMutationUnfollowUser } from '../../model/unfollowUser';
 
 type UnfollowUserButtonProps = {
-  queryKey: unknown[];
   profile: profileApi.Profile;
 };
 
 export function UnfollowUserButton(props: UnfollowUserButtonProps) {
-  const { queryKey, profile } = props;
+  const { profile } = props;
 
   const queryClient = useQueryClient();
 
-  const toggleFollow = useMutationUnfollowUser(queryKey, queryClient);
+  const toggleFollow = useMutationUnfollowUser(queryClient);
 
   const handleClick = () => {
     const newUser: profileApi.Profile = {

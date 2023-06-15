@@ -3,16 +3,15 @@ import { FollowButton, profileApi } from '~entities/profile';
 import { useMutationFollowUser } from '../../model/followUser';
 
 type FollowUserButtonProps = {
-  queryKey: unknown[];
   profile: profileApi.Profile;
 };
 
 export function FollowUserButton(props: FollowUserButtonProps) {
-  const { queryKey, profile } = props;
+  const { profile } = props;
 
   const queryClient = useQueryClient();
 
-  const followUser = useMutationFollowUser(queryKey, queryClient);
+  const followUser = useMutationFollowUser(queryClient);
 
   const handleClick = () => {
     const newUser: profileApi.Profile = {

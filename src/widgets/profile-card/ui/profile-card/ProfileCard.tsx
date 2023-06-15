@@ -68,8 +68,6 @@ export function ProfileCard(props: ProfileCardProps) {
   if (isError && error.status === 404)
     return <Navigate to={PATH_PAGE.page404} />;
 
-  const queryKey = profileApi.profileKeys.profile.username(username);
-
   return (
     <div className="user-info">
       <div className="container">
@@ -103,9 +101,7 @@ export function ProfileCard(props: ProfileCardProps) {
                 />
               )}
 
-              {isUser && (
-                <ToggleFollowButton queryKey={queryKey} profile={profile} />
-              )}
+              {isUser && <ToggleFollowButton profile={profile} />}
 
               {isCurrentUser && (
                 <Link

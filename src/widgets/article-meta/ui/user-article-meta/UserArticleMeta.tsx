@@ -1,27 +1,21 @@
-import { ArticleMeta, articleApi } from '~entities/article';
+import { ArticleMeta } from '~entities/article';
 import { ToggleFavoriteArticleButton } from '~features/article';
 import { ToggleFollowButton } from '~features/profile';
 import { ArticleDto } from '~shared/api/realworld';
 
 type UserArticleMetaProps = {
-  slug: string;
   article: ArticleDto;
 };
 
 export function UserArticleMeta(props: UserArticleMetaProps) {
-  const { slug, article } = props;
-
-  const queryArticleKey = articleApi.articleKeys.article.slug(slug);
+  const { article } = props;
 
   return (
     <ArticleMeta
       article={article}
       actionSlot={
         <>
-          <ToggleFollowButton
-            queryKey={queryArticleKey}
-            profile={article.author}
-          />
+          <ToggleFollowButton profile={article.author} />
           &nbsp;&nbsp;
           <ToggleFavoriteArticleButton
             article={article}

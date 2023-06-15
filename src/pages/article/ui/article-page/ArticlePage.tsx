@@ -55,7 +55,7 @@ export function ArticlePage() {
             <CurrentUserArticleMeta slug={slug!} article={article} />
           )}
 
-          {isUser && <UserArticleMeta slug={slug!} article={article} />}
+          {isUser && <UserArticleMeta article={article} />}
 
           {isGuest && <GuestArticleMeta article={article} />}
         </div>
@@ -84,7 +84,7 @@ export function ArticlePage() {
             <CurrentUserArticleMeta slug={slug!} article={article} />
           )}
 
-          {isUser && <UserArticleMeta slug={slug!} article={article} />}
+          {isUser && <UserArticleMeta article={article} />}
 
           {isGuest && <GuestArticleMeta article={article} />}
         </div>
