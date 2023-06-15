@@ -1,5 +1,4 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { commentApi } from '~entities/comment';
 import { useDeleteComment } from '../../model/deleteComment';
 
 type DeleteCommentIconButttonProps = {
@@ -10,10 +9,9 @@ type DeleteCommentIconButttonProps = {
 export function DeleteCommentIconButtton(props: DeleteCommentIconButttonProps) {
   const { slug, id } = props;
 
-  const queryKey = commentApi.commentKeys.comments.slug(slug);
   const queryClient = useQueryClient();
 
-  const { mutate } = useDeleteComment(queryKey, queryClient);
+  const { mutate } = useDeleteComment(queryClient);
 
   const handleClick = () => {
     mutate({ slug, id });
