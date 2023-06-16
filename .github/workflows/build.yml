@@ -1,0 +1,43 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    steps:
+      - name: 📥 Check out the code
+        uses: actions/checkout@v3
+
+      - name: 💿 Setup NodeJS 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+
+      - name: 🏭 Install dependencies
+        run: yarn install
+
+      - name: 🕵 Lint the code
+        run: yarn lint
+
+      - name: 💅 Run Prettier
+        run: yarn prettier
+
+      - name: 🔬 Run unit tests
+        run: yarn test:coverage
+
+      - name: 🧰 Build code
+        run: yarn build
+
+      - name: 📊 Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: false
+          files: src/shared/lib/test/coverage/coverage-final.json
+          verbose: false
