@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/dot-notation */
 import { renderHook, waitFor } from '@testing-library/react';
 import { realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
