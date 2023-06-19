@@ -1,1 +1,3 @@
-export { EditorPage } from './ui/editor-page/EditorPage';
+import { EditorPage } from './ui/editor-page/EditorPage';
+
+export default EditorPage;

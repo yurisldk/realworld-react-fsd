@@ -1,20 +1,27 @@
+import { ElementType, ReactNode, Suspense, lazy } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
 import { sessionModel } from '~entities/session';
-import { ArticlePage } from '~pages/article';
-import { EditorPage } from '~pages/editor';
-import { HomePage } from '~pages/home';
 import { MainLayout } from '~pages/layouts';
-import { LoginPage } from '~pages/login';
-import { ProfilePage } from '~pages/profile';
-import { RegisterPage } from '~pages/register';
-import { SettingsPage } from '~pages/settings';
 import { PATH_PAGE } from '~shared/lib/react-router';
+import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
+import { Spinner } from '~shared/ui/spinner';
 
-type GuestGuardProps = {
-  children: React.ReactNode;
-};
+const Loadable = (Component: ElementType) =>
+  function fn(props: any) {
+    return (
+      <Suspense
+        fallback={
+          <FullPageWrapper>
+            <Spinner />
+          </FullPageWrapper>
+        }
+      >
+        <Component {...props} />
+      </Suspense>
+    );
+  };
 
-function GuestGuard(props: GuestGuardProps) {
+function GuestGuard(props: { children: ReactNode }) {
   const { children } = props;
   const isAuth = sessionModel.useAuth();
 
@@ -23,11 +30,7 @@ function GuestGuard(props: GuestGuardProps) {
   return <> {children} </>;
 }
 
-type AuthGuardProps = {
-  children: React.ReactNode;
-};
-
-function AuthGuard(props: AuthGuardProps) {
+function AuthGuard(props: { children: ReactNode }) {
   const { children } = props;
   const isAuth = sessionModel.useAuth();
 
@@ -35,6 +38,14 @@ function AuthGuard(props: AuthGuardProps) {
 
   return <> {children} </>;
 }
+
+const ArticlePage = Loadable(lazy(() => import('~pages/article')));
+const EditorPage = Loadable(lazy(() => import('~pages/editor')));
+const HomePage = Loadable(lazy(() => import('~pages/home')));
+const LoginPage = Loadable(lazy(() => import('~pages/login')));
+const ProfilePage = Loadable(lazy(() => import('~pages/profile')));
+const RegisterPage = Loadable(lazy(() => import('~pages/register')));
+const SettingsPage = Loadable(lazy(() => import('~pages/settings')));
 
 export function Router() {
   const isAuth = sessionModel.useAuth();

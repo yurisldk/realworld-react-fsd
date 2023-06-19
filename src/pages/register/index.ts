@@ -1,1 +1,3 @@
-export { RegisterPage } from './ui/register-page/RegisterPage';
+import { RegisterPage } from './ui/register-page/RegisterPage';
+
+export default RegisterPage;
