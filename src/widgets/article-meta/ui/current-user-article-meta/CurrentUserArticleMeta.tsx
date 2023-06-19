@@ -1,3 +1,4 @@
+import { IoPencil } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 import { ArticleMeta } from '~entities/article';
 import { DeleteArticleButton } from '~features/article';
@@ -21,7 +22,8 @@ export function CurrentUserArticleMeta(props: CurrentUserArticleMetaProps) {
             className="btn btn-outline-secondary btn-sm"
             to={PATH_PAGE.editor.edit(slug)}
           >
-            <i className="ion-edit" /> Edit Article
+            <IoPencil size={16} />
+            &nbsp;Edit Article
           </Link>
           &nbsp;&nbsp;
           <DeleteArticleButton slug={slug} />

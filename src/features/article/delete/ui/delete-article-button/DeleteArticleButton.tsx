@@ -1,3 +1,4 @@
+import { IoTrash } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { PATH_PAGE } from '~shared/lib/react-router';
 import { useDeleteArticle } from '../../model/deleteArticle';
@@ -27,7 +28,8 @@ export function DeleteArticleButton(props: DeleteArticleButtonProps) {
       className="btn btn-outline-danger btn-sm"
       type="button"
     >
-      <i className="ion-trash-a" /> Delete Article
+      <IoTrash size={16} />
+      &nbsp;Delete Article
     </button>
   );
 }

@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import cn from 'classnames';
+import { IoAdd, IoRemove } from 'react-icons/io5';
 
 type FollowButtonProps = {
   title?: ReactNode;
@@ -17,14 +18,12 @@ export function FollowButton(props: FollowButtonProps) {
 
   return (
     <button className={classes} type="button" onClick={onClick}>
-      <i
-        className={cn({
-          'ion-minus-round': following,
-          'ion-plus-round': !following,
-        })}
-        data-testid="icon"
-      />
-      &nbsp; {following ? 'Unfollow' : 'Follow'} {title}
+      {following ? (
+        <IoRemove size={16} data-testid="icon-remove" />
+      ) : (
+        <IoAdd size={16} data-testid="icon-add" />
+      )}
+      &nbsp;{following ? 'Unfollow' : 'Follow'} {title}
     </button>
   );
 }

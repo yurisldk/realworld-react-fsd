@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { IoTrash } from 'react-icons/io5';
 import { useDeleteComment } from '../../model/deleteComment';
 
 type DeleteCommentIconButttonProps = {
@@ -25,7 +26,7 @@ export function DeleteCommentIconButtton(props: DeleteCommentIconButttonProps) {
       type="button"
     >
       <span>
-        <i className="ion-trash-a" />
+        <IoTrash size={14} />
       </span>
     </button>
   );

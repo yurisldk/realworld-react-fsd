@@ -11,8 +11,8 @@ describe('<FollowButton />', () => {
     expect(followButton).toHaveClass('btn btn-sm action-btn');
     expect(followButton).toHaveClass('btn-outline-secondary');
 
-    const icon = screen.getByTestId('icon');
-    expect(icon).toHaveClass('ion-plus-round');
+    const iconAdd = screen.getByTestId('icon-add');
+    expect(iconAdd).toBeInTheDocument();
   });
 
   it('renders follow button with custom props', () => {
@@ -24,8 +24,8 @@ describe('<FollowButton />', () => {
     expect(followButton).not.toHaveClass('btn-outline-secondary');
     expect(followButton).toHaveClass('btn-secondary');
 
-    const icon = screen.getByTestId('icon');
-    expect(icon).toHaveClass('ion-minus-round');
+    const iconRemove = screen.getByTestId('icon-remove');
+    expect(iconRemove).toBeInTheDocument();
   });
 
   it('calls onClick function when the button is clicked', async () => {

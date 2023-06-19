@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import cn from 'classnames';
+import { IoHeart } from 'react-icons/io5';
 
 type FavoriteButtonProps = {
   title?: ReactNode;
@@ -24,7 +25,9 @@ export function FavoriteButton(props: FavoriteButtonProps) {
 
   return (
     <button className={classes} type="button" onClick={onClick}>
-      <i className="ion-heart" /> {title}
+      <IoHeart size={16} />
+      &nbsp;
+      {title}
     </button>
   );
 }

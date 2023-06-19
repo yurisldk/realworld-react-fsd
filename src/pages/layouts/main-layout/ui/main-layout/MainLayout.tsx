@@ -1,3 +1,4 @@
+import { IoCreateOutline, IoSettingsSharp } from 'react-icons/io5';
 import { NavLink, Outlet } from 'react-router-dom';
 import { sessionApi, sessionModel } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
@@ -42,13 +43,13 @@ export function MainLayout() {
               </li>
               <li className="nav-item">
                 <NavLink className="nav-link" to={PATH_PAGE.editor.root}>
-                  <i className="ion-compose" />
+                  <IoCreateOutline size={16} />
                   &nbsp;New Article
                 </NavLink>
               </li>
               <li className="nav-item">
                 <NavLink className="nav-link" to={PATH_PAGE.settings}>
-                  <i className="ion-gear-a" />
+                  <IoSettingsSharp size={16} />
                   &nbsp;Settings
                 </NavLink>
               </li>

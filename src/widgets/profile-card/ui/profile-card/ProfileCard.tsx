@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { IoSettingsSharp } from 'react-icons/io5';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { FollowButton, profileApi } from '~entities/profile';
 import { sessionModel } from '~entities/session';
@@ -108,7 +109,8 @@ export function ProfileCard(props: ProfileCardProps) {
                   className="btn btn-sm btn-outline-secondary action-btn"
                   to={PATH_PAGE.settings}
                 >
-                  <i className="ion-gear-a" /> Edit Profile Settings
+                  <IoSettingsSharp size={14} />
+                  &nbsp; Edit Profile Settings
                 </Link>
               )}
             </div>
