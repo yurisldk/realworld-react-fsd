@@ -43,6 +43,7 @@ const ArticlePage = Loadable(lazy(() => import('~pages/article')));
 const EditorPage = Loadable(lazy(() => import('~pages/editor')));
 const HomePage = Loadable(lazy(() => import('~pages/home')));
 const LoginPage = Loadable(lazy(() => import('~pages/login')));
+const Page404 = Loadable(lazy(() => import('~pages/page-404')));
 const ProfilePage = Loadable(lazy(() => import('~pages/profile')));
 const RegisterPage = Loadable(lazy(() => import('~pages/register')));
 const SettingsPage = Loadable(lazy(() => import('~pages/settings')));
@@ -126,6 +127,7 @@ export function Router() {
         },
       ],
     },
+    { path: '404', element: <Page404 /> },
     { path: '*', element: <Navigate to={PATH_PAGE.page404} replace /> },
   ]);
 }
