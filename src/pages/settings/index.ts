@@ -1,3 +1,3 @@
-import { SettingsPage } from './ui/settings-page/SettingsPage';
+import { SettingsPage } from './SettingsPage';
 
 export default SettingsPage;

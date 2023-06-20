@@ -1,3 +1,3 @@
-import { EditorPage } from './ui/editor-page/EditorPage';
+import { EditorPage } from './EditorPage';
 
 export default EditorPage;
