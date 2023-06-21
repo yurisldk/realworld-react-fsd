@@ -3,11 +3,11 @@ import { createWrapper } from '~shared/lib/react-query';
 import { setupGetProfileByUsernameHandlers } from './msw/getProfileByUsernameHandlers';
 import { useProfile } from './profileApi';
 
-describe('useArticle', () => {
+describe('useProfile', () => {
   beforeEach(() => setupGetProfileByUsernameHandlers());
 
   it('success', async () => {
-    const { result } = renderHook(() => useProfile('jake'), {
+    const { result } = renderHook(() => useProfile('Jake'), {
       wrapper: createWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));

@@ -11,7 +11,7 @@ describe('useUserInfinityArticles', () => {
   });
 
   it('success', async () => {
-    realworldApi.setSecurityData('jwtToken');
+    realworldApi.setSecurityData('jwt.token');
     const { result } = renderHook(
       () => useUserInfinityArticles({ limit: 1, offset: 0 }),
       {

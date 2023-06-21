@@ -3,12 +3,15 @@ import { createWrapper } from '~shared/lib/react-query';
 import { useCommentsQuery } from './commentApi';
 import { setupGetArticlesCommentsHandlers } from './msw/getArticlesCommentsHandlers';
 
-describe('useArticle', () => {
+describe('useCommentsQuery', () => {
   beforeEach(() => setupGetArticlesCommentsHandlers());
 
   it('success', async () => {
     const { result } = renderHook(
-      () => useCommentsQuery('how-to-train-your-dragon'),
+      () =>
+        useCommentsQuery(
+          'If-we-quantify-the-alarm-we-can-get-to-the-FTP-pixel-through-the-online-SSL-interface!-120863',
+        ),
       {
         wrapper: createWrapper(),
       },

@@ -8,7 +8,10 @@ describe('useArticle', () => {
 
   it('success', async () => {
     const { result } = renderHook(
-      () => useArticle('how-to-train-your-dragon'),
+      () =>
+        useArticle(
+          'If-we-quantify-the-alarm-we-can-get-to-the-FTP-pixel-through-the-online-SSL-interface!-120863',
+        ),
       { wrapper: createWrapper() },
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
