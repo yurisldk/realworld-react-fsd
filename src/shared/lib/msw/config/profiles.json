@@ -1,0 +1,12 @@
+[
+  {
+    "username": "Jake",
+    "bio": "I work at statefarm",
+    "image": "https://api.realworld.io/images/smiley-cyrus.jpeg"
+  },
+  {
+    "username": "Anah Benešová",
+    "bio": "I work at statefarm",
+    "image": "https://api.realworld.io/images/demo-avatar.png"
+  }
+]
