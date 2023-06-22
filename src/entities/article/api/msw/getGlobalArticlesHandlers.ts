@@ -1,30 +1,55 @@
 import { rest } from 'msw';
 import { realworldApi } from '~shared/api/realworld';
-import { server, initTestDatabase } from '~shared/lib/msw';
+import {
+  server,
+  initTestDatabase,
+  parseTokenFromRequest,
+  mapMswArticleDto,
+} from '~shared/lib/msw';
 
 const databaseApi = initTestDatabase();
 
-// TODO: add params cases
 const getGlobalArticlesHandlers = [
   rest.get(`${realworldApi.baseUrl}/articles`, (req, res, ctx) => {
-    // const tag = req.url.searchParams.get('tag');
-    // const author = req.url.searchParams.get('author');
-    // const favorited = req.url.searchParams.get('favorited');
+    const author = req.url.searchParams.get('author');
+    const favorited = req.url.searchParams.get('favorited');
+    const tag = req.url.searchParams.get('tag');
     const offset = Number(req.url.searchParams.get('offset'));
     const limit = Number(req.url.searchParams.get('limit'));
 
-    const articles = databaseApi.article.findMany({
-      take: limit,
-      skip: offset,
+    /**
+     * temporary
+     * @see https://github.com/mswjs/data/issues/249
+     * we have to use databaseApi.article.findMany({ where: {...} })
+     */
+    const articles = databaseApi.article
+      .getAll()
+      .filter((article) => (author ? article.authorId === author : true))
+      .filter((article) =>
+        favorited ? article.favoritedBy.includes(favorited) : true,
+      )
+      .filter((article) => (tag ? article.tagList.includes(tag) : true));
+
+    const token = parseTokenFromRequest(req);
+    const maybeUser = databaseApi.user.findFirst({
+      where: { token: { equals: token } },
     });
 
-    const articlesCount = databaseApi.article.count();
+    const articlesDto = articles
+      .slice(offset, limit + offset)
+      .map((article) => {
+        const maybeProfile = databaseApi.profile.findFirst({
+          where: { username: { equals: article.authorId } },
+        });
+
+        return mapMswArticleDto(article, maybeUser, maybeProfile);
+      });
 
     return res(
       ctx.status(200),
       ctx.json({
-        articles,
-        articlesCount,
+        articles: articlesDto,
+        articlesCount: articles.length,
       }),
     );
   }),

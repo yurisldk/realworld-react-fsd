@@ -4,15 +4,22 @@ import {
   server,
   initTestDatabase,
   parseTokenFromRequest,
+  mapMswArticleDto,
 } from '~shared/lib/msw';
 
 const databaseApi = initTestDatabase();
 
 const getUserArticlesHandlers = [
   rest.get(`${realworldApi.baseUrl}/articles/feed`, (req, res, ctx) => {
-    const token = parseTokenFromRequest(req);
+    const offset = Number(req.url.searchParams.get('offset'));
+    const limit = Number(req.url.searchParams.get('limit'));
 
-    if (!token)
+    const token = parseTokenFromRequest(req);
+    const maybeUser = databaseApi.user.findFirst({
+      where: { token: { equals: token } },
+    });
+
+    if (!maybeUser)
       return res(
         ctx.status(401),
         ctx.json({
@@ -21,31 +28,27 @@ const getUserArticlesHandlers = [
         }),
       );
 
-    const user = databaseApi.user.findFirst({
-      where: { token: { equals: token } },
-    });
-
-    const offset = Number(req.url.searchParams.get('offset'));
-    const limit = Number(req.url.searchParams.get('limit'));
-
     const articles = databaseApi.article.findMany({
-      where: {
-        author: {
-          username: {
-            in: user?.followsAuthors.map((author) => author.username),
-          },
-        },
-      },
+      where: { authorId: { equals: maybeUser.username } },
       take: limit,
       skip: offset,
     });
+    const articlesCount = databaseApi.article.count({
+      where: { authorId: { equals: maybeUser.username } },
+    });
 
-    const articlesCount = articles.length;
+    const articlesDto = articles.map((article) => {
+      const maybeProfile = databaseApi.profile.findFirst({
+        where: { username: { equals: article.authorId } },
+      });
+
+      return mapMswArticleDto(article, maybeUser, maybeProfile);
+    });
 
     return res(
       ctx.status(200),
       ctx.json({
-        articles,
+        articles: articlesDto,
         articlesCount,
       }),
     );

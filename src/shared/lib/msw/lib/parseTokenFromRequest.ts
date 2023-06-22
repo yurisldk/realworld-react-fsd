@@ -5,7 +5,7 @@ export function parseTokenFromRequest(req: RestRequest) {
 
   const isValidToken = Boolean(tokenHeader.startsWith('Token '));
 
-  if (!isValidToken) return null;
+  if (!isValidToken) return undefined;
 
   const [, token] = tokenHeader.split(' ');
 

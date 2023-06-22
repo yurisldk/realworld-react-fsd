@@ -1,6 +1,11 @@
 import { rest } from 'msw';
 import { realworldApi } from '~shared/api/realworld';
-import { server, initTestDatabase } from '~shared/lib/msw';
+import {
+  server,
+  initTestDatabase,
+  parseTokenFromRequest,
+  mapMswProfileDto,
+} from '~shared/lib/msw';
 
 const databaseApi = initTestDatabase();
 
@@ -10,27 +15,31 @@ const getArticlesCommentsHandlers = [
     (req, res, ctx) => {
       const { slug } = req.params;
 
-      const maybeArticle = databaseApi.article.findFirst({
-        where: { slug: { equals: String(slug) } },
-      });
-
-      if (!maybeArticle)
-        return res(
-          ctx.status(404),
-          ctx.json({ errors: { comments: ['not found'] } }),
-        );
-
-      const articleComments = maybeArticle.comments;
-
       const comments = databaseApi.comment.findMany({
-        where: {
-          id: {
-            in: articleComments?.map((articleComment) => articleComment.id),
-          },
-        },
+        where: { articleId: { equals: String(slug) } },
       });
 
-      return res(ctx.status(200), ctx.json({ comments }));
+      const token = parseTokenFromRequest(req);
+      const maybeUser = databaseApi.user.findFirst({
+        where: { token: { equals: token } },
+      });
+
+      const commentsDto = comments.map((curComment) => {
+        const { articleId, authorId, ...comment } = curComment;
+
+        const maybeProfile = databaseApi.profile.findFirst({
+          where: { username: { equals: authorId } },
+        });
+
+        const author = mapMswProfileDto(maybeUser, maybeProfile);
+
+        return {
+          ...comment,
+          author,
+        };
+      });
+
+      return res(ctx.status(200), ctx.json({ comments: commentsDto }));
     },
   ),
 ];

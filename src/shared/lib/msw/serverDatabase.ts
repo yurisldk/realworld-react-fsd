@@ -1,8 +1,29 @@
-import { factory, manyOf, nullable, oneOf, primaryKey } from '@mswjs/data';
-import articlesConfig from './config/articles.json';
-import commentsConfig from './config/comments.json';
-import profilesConfig from './config/profiles.json';
-import tagsConfig from './config/tags.json';
+import { factory, nullable, primaryKey } from '@mswjs/data';
+import {
+  userConfig,
+  profilesConfig,
+  commentsConfig,
+  tagsConfig,
+  articlesConfig,
+} from './config';
+
+type DatabaseApiType = ReturnType<typeof getDatabaseAPI>;
+
+export type MaybeUserType = ReturnType<DatabaseApiType['user']['findFirst']>;
+
+export type MaybeProfileType = ReturnType<
+  DatabaseApiType['profile']['findFirst']
+>;
+
+export type MaybeArticleType = ReturnType<
+  DatabaseApiType['article']['findFirst']
+>;
+
+export type MaybeCommentType = ReturnType<
+  DatabaseApiType['comment']['findFirst']
+>;
+
+export type MaybeTagType = ReturnType<DatabaseApiType['tag']['findFirst']>;
 
 function getDatabaseAPI() {
   return factory({
@@ -11,15 +32,14 @@ function getDatabaseAPI() {
       email: String,
       username: String,
       bio: nullable(String),
-      image: String,
-      followsAuthors: manyOf('profile'),
-      favoriteArticles: manyOf('article'),
+      image: nullable(String),
     },
 
     profile: {
       username: primaryKey(String),
-      bio: nullable(String),
+      bio: String,
       image: String,
+      followedBy: (): string[] => [],
     },
 
     article: {
@@ -27,74 +47,38 @@ function getDatabaseAPI() {
       title: String,
       description: String,
       body: String,
-      tagList: nullable(manyOf('tag')),
       createdAt: String,
       updatedAt: String,
-      favoritesCount: Number,
-      author: oneOf('profile'),
-      comments: nullable(manyOf('comment')),
+      tagList: (): string[] => [],
+      favoritedBy: (): string[] => [],
+      authorId: String,
     },
 
     comment: {
-      id: primaryKey(Number),
+      id: primaryKey(String),
       createdAt: String,
       updatedAt: String,
       body: String,
-      author: oneOf('profile'),
+      authorId: String,
+      articleId: String,
     },
 
     tag: {
       name: primaryKey(String),
-      used: Number,
     },
   });
 }
 
-function getMultipleRandom(arr: any[], num: number) {
-  const shuffled = [...arr].sort(() => 0.5 - Math.random());
+function seedDatabase(databaseApi: DatabaseApiType) {
+  databaseApi.user.create(userConfig);
 
-  return shuffled.slice(0, num);
-}
+  profilesConfig.map((profile) => databaseApi.profile.create(profile));
 
-function seedDatabase(databaseApi: ReturnType<typeof getDatabaseAPI>) {
-  // jake is current user
-  const [jake, anah] = profilesConfig.map((profile) =>
-    databaseApi.profile.create(profile),
-  );
+  articlesConfig.map((article) => databaseApi.article.create(article));
 
-  const comments = commentsConfig.map((comment) =>
-    databaseApi.comment.create({ ...comment, author: jake }),
-  );
+  commentsConfig.map((comment) => databaseApi.comment.create(comment));
 
-  const tags = tagsConfig.map((tag) => databaseApi.tag.create(tag));
-
-  // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const userArticles = articlesConfig.slice(0, 7).map((article, idx) =>
-    databaseApi.article.create({
-      ...article,
-      tagList: getMultipleRandom(tags, tags.length),
-      author: jake,
-      comments: idx === 0 ? comments : null,
-    }),
-  );
-
-  const anahArticles = articlesConfig.slice(7).map((article) =>
-    databaseApi.article.create({
-      ...article,
-      tagList: getMultipleRandom(tags, tags.length),
-      author: anah,
-      comments: null,
-    }),
-  );
-
-  databaseApi.user.create({
-    ...jake,
-    email: 'jake@jake.jake',
-    token: 'jwt.token',
-    favoriteArticles: anahArticles.slice(0, 7),
-    followsAuthors: [anah],
-  });
+  tagsConfig.map((tag) => databaseApi.tag.create(tag));
 }
 
 export function initTestDatabase() {

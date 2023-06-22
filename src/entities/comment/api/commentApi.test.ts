@@ -6,7 +6,7 @@ import { setupGetArticlesCommentsHandlers } from './msw/getArticlesCommentsHandl
 describe('useCommentsQuery', () => {
   beforeEach(() => setupGetArticlesCommentsHandlers());
 
-  it('success', async () => {
+  it('should return data', async () => {
     const { result } = renderHook(
       () =>
         useCommentsQuery(
@@ -18,13 +18,5 @@ describe('useCommentsQuery', () => {
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toBeDefined();
-  });
-
-  it('error', async () => {
-    const { result } = renderHook(() => useCommentsQuery('invalid-slug'), {
-      wrapper: createWrapper(),
-    });
-    await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(result.current.error).toBeDefined();
   });
 });
