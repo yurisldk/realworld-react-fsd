@@ -20,7 +20,7 @@ describe('useCurrentUser', () => {
 
   it('should error if authorization header without `Token ` prefix', async () => {
     const { result } = renderHook(
-      () => useCurrentUser({}, { headers: { authorization: 'jwtToken' } }),
+      () => useCurrentUser({}, { headers: { authorization: 'jwt.token' } }),
       {
         wrapper: createWrapper(),
       },
@@ -40,7 +40,7 @@ describe('useCurrentUser', () => {
   });
 
   it('should success with valid token', async () => {
-    realworldApi.setSecurityData('jwtToken');
+    realworldApi.setSecurityData('jwt.token');
 
     const { result } = renderHook(() => useCurrentUser(), {
       wrapper: createWrapper(),

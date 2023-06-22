@@ -1,87 +1,55 @@
 import { rest } from 'msw';
 import { realworldApi } from '~shared/api/realworld';
-import { server } from '~shared/lib/msw';
+import {
+  server,
+  initTestDatabase,
+  parseTokenFromRequest,
+  mapMswArticleDto,
+} from '~shared/lib/msw';
 
-const userArticlesDto = {
-  articles: [
-    {
-      slug: 'how-to-train-your-dragon',
-      title: 'How to train your dragon',
-      description: 'Ever wonder how?',
-      body: 'It takes a Jacobian',
-      tagList: ['dragons', 'training'],
-      createdAt: '2016-02-18T03:22:56.637Z',
-      updatedAt: '2016-02-18T03:48:35.824Z',
-      favorited: false,
-      favoritesCount: 0,
-      author: {
-        username: 'jake',
-        bio: 'I work at statefarm',
-        image: 'https://i.stack.imgur.com/xHWG8.jpg',
-        following: false,
-      },
-    },
-    {
-      slug: 'how-to-train-your-dragon-2',
-      title: 'How to train your dragon 2',
-      description: 'So toothless',
-      body: 'It a dragon',
-      tagList: ['dragons', 'training'],
-      createdAt: '2016-02-18T03:22:56.637Z',
-      updatedAt: '2016-02-18T03:48:35.824Z',
-      favorited: false,
-      favoritesCount: 0,
-      author: {
-        username: 'jake',
-        bio: 'I work at statefarm',
-        image: 'https://i.stack.imgur.com/xHWG8.jpg',
-        following: false,
-      },
-    },
-    {
-      slug: 'how-to-train-your-dragon-3',
-      title: 'How to train your dragon 3',
-      description: 'So toothless',
-      body: 'It a dragon',
-      tagList: ['dragons', 'training'],
-      createdAt: '2016-02-18T03:22:56.637Z',
-      updatedAt: '2016-02-18T03:48:35.824Z',
-      favorited: false,
-      favoritesCount: 0,
-      author: {
-        username: 'jake',
-        bio: 'I work at statefarm',
-        image: 'https://i.stack.imgur.com/xHWG8.jpg',
-        following: false,
-      },
-    },
-  ],
-  articlesCount: 3,
-};
+const databaseApi = initTestDatabase();
 
 const getUserArticlesHandlers = [
   rest.get(`${realworldApi.baseUrl}/articles/feed`, (req, res, ctx) => {
-    const isAuth = req.headers.get('authorization')?.startsWith('Token ');
-
     const offset = Number(req.url.searchParams.get('offset'));
     const limit = Number(req.url.searchParams.get('limit'));
 
-    const articles = userArticlesDto.articles.slice(offset, limit + offset);
+    const token = parseTokenFromRequest(req);
+    const maybeUser = databaseApi.user.findFirst({
+      where: { token: { equals: token } },
+    });
 
-    if (isAuth)
+    if (!maybeUser)
       return res(
-        ctx.status(200),
+        ctx.status(401),
         ctx.json({
-          articles,
-          articlesCount: userArticlesDto.articlesCount,
+          status: 'error',
+          message: 'missing authorization credentials',
         }),
       );
 
+    const articles = databaseApi.article.findMany({
+      where: { authorId: { equals: maybeUser.username } },
+      take: limit,
+      skip: offset,
+    });
+    const articlesCount = databaseApi.article.count({
+      where: { authorId: { equals: maybeUser.username } },
+    });
+
+    const articlesDto = articles.map((article) => {
+      const maybeProfile = databaseApi.profile.findFirst({
+        where: { username: { equals: article.authorId } },
+      });
+
+      return mapMswArticleDto(article, maybeUser, maybeProfile);
+    });
+
     return res(
-      ctx.status(401),
+      ctx.status(200),
       ctx.json({
-        status: 'error',
-        message: 'missing authorization credentials',
+        articles: articlesDto,
+        articlesCount,
       }),
     );
   }),

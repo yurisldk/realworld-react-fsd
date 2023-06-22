@@ -10,8 +10,8 @@ describe('useUserInfinityArticles', () => {
     realworldApi.setSecurityData(null);
   });
 
-  it('success', async () => {
-    realworldApi.setSecurityData('jwtToken');
+  it('should handle pagination', async () => {
+    realworldApi.setSecurityData('jwt.token');
     const { result } = renderHook(
       () => useUserInfinityArticles({ limit: 1, offset: 0 }),
       {
@@ -30,7 +30,7 @@ describe('useUserInfinityArticles', () => {
     expect(result.current.data?.pageParams).toStrictEqual([undefined, 1, 2]);
   });
 
-  it('error', async () => {
+  it('should return error if user wasn`t authorized', async () => {
     const { result } = renderHook(
       () => useUserInfinityArticles({ limit: 1, offset: 0 }),
       {

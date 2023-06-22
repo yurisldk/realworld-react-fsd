@@ -1,80 +1,55 @@
 import { rest } from 'msw';
 import { realworldApi } from '~shared/api/realworld';
-import { server } from '~shared/lib/msw';
+import {
+  server,
+  initTestDatabase,
+  parseTokenFromRequest,
+  mapMswArticleDto,
+} from '~shared/lib/msw';
 
-const globalArticlesDto = {
-  articles: [
-    {
-      slug: 'how-to-train-your-dragon',
-      title: 'How to train your dragon',
-      description: 'Ever wonder how?',
-      body: 'It takes a Jacobian',
-      tagList: ['dragons', 'training'],
-      createdAt: '2016-02-18T03:22:56.637Z',
-      updatedAt: '2016-02-18T03:48:35.824Z',
-      favorited: false,
-      favoritesCount: 0,
-      author: {
-        username: 'jake',
-        bio: 'I work at statefarm',
-        image: 'https://i.stack.imgur.com/xHWG8.jpg',
-        following: false,
-      },
-    },
-    {
-      slug: 'how-to-train-your-dragon-2',
-      title: 'How to train your dragon 2',
-      description: 'So toothless',
-      body: 'It a dragon',
-      tagList: ['dragons', 'training'],
-      createdAt: '2016-02-18T03:22:56.637Z',
-      updatedAt: '2016-02-18T03:48:35.824Z',
-      favorited: false,
-      favoritesCount: 0,
-      author: {
-        username: 'jake',
-        bio: 'I work at statefarm',
-        image: 'https://i.stack.imgur.com/xHWG8.jpg',
-        following: false,
-      },
-    },
-    {
-      slug: 'how-to-train-your-dragon-3',
-      title: 'How to train your dragon 3',
-      description: 'So toothless',
-      body: 'It a dragon',
-      tagList: ['dragons', 'training'],
-      createdAt: '2016-02-18T03:22:56.637Z',
-      updatedAt: '2016-02-18T03:48:35.824Z',
-      favorited: false,
-      favoritesCount: 0,
-      author: {
-        username: 'jake',
-        bio: 'I work at statefarm',
-        image: 'https://i.stack.imgur.com/xHWG8.jpg',
-        following: false,
-      },
-    },
-  ],
-  articlesCount: 3,
-};
+const databaseApi = initTestDatabase();
 
-// TODO: add params cases
 const getGlobalArticlesHandlers = [
   rest.get(`${realworldApi.baseUrl}/articles`, (req, res, ctx) => {
-    // const tag = req.url.searchParams.get('tag');
-    // const author = req.url.searchParams.get('author');
-    // const favorited = req.url.searchParams.get('favorited');
+    const author = req.url.searchParams.get('author');
+    const favorited = req.url.searchParams.get('favorited');
+    const tag = req.url.searchParams.get('tag');
     const offset = Number(req.url.searchParams.get('offset'));
     const limit = Number(req.url.searchParams.get('limit'));
 
-    const articles = globalArticlesDto.articles.slice(offset, limit + offset);
+    /**
+     * temporary
+     * @see https://github.com/mswjs/data/issues/249
+     * we have to use databaseApi.article.findMany({ where: {...} })
+     */
+    const articles = databaseApi.article
+      .getAll()
+      .filter((article) => (author ? article.authorId === author : true))
+      .filter((article) =>
+        favorited ? article.favoritedBy.includes(favorited) : true,
+      )
+      .filter((article) => (tag ? article.tagList.includes(tag) : true));
+
+    const token = parseTokenFromRequest(req);
+    const maybeUser = databaseApi.user.findFirst({
+      where: { token: { equals: token } },
+    });
+
+    const articlesDto = articles
+      .slice(offset, limit + offset)
+      .map((article) => {
+        const maybeProfile = databaseApi.profile.findFirst({
+          where: { username: { equals: article.authorId } },
+        });
+
+        return mapMswArticleDto(article, maybeUser, maybeProfile);
+      });
 
     return res(
       ctx.status(200),
       ctx.json({
-        articles,
-        articlesCount: globalArticlesDto.articlesCount,
+        articles: articlesDto,
+        articlesCount: articles.length,
       }),
     );
   }),

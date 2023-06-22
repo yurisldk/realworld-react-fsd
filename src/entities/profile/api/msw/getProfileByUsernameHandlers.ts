@@ -1,29 +1,36 @@
 import { rest } from 'msw';
-import { ProfileDto, realworldApi } from '~shared/api/realworld';
-import { server } from '~shared/lib/msw';
+import { realworldApi } from '~shared/api/realworld';
+import {
+  server,
+  initTestDatabase,
+  parseTokenFromRequest,
+  mapMswProfileDto,
+} from '~shared/lib/msw';
 
-const profiles: Record<string, ProfileDto> = {
-  jake: {
-    username: 'jake',
-    bio: 'I work at statefarm',
-    image: 'https://api.realworld.io/images/smiley-cyrus.jpg',
-    following: false,
-  },
-};
+const databaseApi = initTestDatabase();
 
 const getProfileByUsernameHandlers = [
   rest.get(`${realworldApi.baseUrl}/profiles/:username`, (req, res, ctx) => {
     const { username } = req.params;
 
-    const profile = profiles[username as string];
+    const token = parseTokenFromRequest(req);
+    const maybeUser = databaseApi.user.findFirst({
+      where: { token: { equals: token } },
+    });
 
-    if (!profile)
+    const maybeProfile = databaseApi.profile.findFirst({
+      where: { username: { equals: String(username) } },
+    });
+
+    if (!maybeProfile)
       return res(
         ctx.status(404),
         ctx.json({ errors: { profile: ['not found'] } }),
       );
 
-    return res(ctx.status(200), ctx.json({ profile }));
+    const profileDto = mapMswProfileDto(maybeUser, maybeProfile);
+
+    return res(ctx.status(200), ctx.json({ profile: profileDto }));
   }),
 ];
 

@@ -3,10 +3,10 @@ import { createWrapper } from '~shared/lib/react-query';
 import { setupGetTagsHandlers } from './msw/getTagsHandlers';
 import { useGlobalTags } from './tagApi';
 
-describe('useArticle', () => {
+describe('useGlobalTags', () => {
   beforeEach(() => setupGetTagsHandlers());
 
-  it('success', async () => {
+  it('should return data', async () => {
     const { result } = renderHook(() => useGlobalTags(), {
       wrapper: createWrapper(),
     });

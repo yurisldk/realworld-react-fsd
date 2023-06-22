@@ -1,23 +1,13 @@
 import { rest } from 'msw';
-import { CommentDto, realworldApi } from '~shared/api/realworld';
-import { server } from '~shared/lib/msw';
+import { realworldApi } from '~shared/api/realworld';
+import {
+  server,
+  initTestDatabase,
+  parseTokenFromRequest,
+  mapMswProfileDto,
+} from '~shared/lib/msw';
 
-const articlesComments: Record<string, CommentDto[]> = {
-  'how-to-train-your-dragon': [
-    {
-      id: 1,
-      createdAt: '2016-02-18T03:22:56.637Z',
-      updatedAt: '2016-02-18T03:22:56.637Z',
-      body: 'It takes a Jacobian',
-      author: {
-        username: 'jake',
-        bio: 'I work at statefarm',
-        image: 'https://i.stack.imgur.com/xHWG8.jpg',
-        following: false,
-      },
-    },
-  ],
-};
+const databaseApi = initTestDatabase();
 
 const getArticlesCommentsHandlers = [
   rest.get(
@@ -25,15 +15,31 @@ const getArticlesCommentsHandlers = [
     (req, res, ctx) => {
       const { slug } = req.params;
 
-      const comments = articlesComments[slug as string];
+      const comments = databaseApi.comment.findMany({
+        where: { articleId: { equals: String(slug) } },
+      });
 
-      if (!comments)
-        return res(
-          ctx.status(404),
-          ctx.json({ errors: { comments: ['not found'] } }),
-        );
+      const token = parseTokenFromRequest(req);
+      const maybeUser = databaseApi.user.findFirst({
+        where: { token: { equals: token } },
+      });
 
-      return res(ctx.status(200), ctx.json({ comments }));
+      const commentsDto = comments.map((curComment) => {
+        const { articleId, authorId, ...comment } = curComment;
+
+        const maybeProfile = databaseApi.profile.findFirst({
+          where: { username: { equals: authorId } },
+        });
+
+        const author = mapMswProfileDto(maybeUser, maybeProfile);
+
+        return {
+          ...comment,
+          author,
+        };
+      });
+
+      return res(ctx.status(200), ctx.json({ comments: commentsDto }));
     },
   ),
 ];
