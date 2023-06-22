@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { logout } from '../../model/logout';
+import { logout } from '../../api/logout';
 
 export function LogoutButton() {
   const queryClient = useQueryClient();

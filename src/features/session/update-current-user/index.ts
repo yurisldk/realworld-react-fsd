@@ -1,1 +1,1 @@
-export { useUpdateCurrentUser } from './model/updateCurrentUser';
+export { useUpdateCurrentUser } from './api/updateCurrentUser';

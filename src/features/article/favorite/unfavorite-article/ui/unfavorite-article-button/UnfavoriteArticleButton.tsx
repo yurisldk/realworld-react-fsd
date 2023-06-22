@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { FavoriteButton } from '~entities/article';
 import { ArticleDto } from '~shared/api/realworld';
-import { useMutationUnfavoriteArticle } from '../../model/unfavoriteArticle';
+import { useMutationUnfavoriteArticle } from '../../api/unfavoriteArticle';
 
 type UnfavoriteArticleButtonProps = {
   article: ArticleDto;

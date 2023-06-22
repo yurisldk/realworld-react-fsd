@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { IoTrash } from 'react-icons/io5';
-import { useDeleteComment } from '../../model/deleteComment';
+import { useDeleteComment } from '../../api/deleteComment';
 
 type DeleteCommentIconButttonProps = {
   slug: string;

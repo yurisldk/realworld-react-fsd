@@ -1,1 +1,1 @@
-export { useLoginUser } from './model/loginUser';
+export { useLoginUser } from './api/loginUser';

@@ -1,7 +1,7 @@
 import { IoTrash } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { PATH_PAGE } from '~shared/lib/react-router';
-import { useDeleteArticle } from '../../model/deleteArticle';
+import { useDeleteArticle } from '../../api/deleteArticle';
 
 type DeleteArticleButtonProps = {
   slug: string;

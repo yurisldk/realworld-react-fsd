@@ -1,1 +1,1 @@
-export { useUpdateArticle } from './model/updateArticle';
+export { useUpdateArticle } from './api/updateArticle';

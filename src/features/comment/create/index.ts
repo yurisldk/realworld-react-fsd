@@ -1,1 +1,1 @@
-export { useCreateComment } from './model/createComment';
+export { useCreateComment } from './api/createComment';

@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { FollowButton, profileApi } from '~entities/profile';
-import { useMutationUnfollowUser } from '../../model/unfollowUser';
+import { useMutationUnfollowUser } from '../../api/unfollowUser';
 
 type UnfollowUserButtonProps = {
   profile: profileApi.Profile;

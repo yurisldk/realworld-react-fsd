@@ -1,1 +1,1 @@
-export { useMutateFavoriteArticle } from './model/baseModel';
+export { useMutateFavoriteArticle } from './api/baseModel';
