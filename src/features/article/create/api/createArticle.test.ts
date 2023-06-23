@@ -24,8 +24,8 @@ const mockApiResponse: ArticleDto = {
   title: 'Test Article',
   description: 'This is a test description.',
   body: 'This is a test body.',
-  createdAt: '2023-06-22T21:00:00.000Z',
-  updatedAt: '2023-06-22T21:00:00.000Z',
+  createdAt: '2023-06-23T00:00:00.000Z',
+  updatedAt: '2023-06-23T00:00:00.000Z',
   tagList: ['tag #1', 'tag #2'],
   favorited: false,
   favoritesCount: 0,
@@ -52,7 +52,7 @@ describe('useCreateArticle', () => {
   });
 
   it('should create a new article successfully', async () => {
-    const date = new Date(2023, 5, 23);
+    const date = new Date(Date.UTC(2023, 5, 23));
     vi.setSystemTime(date);
 
     const { result } = renderHook(() => useCreateArticle(), {

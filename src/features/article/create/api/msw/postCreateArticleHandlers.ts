@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { rest } from 'msw';
 import { NewArticleDto, realworldApi } from '~shared/api/realworld';
 import {
@@ -35,8 +34,8 @@ const postCreateArticleHandlers = [
     const mswArticle = {
       ...newArticle,
       slug,
-      createdAt: dayjs().toISOString(),
-      updatedAt: dayjs().toISOString(),
+      createdAt: new Date(Date.now()).toISOString(),
+      updatedAt: new Date(Date.now()).toISOString(),
       favoritedBy: [],
       authorId: maybeUser.username,
     };
