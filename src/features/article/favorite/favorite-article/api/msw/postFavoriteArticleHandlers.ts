@@ -57,11 +57,7 @@ const postFavoriteArticleHandlers = [
           maybeProfile,
         );
 
-        return await res(
-          ctx.delay(1500),
-          ctx.status(200),
-          ctx.json({ article: articleDto }),
-        );
+        return await res(ctx.status(200), ctx.json({ article: articleDto }));
       } catch (error) {
         return await res(
           ctx.status(422),
