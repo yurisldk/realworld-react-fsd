@@ -13,13 +13,17 @@ type UseDeleteCommentProps = {
 
 export function useDeleteComment(queryClient: QueryClient) {
   return useMutation<
-    void,
+    any,
     GenericErrorModel,
     UseDeleteCommentProps,
-    { queryKey: unknown[]; prevComments: CommentDto[] }
+    { queryKey: string[]; prevComments: CommentDto[] }
   >(
     async ({ slug, id }: UseDeleteCommentProps) => {
-      await realworldApi.articles.deleteArticleComment(slug, id);
+      const response = await realworldApi.articles.deleteArticleComment(
+        slug,
+        id,
+      );
+      return response.data;
     },
     {
       onMutate: async ({ slug, id }) => {
