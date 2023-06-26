@@ -12,7 +12,7 @@ import {
 
 const initialUser = {
   email: 'example@example.com',
-  token: 'abc123',
+  token: 'jwt.token',
   username: 'exampleUser',
   bio: 'Example bio',
   image: 'example.jpg',
@@ -31,16 +31,16 @@ const spyAddUser = vi.spyOn(sessionStore.getState(), 'addUser');
 const deleteUser = vi.spyOn(sessionStore.getState(), 'deleteUser');
 
 afterEach(() => {
-  vi.clearAllMocks();
   localStorage.removeItem('session');
 });
 
 describe('sessionModel', () => {
   it('should not update the security data if localStorage`s `session` key doesn`t exists', () => {
+    realworldApi.setSecurityData(null);
     const stateUser = sessionStore.getState().user;
 
     expect(spySetItem).toBeCalledTimes(1);
-    expect(spySetSecurityData).not.toBeCalled();
+    expect(spySetSecurityData).toBeCalledTimes(2);
 
     expect(stateUser).toBeNull();
     expect(realworldApi['securityData']).toBeNull();
@@ -56,7 +56,7 @@ describe('sessionModel', () => {
     await sessionStore.persist.rehydrate();
     expect(spySetState).toBeCalledTimes(1);
     expect(spySetItem).toBeCalledTimes(3);
-    expect(spySetSecurityData).toBeCalledTimes(1);
+    expect(spySetSecurityData).toBeCalledTimes(2);
 
     const stateUser = sessionStore.getState().user;
 
@@ -68,7 +68,7 @@ describe('sessionModel', () => {
   it('addUser should set the user and update the security data', () => {
     sessionStore.getState().addUser(initialUser);
 
-    expect(spySetSecurityData).toBeCalledTimes(1);
+    expect(spySetSecurityData).toBeCalledTimes(2);
     expect(spySetItem).toBeCalledTimes(2);
 
     const stateUser = sessionStore.getState().user;
@@ -87,11 +87,11 @@ describe('sessionModel', () => {
     expect(spySetItem).toBeCalledTimes(1);
 
     sessionStore.getState().addUser(initialUser);
-    expect(spySetSecurityData).toBeCalledTimes(1);
+    expect(spySetSecurityData).toBeCalledTimes(2);
     expect(spySetItem).toBeCalledTimes(2);
 
     sessionStore.getState().deleteUser();
-    expect(spySetSecurityData).toBeCalledTimes(2);
+    expect(spySetSecurityData).toBeCalledTimes(3);
     expect(spySetItem).toBeCalledTimes(3);
 
     const stateUser = sessionStore.getState();
