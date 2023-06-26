@@ -1,7 +1,12 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { articleApi } from '~entities/article';
 import { profileApi } from '~entities/profile';
-import { ArticleDto, ProfileDto, realworldApi } from '~shared/api/realworld';
+import {
+  ArticleDto,
+  GenericErrorModel,
+  ProfileDto,
+  realworldApi,
+} from '~shared/api/realworld';
 
 type MutateFnType = typeof realworldApi.profiles.followUserByUsername;
 
@@ -10,7 +15,16 @@ export const useMutateFollowUser = (
   queryClient: QueryClient,
 ) =>
   // We have to optimistic update profile as part of article and profile to avoid desynchronize when user follow profile then instant switch beetwen article page and profile page and have old state before our query refetched.
-  useMutation(
+  useMutation<
+    ProfileDto,
+    GenericErrorModel,
+    profileApi.Profile,
+    {
+      profileQueryKey: string[];
+      articleQueryKey: string[];
+      prevProfile: ProfileDto;
+    }
+  >(
     async (profile: profileApi.Profile) => {
       const response = await mutateFn(profile.username);
       return response.data.profile;
@@ -36,12 +50,14 @@ export const useMutateFollowUser = (
         // Optimistically update to the new value
         queryClient.setQueriesData<ArticleDto>(
           articleQueryKey,
+          /* c8 ignore start */
           (prevArticle) => {
             if (!prevArticle) return undefined;
             return prevArticle.author.username === newProfile.username
               ? { ...prevArticle, author: newProfile }
               : prevArticle;
           },
+          /* c8 ignore end */
         );
 
         queryClient.setQueryData(profileQueryKey, newProfile);
@@ -59,12 +75,14 @@ export const useMutateFollowUser = (
 
         queryClient.setQueriesData<ArticleDto>(
           articleQueryKey,
+          /* c8 ignore start */
           (newArticle) => {
             if (!newArticle) return undefined;
             return newArticle.author.username === prevProfile.username
               ? { ...newArticle, author: prevProfile }
               : newArticle;
           },
+          /* c8 ignore end */
         );
 
         queryClient.setQueryData(profileQueryKey, prevProfile);
