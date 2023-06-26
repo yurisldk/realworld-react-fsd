@@ -24,12 +24,14 @@ export function renderWithClient(ui: React.ReactElement) {
   );
   return {
     ...result,
+    /* c8 ignore start */
     rerender: (rerenderUi: React.ReactElement) =>
       rerender(
         <QueryClientProvider client={testQueryClient}>
           {rerenderUi}
         </QueryClientProvider>,
       ),
+    /* c8 ignore stop */
   };
 }
 
