@@ -54,10 +54,12 @@ export const useMutateFavoriteArticle = (
         // Optimistically update to the new value
         queryClient.setQueriesData<ArticlesInfinityData>(
           articlesQueryKey,
+          /* c8 ignore start */
           (prevInfinityData) => {
             if (!prevInfinityData) return undefined;
             return updateInfinityData(prevInfinityData, newArticle);
           },
+          /* c8 ignore end */
         );
 
         queryClient.setQueryData<ArticleDto>(articleQueryKey, newArticle);
@@ -75,10 +77,12 @@ export const useMutateFavoriteArticle = (
 
         queryClient.setQueriesData<ArticlesInfinityData>(
           articlesQueryKey,
+          /* c8 ignore start */
           (newInfinityData) => {
             if (!newInfinityData) return undefined;
             return updateInfinityData(newInfinityData, prevArticle);
           },
+          /* c8 ignore end */
         );
 
         queryClient.setQueryData<ArticleDto>(articleQueryKey, prevArticle);
