@@ -58,6 +58,7 @@ const postFavoriteArticleHandlers = [
         );
 
         return await res(ctx.status(200), ctx.json({ article: articleDto }));
+        /* c8 ignore start */
       } catch (error) {
         return await res(
           ctx.status(422),
@@ -68,6 +69,7 @@ const postFavoriteArticleHandlers = [
           }),
         );
       }
+      /* c8 ignore stop */
     },
   ),
 ];

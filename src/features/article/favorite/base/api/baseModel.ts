@@ -1,6 +1,10 @@
 import { InfiniteData, QueryClient, useMutation } from '@tanstack/react-query';
 import { articleApi } from '~entities/article';
-import { ArticleDto, realworldApi } from '~shared/api/realworld';
+import {
+  ArticleDto,
+  GenericErrorModel,
+  realworldApi,
+} from '~shared/api/realworld';
 import { updateInfinityData } from '../lib';
 
 type ArticlesInfinityData = InfiniteData<ArticleDto[]>;
@@ -11,7 +15,16 @@ export const useMutateFavoriteArticle = (
   mutateFn: MutateFnType,
   queryClient: QueryClient,
 ) =>
-  useMutation(
+  useMutation<
+    ArticleDto,
+    GenericErrorModel,
+    ArticleDto,
+    {
+      articlesQueryKey: string[];
+      articleQueryKey: string[];
+      prevArticle: ArticleDto;
+    }
+  >(
     async (article: ArticleDto) => {
       const response = await mutateFn(article.slug);
       return response.data.article;

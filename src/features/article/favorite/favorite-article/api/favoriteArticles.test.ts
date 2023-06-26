@@ -1,9 +1,10 @@
 /* eslint-disable no-promise-executor-return */
 import { QueryClient } from '@tanstack/react-query';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
 import { articleApi } from '~entities/article';
 import { ArticleDto, realworldApi } from '~shared/api/realworld';
+import { wait } from '~shared/lib/msw';
 import { createWrapper } from '~shared/lib/react-query';
 import { useMutationFavoriteArticle } from './favoriteArticle';
 import { setupPostFavoriteArticleHandlers } from './msw/postFavoriteArticleHandlers';
@@ -34,103 +35,107 @@ const rolledBackArticle: ArticleDto = {
   favoritesCount: 0,
 };
 
-type Args = Parameters<typeof realworldApi.articles.createArticleFavorite>;
-type Return = ReturnType<typeof realworldApi.articles.createArticleFavorite>;
+const queryKey = articleApi.articleKeys.article.slug(newArticle.slug);
 
-const createArticleFavoriteWithDelay = vi
-  .fn<Args, Return>()
-  .mockImplementation(realworldApi.articles.createArticleFavorite);
-
-vi.spyOn(realworldApi.articles, 'createArticleFavorite').mockImplementation(
-  (...args: Args): Return =>
-    createArticleFavoriteWithDelay(...args).then(
-      (res) => new Promise((resolve) => setTimeout(() => resolve(res), 1000)),
-    ),
+const createArticleFavorite = vi.spyOn(
+  realworldApi.articles,
+  'createArticleFavorite',
 );
 
-const delay = async (ms: number) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-
-describe('useMutateFavoriteArticle', () => {
+describe('useMutationFavoriteArticle', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
     queryClient = new QueryClient();
     vi.useFakeTimers({ toFake: ['setTimeout'] });
-    realworldApi.setSecurityData('jwt.token');
     setupPostFavoriteArticleHandlers();
   });
 
   afterEach(() => {
     vi.useRealTimers();
-    vi.clearAllMocks();
-    realworldApi.setSecurityData(null);
   });
 
-  it('should update article favorited status and count on successful mutation', async () => {
-    const { result } = renderHook(
+  it('should update an article successfully', async () => {
+    const { result, rerender } = renderHook(
       () => useMutationFavoriteArticle(queryClient),
-      {
-        wrapper: createWrapper(),
-      },
+      { wrapper: createWrapper() },
     );
 
-    await act(async () => {
-      result.current.mutateAsync(newArticle);
-    });
-
-    expect(realworldApi.articles.createArticleFavorite).toHaveBeenCalledWith(
-      newArticle.slug,
-    );
-    expect(
-      queryClient.getQueryData<ArticleDto>(
-        articleApi.articleKeys.article.slug(newArticle.slug),
-      ),
-    ).toEqual(newArticle);
-
-    expect(
-      queryClient.getQueryData<ArticleDto>(
-        articleApi.articleKeys.article.slug(newArticle.slug),
-      ),
-    ).toEqual(newArticle);
-
-    act(() => {
-      vi.advanceTimersByTimeAsync(1100);
-    });
+    const createArticleFavoritePromise = result.current
+      .mutateAsync(newArticle)
+      .then((value) => wait(1000, value));
 
     await act(async () => {
-      await delay(1100);
+      vi.advanceTimersByTimeAsync(500);
     });
+    rerender();
+
+    const cachedData = queryClient.getQueryData(queryKey);
+    expect(cachedData).toEqual(newArticle);
+
+    vi.advanceTimersByTimeAsync(500);
+    await expect(createArticleFavoritePromise).resolves.toBeDefined();
+    rerender();
 
     expect(result.current.isSuccess).toBe(true);
+    expect(createArticleFavorite).toBeCalledTimes(1);
+    expect(createArticleFavorite).toHaveBeenCalledWith(newArticle.slug);
     expect(result.current.data).toStrictEqual(newArticle);
   });
 
-  it('should rollback article favorited status and count on mutation error', async () => {
+  it('should rollback article on mutation error', async () => {
     realworldApi.setSecurityData(null);
-    vi.useRealTimers();
 
-    const { result } = renderHook(
+    const { result, rerender } = renderHook(
       () => useMutationFavoriteArticle(queryClient),
-      {
-        wrapper: createWrapper(),
-      },
+      { wrapper: createWrapper() },
     );
 
-    try {
-      await waitFor(() => result.current.mutateAsync(newArticle));
-    } catch (error) {
-      expect(realworldApi.articles.createArticleFavorite).toHaveBeenCalledWith(
-        newArticle.slug,
-      );
-      expect(
-        queryClient.getQueryData<ArticleDto>(
-          articleApi.articleKeys.article.slug(newArticle.slug),
-        ),
-      ).toEqual(rolledBackArticle);
-      expect(result.current.error).toBeDefined();
-    }
+    const createArticleFavoritePromise = result.current.mutateAsync(newArticle);
+    await expect(createArticleFavoritePromise).rejects.toBeDefined();
+    rerender();
+
+    const cachedData = queryClient.getQueryData(queryKey);
+    expect(createArticleFavorite).toHaveBeenCalledWith(newArticle.slug);
+    expect(cachedData).toEqual(rolledBackArticle);
+    expect(result.current.error).toBeDefined();
+  });
+
+  it('should handle auth(401) error', async () => {
+    realworldApi.setSecurityData(null);
+
+    const { result, rerender } = renderHook(
+      () => useMutationFavoriteArticle(queryClient),
+      { wrapper: createWrapper() },
+    );
+
+    const createArticleFavoritePromise = result.current.mutateAsync(newArticle);
+    await expect(createArticleFavoritePromise).rejects.toBeDefined();
+    rerender();
+
+    expect(result.current.isError).toBe(true);
+    expect(result.current.error?.error).toStrictEqual({
+      status: 'error',
+      message: 'missing authorization credentials',
+    });
+  });
+
+  it('should handle not found(404) error', async () => {
+    const { result, rerender } = renderHook(
+      () => useMutationFavoriteArticle(queryClient),
+      { wrapper: createWrapper() },
+    );
+
+    const createArticleFavoritePromise = result.current.mutateAsync({
+      ...newArticle,
+      slug: 'invalid-slug',
+    });
+    await expect(createArticleFavoritePromise).rejects.toBeDefined();
+    rerender();
+
+    expect(result.current.isError).toBe(true);
+    expect(result.current.error?.error).toStrictEqual({
+      errors: { article: ['not found'] },
+    });
   });
 });
