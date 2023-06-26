@@ -8,7 +8,7 @@ import {
 
 const databaseApi = initTestDatabase();
 
-const postDeleteArticleHandlers = [
+const deleteArticleHandlers = [
   rest.delete(
     `${realworldApi.baseUrl}/articles/:slug`,
     async (req, res, ctx) => {
@@ -42,6 +42,7 @@ const postDeleteArticleHandlers = [
         return res(
           ctx.status(403),
           ctx.json({
+            status: 'error',
             message: 'You are not authorized to delete this article',
           }),
         );
@@ -52,9 +53,10 @@ const postDeleteArticleHandlers = [
           where: { slug: { equals: String(slug) } },
         });
 
-        return await res(ctx.status(200));
+        return await res(ctx.status(200), ctx.json({}));
+        /* c8 ignore start */
       } catch (error) {
-        return await res(
+        return res(
           ctx.status(422),
           ctx.json({
             errors: {
@@ -63,10 +65,11 @@ const postDeleteArticleHandlers = [
           }),
         );
       }
+      /* c8 ignore stop */
     },
   ),
 ];
 
-export const setupPostDeleteArticleHandlers = () => {
-  server.use(...postDeleteArticleHandlers);
+export const setupDeleteArticleHandlers = () => {
+  server.use(...deleteArticleHandlers);
 };
