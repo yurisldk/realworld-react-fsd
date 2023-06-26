@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
 import { ArticleDto, NewArticleDto, realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
@@ -37,54 +37,67 @@ const mockApiResponse: ArticleDto = {
   },
 };
 
+const createArticle = vi.spyOn(realworldApi.articles, 'createArticle');
+
 describe('useCreateArticle', () => {
   beforeEach(() => {
-    realworldApi.setSecurityData('jwt.token');
     vi.useFakeTimers({ toFake: ['Date'] });
-    vi.spyOn(realworldApi.articles, 'createArticle');
     setupPostCreateArticleHandlers();
   });
 
   afterEach(() => {
-    realworldApi.setSecurityData(null);
     vi.useRealTimers();
-    vi.clearAllMocks();
   });
 
   it('should create a new article successfully', async () => {
     const date = new Date(Date.UTC(2023, 5, 23));
     vi.setSystemTime(date);
 
-    const { result } = renderHook(() => useCreateArticle(), {
+    const { result, rerender } = renderHook(() => useCreateArticle(), {
       wrapper: createWrapper(),
     });
 
-    const { mutateAsync } = result.current;
-    await waitFor(() => mutateAsync(newValidArticle));
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    const createArticlePromise = result.current.mutateAsync(newValidArticle);
+    await expect(createArticlePromise).resolves.toBeDefined();
+    rerender();
 
-    expect(realworldApi.articles.createArticle).toHaveBeenCalledWith({
-      article: newValidArticle,
-    });
-
+    expect(result.current.isSuccess).toBe(true);
+    expect(createArticle).toBeCalledTimes(1);
+    expect(createArticle).toHaveBeenCalledWith({ article: newValidArticle });
     expect(result.current.data).toStrictEqual(mockApiResponse);
   });
 
-  it('should handle errors during article creation', async () => {
-    const { result } = renderHook(() => useCreateArticle(), {
+  it('should handle auth(401) error', async () => {
+    realworldApi.setSecurityData(null);
+
+    const { result, rerender } = renderHook(() => useCreateArticle(), {
       wrapper: createWrapper(),
     });
 
-    const { mutateAsync } = result.current;
+    const createArticlePromise = result.current.mutateAsync(newValidArticle);
+    await expect(createArticlePromise).rejects.toBeDefined();
+    rerender();
 
-    try {
-      // @ts-expect-error not assignable to parameter of type 'NewArticleDto'
-      await waitFor(() => mutateAsync(newInvalidArticle));
-    } catch {
-      expect(realworldApi.articles.createArticle).toHaveBeenCalledWith({
-        article: newInvalidArticle,
-      });
-      expect(result.current.error).toBeDefined();
-    }
+    expect(result.current.isError).toBe(true);
+    expect(result.current.error?.error).toStrictEqual({
+      status: 'error',
+      message: 'missing authorization credentials',
+    });
+  });
+
+  it('should handle database(422) error', async () => {
+    const { result, rerender } = renderHook(() => useCreateArticle(), {
+      wrapper: createWrapper(),
+    });
+
+    // @ts-expect-error not assignable to parameter of type 'NewArticleDto'
+    const createArticlePromise = result.current.mutateAsync(newInvalidArticle);
+    await expect(createArticlePromise).rejects.toBeDefined();
+    rerender();
+
+    expect(result.current.isError).toBe(true);
+    expect(result.current.error?.error).toStrictEqual({
+      errors: { database: { name: 'Invariant Violation' } },
+    });
   });
 });
