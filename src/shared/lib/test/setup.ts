@@ -30,6 +30,7 @@ expect.extend(matchers);
 beforeAll(() => server.listen());
 
 beforeEach(() => {
+  realworldApi.setSecurityData('jwt.token');
   act(() => storeResetFns.forEach((resetFn) => resetFn()));
 });
 
