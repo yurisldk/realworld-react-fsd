@@ -58,6 +58,8 @@ describe('useCreateArticle', () => {
     });
 
     const createArticlePromise = result.current.mutateAsync(newValidArticle);
+    rerender();
+
     await expect(createArticlePromise).resolves.toBeDefined();
     rerender();
 
@@ -75,6 +77,8 @@ describe('useCreateArticle', () => {
     });
 
     const createArticlePromise = result.current.mutateAsync(newValidArticle);
+    rerender();
+
     await expect(createArticlePromise).rejects.toBeDefined();
     rerender();
 
@@ -92,6 +96,8 @@ describe('useCreateArticle', () => {
 
     // @ts-expect-error not assignable to parameter of type 'NewArticleDto'
     const createArticlePromise = result.current.mutateAsync(newInvalidArticle);
+    rerender();
+
     await expect(createArticlePromise).rejects.toBeDefined();
     rerender();
 

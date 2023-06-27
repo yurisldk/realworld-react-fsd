@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
-import { act, renderHook } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import { vi } from 'vitest';
 import { commentApi } from '~entities/comment';
 import { CommentDto, realworldApi } from '~shared/api/realworld';
@@ -24,10 +25,19 @@ const newComment: CommentDto = {
   },
 };
 
-const createArticleComment = vi.spyOn(
-  realworldApi.articles,
-  'createArticleComment',
-);
+type Params = Parameters<typeof realworldApi.articles.createArticleComment>;
+type Return = ReturnType<typeof realworldApi.articles.createArticleComment>;
+
+const mockedCreateArticleComment = vi
+  .fn<Params, Return>()
+  .mockImplementation(realworldApi.articles.createArticleComment);
+
+const createArticleComment = vi
+  .spyOn(realworldApi.articles, 'createArticleComment')
+  .mockImplementation(
+    (...args: Params): Return =>
+      mockedCreateArticleComment(...args).then((value) => wait(1000, value)),
+  );
 
 const queryKey = commentApi.commentKeys.comments.slug(slug);
 
@@ -36,7 +46,7 @@ describe('useCreateComment', () => {
 
   beforeEach(() => {
     queryClient = new QueryClient();
-    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.useFakeTimers();
     setupPostCreateArticleHandlers();
   });
 
@@ -48,30 +58,26 @@ describe('useCreateComment', () => {
     const date = new Date(Date.UTC(2023, 5, 23));
     vi.setSystemTime(date);
 
-    const { result, rerender } = renderHook(
-      () => useCreateComment(queryClient),
-      { wrapper: createWrapper() },
-    );
-
-    const createCommentPromise = result.current
-      .mutateAsync({
-        slug,
-        newComment,
-      })
-      .then((value) => wait(1000, value));
-
-    await act(async () => {
-      vi.advanceTimersByTimeAsync(500);
+    const { result } = renderHook(() => useCreateComment(queryClient), {
+      wrapper: createWrapper(),
     });
-    rerender();
+
+    const createCommentPromise = result.current.mutateAsync({
+      slug,
+      newComment,
+    });
+    // result.current.status === idle
+
+    await act(async () => vi.advanceTimersToNextTimerAsync());
+    // result.current.status === loading
 
     const cachedData = queryClient.getQueryData(queryKey);
     expect(cachedData).toEqual([newComment]);
 
-    vi.advanceTimersByTimeAsync(500);
-    await expect(createCommentPromise).resolves.toBeDefined();
-    rerender();
+    await act(async () => vi.runAllTimersAsync());
+    // result.current.status === success
 
+    await expect(createCommentPromise).resolves.toBeDefined();
     expect(result.current.isSuccess).toBe(true);
     expect(createArticleComment).toBeCalledTimes(1);
     expect(createArticleComment).toHaveBeenCalledWith(slug, {

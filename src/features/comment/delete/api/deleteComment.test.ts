@@ -26,17 +26,26 @@ const comment: CommentDto = {
 
 const queryKey = commentApi.commentKeys.comments.slug(slug);
 
-const deleteArticleComment = vi.spyOn(
-  realworldApi.articles,
-  'deleteArticleComment',
-);
+type Params = Parameters<typeof realworldApi.articles.deleteArticleComment>;
+type Return = ReturnType<typeof realworldApi.articles.deleteArticleComment>;
+
+const mockedDeleteArticleComment = vi
+  .fn<Params, Return>()
+  .mockImplementation(realworldApi.articles.deleteArticleComment);
+
+const deleteArticleComment = vi
+  .spyOn(realworldApi.articles, 'deleteArticleComment')
+  .mockImplementation(
+    (...args: Params): Return =>
+      mockedDeleteArticleComment(...args).then((value) => wait(1000, value)),
+  );
 
 describe('useDeleteComment', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
     queryClient = new QueryClient();
-    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    vi.useFakeTimers();
     setupdeleteCommentHandlers();
   });
 
@@ -47,30 +56,23 @@ describe('useDeleteComment', () => {
   it('should delete a comment successfully', async () => {
     queryClient.setQueryData(queryKey, [comment]);
 
-    const { result, rerender } = renderHook(
-      () => useDeleteComment(queryClient),
-      { wrapper: createWrapper() },
-    );
-
-    const deleteCommentPromise = result.current
-      .mutateAsync({
-        slug,
-        id: comment.id,
-      })
-      .then((value) => wait(1000, value));
-
-    await act(async () => {
-      vi.advanceTimersByTimeAsync(500);
+    const { result } = renderHook(() => useDeleteComment(queryClient), {
+      wrapper: createWrapper(),
     });
-    rerender();
+
+    const deleteCommentPromise = result.current.mutateAsync({
+      slug,
+      id: comment.id,
+    });
+
+    await act(async () => vi.advanceTimersToNextTimerAsync());
 
     const cachedData = queryClient.getQueryData(queryKey);
     expect(cachedData).toEqual([]);
 
-    vi.advanceTimersByTimeAsync(500);
-    await expect(deleteCommentPromise).resolves.toBeDefined();
-    rerender();
+    await act(async () => vi.runAllTimersAsync());
 
+    await expect(deleteCommentPromise).resolves.toBeDefined();
     expect(result.current.isSuccess).toBe(true);
     expect(deleteArticleComment).toBeCalledTimes(1);
     expect(deleteArticleComment).toHaveBeenCalledWith(slug, comment.id);

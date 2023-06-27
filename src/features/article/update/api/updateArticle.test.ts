@@ -64,6 +64,8 @@ describe('useUpdateArticle', () => {
       slug: article.slug,
       article: updatedArticle,
     });
+    rerender();
+
     await expect(updateArticlePromise).resolves.toBeDefined();
     rerender();
 
@@ -86,6 +88,8 @@ describe('useUpdateArticle', () => {
       slug: article.slug,
       article: updatedArticle,
     });
+    rerender();
+
     await expect(updateArticlePromise).rejects.toBeDefined();
     rerender();
 
@@ -105,6 +109,8 @@ describe('useUpdateArticle', () => {
       slug: 'invalid-slug',
       article: updatedArticle,
     });
+    rerender();
+
     await expect(updateArticlePromise).rejects.toBeDefined();
     rerender();
 
@@ -123,6 +129,8 @@ describe('useUpdateArticle', () => {
       slug: 'Ill-synthesize-the-primary-AI-capacitor-that-should-array-the-JBOD-sensor!-120863',
       article: updatedArticle,
     });
+    rerender();
+
     await expect(updateArticlePromise).rejects.toBeDefined();
     rerender();
 

@@ -22,17 +22,26 @@ const rolledBackProfile: ProfileDto = {
 
 const queryKey = profileApi.profileKeys.profile.username(newProfile.username);
 
-const unfollowUserByUsername = vi.spyOn(
-  realworldApi.profiles,
-  'unfollowUserByUsername',
-);
+type Params = Parameters<typeof realworldApi.profiles.unfollowUserByUsername>;
+type Return = ReturnType<typeof realworldApi.profiles.unfollowUserByUsername>;
+
+const mockedUnfollowUserByUsername = vi
+  .fn<Params, Return>()
+  .mockImplementation(realworldApi.profiles.unfollowUserByUsername);
+
+const unfollowUserByUsername = vi
+  .spyOn(realworldApi.profiles, 'unfollowUserByUsername')
+  .mockImplementation(
+    (...args: Params): Return =>
+      mockedUnfollowUserByUsername(...args).then((value) => wait(1000, value)),
+  );
 
 describe('useMutationUnfollowUser', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
     queryClient = new QueryClient();
-    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    vi.useFakeTimers();
     setupDeleteUnfollowUserHandlers();
   });
 
@@ -41,27 +50,20 @@ describe('useMutationUnfollowUser', () => {
   });
 
   it('should update a profile successfully', async () => {
-    const { result, rerender } = renderHook(
-      () => useMutationUnfollowUser(queryClient),
-      { wrapper: createWrapper() },
-    );
-
-    const createUnfollowProfilePromise = result.current
-      .mutateAsync(newProfile)
-      .then((value) => wait(1000, value));
-
-    await act(async () => {
-      vi.advanceTimersByTimeAsync(500);
+    const { result } = renderHook(() => useMutationUnfollowUser(queryClient), {
+      wrapper: createWrapper(),
     });
-    rerender();
+
+    const createUnfollowProfilePromise = result.current.mutateAsync(newProfile);
+
+    await act(async () => vi.advanceTimersToNextTimerAsync());
 
     const cachedData = queryClient.getQueryData(queryKey);
     expect(cachedData).toEqual(newProfile);
 
-    vi.advanceTimersByTimeAsync(500);
-    await expect(createUnfollowProfilePromise).resolves.toBeDefined();
-    rerender();
+    await act(async () => vi.runAllTimersAsync());
 
+    await expect(createUnfollowProfilePromise).resolves.toBeDefined();
     expect(result.current.isSuccess).toBe(true);
     expect(unfollowUserByUsername).toBeCalledTimes(1);
     expect(unfollowUserByUsername).toHaveBeenCalledWith(newProfile.username);

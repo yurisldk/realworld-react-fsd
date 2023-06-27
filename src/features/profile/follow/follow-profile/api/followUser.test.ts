@@ -22,17 +22,26 @@ const rolledBackProfile: ProfileDto = {
 
 const queryKey = profileApi.profileKeys.profile.username(newProfile.username);
 
-const followUserByUsername = vi.spyOn(
-  realworldApi.profiles,
-  'followUserByUsername',
-);
+type Params = Parameters<typeof realworldApi.profiles.followUserByUsername>;
+type Return = ReturnType<typeof realworldApi.profiles.followUserByUsername>;
+
+const mockedFollowUserByUsername = vi
+  .fn<Params, Return>()
+  .mockImplementation(realworldApi.profiles.followUserByUsername);
+
+const followUserByUsername = vi
+  .spyOn(realworldApi.profiles, 'followUserByUsername')
+  .mockImplementation(
+    (...args: Params): Return =>
+      mockedFollowUserByUsername(...args).then((value) => wait(1000, value)),
+  );
 
 describe('useMutationFollowUser', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
     queryClient = new QueryClient();
-    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    vi.useFakeTimers();
     setupPostFollowUserHandlers();
   });
 
@@ -41,27 +50,20 @@ describe('useMutationFollowUser', () => {
   });
 
   it('should update a profile successfully', async () => {
-    const { result, rerender } = renderHook(
-      () => useMutationFollowUser(queryClient),
-      { wrapper: createWrapper() },
-    );
-
-    const createFollowProfilePromise = result.current
-      .mutateAsync(newProfile)
-      .then((value) => wait(1000, value));
-
-    await act(async () => {
-      vi.advanceTimersByTimeAsync(500);
+    const { result } = renderHook(() => useMutationFollowUser(queryClient), {
+      wrapper: createWrapper(),
     });
-    rerender();
+
+    const createFollowProfilePromise = result.current.mutateAsync(newProfile);
+
+    await act(async () => vi.advanceTimersToNextTimerAsync());
 
     const cachedData = queryClient.getQueryData(queryKey);
     expect(cachedData).toEqual(newProfile);
 
-    vi.advanceTimersByTimeAsync(500);
-    await expect(createFollowProfilePromise).resolves.toBeDefined();
-    rerender();
+    await act(async () => vi.runAllTimersAsync());
 
+    await expect(createFollowProfilePromise).resolves.toBeDefined();
     expect(result.current.isSuccess).toBe(true);
     expect(followUserByUsername).toBeCalledTimes(1);
     expect(followUserByUsername).toHaveBeenCalledWith(newProfile.username);

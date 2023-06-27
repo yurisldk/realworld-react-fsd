@@ -36,17 +36,26 @@ const rolledBackArticle: ArticleDto = {
 
 const queryKey = articleApi.articleKeys.article.slug(newArticle.slug);
 
-const createArticleFavorite = vi.spyOn(
-  realworldApi.articles,
-  'createArticleFavorite',
-);
+type Params = Parameters<typeof realworldApi.articles.createArticleFavorite>;
+type Return = ReturnType<typeof realworldApi.articles.createArticleFavorite>;
+
+const mockedCreateArticleFavorite = vi
+  .fn<Params, Return>()
+  .mockImplementation(realworldApi.articles.createArticleFavorite);
+
+const createArticleFavorite = vi
+  .spyOn(realworldApi.articles, 'createArticleFavorite')
+  .mockImplementation(
+    (...args: Params): Return =>
+      mockedCreateArticleFavorite(...args).then((value) => wait(1000, value)),
+  );
 
 describe('useMutationFavoriteArticle', () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
     queryClient = new QueryClient();
-    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    vi.useFakeTimers();
     setupPostFavoriteArticleHandlers();
   });
 
@@ -55,27 +64,21 @@ describe('useMutationFavoriteArticle', () => {
   });
 
   it('should update an article successfully', async () => {
-    const { result, rerender } = renderHook(
+    const { result } = renderHook(
       () => useMutationFavoriteArticle(queryClient),
       { wrapper: createWrapper() },
     );
 
-    const createArticleFavoritePromise = result.current
-      .mutateAsync(newArticle)
-      .then((value) => wait(1000, value));
+    const createArticleFavoritePromise = result.current.mutateAsync(newArticle);
 
-    await act(async () => {
-      vi.advanceTimersByTimeAsync(500);
-    });
-    rerender();
+    await act(async () => vi.advanceTimersToNextTimerAsync());
 
     const cachedData = queryClient.getQueryData(queryKey);
     expect(cachedData).toEqual(newArticle);
 
-    vi.advanceTimersByTimeAsync(500);
-    await expect(createArticleFavoritePromise).resolves.toBeDefined();
-    rerender();
+    await act(async () => vi.runAllTimersAsync());
 
+    await expect(createArticleFavoritePromise).resolves.toBeDefined();
     expect(result.current.isSuccess).toBe(true);
     expect(createArticleFavorite).toBeCalledTimes(1);
     expect(createArticleFavorite).toHaveBeenCalledWith(newArticle.slug);
