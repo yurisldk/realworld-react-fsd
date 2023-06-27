@@ -1,4 +1,3 @@
-/* eslint-disable no-promise-executor-return */
 import { QueryClient } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
