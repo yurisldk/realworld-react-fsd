@@ -10,8 +10,8 @@ type ErrorHandlerProps = {
 export function ErrorHandler(props: ErrorHandlerProps) {
   const { errorData } = props;
 
-  switch (errorData.status) {
-    case 422:
+  switch (true) {
+    case Object.hasOwn(errorData.error, 'errors'):
       const errors = errorData.error as GenericErrorModelDto;
       return <ErrorsList errors={errors.errors} />;
 

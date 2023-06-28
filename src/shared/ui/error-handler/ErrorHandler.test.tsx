@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { ErrorHandler } from './ErrorHandler';
 
 describe('ErrorHandler', () => {
-  it('should render ErrorsList when error status is 422', () => {
+  it('should render ErrorsList when error object has errors key', () => {
     const errorData = {
       status: 422,
       error: {
@@ -20,7 +20,7 @@ describe('ErrorHandler', () => {
     expect(errorsListElement).toBeInTheDocument();
   });
 
-  it('should render ErrorMessage when error status is not 422', () => {
+  it('should render ErrorMessage when error object has message key', () => {
     const errorData = {
       status: 500,
       error: {
