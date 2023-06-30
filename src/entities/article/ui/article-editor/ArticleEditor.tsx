@@ -62,7 +62,7 @@ export function ArticleEditor(props: ArticleEditorProps) {
       <div className="container page">
         <div className="row">
           <div className="col-md-10 offset-md-1 col-xs-12">
-            {isError && <ErrorHandler errorData={error!} />}
+            {isError && <ErrorHandler error={error!} />}
 
             <Formik
               initialValues={formikArticle}

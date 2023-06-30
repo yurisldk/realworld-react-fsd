@@ -34,7 +34,7 @@ export function ArticlePage() {
   if (isError)
     return (
       <FullPageWrapper>
-        <ErrorHandler errorData={error} />
+        <ErrorHandler error={error} />
       </FullPageWrapper>
     );
 

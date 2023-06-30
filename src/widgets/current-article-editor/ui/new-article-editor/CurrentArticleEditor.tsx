@@ -38,7 +38,7 @@ export function CurrentArticleEditor(props: CurrentArticleEditorProps) {
   if (isArticleError)
     return (
       <FullPageWrapper>
-        <ErrorHandler errorData={articleError} />;
+        <ErrorHandler error={articleError} />;
       </FullPageWrapper>
     );
 

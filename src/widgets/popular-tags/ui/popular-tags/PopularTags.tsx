@@ -16,7 +16,7 @@ export function PopularTags(props: PopularTagsProps) {
       <div className="tag-list">
         {isLoading && 'Loading tags...'}
 
-        {isError && <ErrorHandler errorData={error} />}
+        {isError && <ErrorHandler error={error} />}
 
         {tags &&
           tags.length &&

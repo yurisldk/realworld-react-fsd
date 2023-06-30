@@ -32,7 +32,7 @@ export function ArticlesList(props: ArticlesListProps) {
 
       {isError && (
         <div className="article-preview">
-          <ErrorHandler errorData={error!} />
+          <ErrorHandler error={error!} />
         </div>
       )}
 

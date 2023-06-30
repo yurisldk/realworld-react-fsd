@@ -29,7 +29,7 @@ export function CommentsList(props: CommentsListProps) {
       </div>
     );
 
-  if (isError) return <ErrorHandler errorData={error} />;
+  if (isError) return <ErrorHandler error={error} />;
 
   return (
     <div>

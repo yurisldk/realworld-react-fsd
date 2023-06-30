@@ -25,7 +25,7 @@ describe('<ArticlesList />', () => {
   });
 
   it('renders error state when isError is true', () => {
-    const errorData = {
+    const error = {
       error: {
         message: 'Error message',
       },
@@ -34,7 +34,7 @@ describe('<ArticlesList />', () => {
     const errorProps = {
       ...props,
       isError: true,
-      error: errorData,
+      error,
     };
 
     // @ts-expect-error error is not assignable to type 'GenericErrorModel'

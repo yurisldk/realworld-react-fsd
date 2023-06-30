@@ -1,22 +1,43 @@
 /* eslint-disable no-case-declarations */
-import { GenericErrorModel, GenericErrorModelDto } from '~shared/api/realworld';
-import { ErrorMessage } from '../error-message';
-import { ErrorsList } from '../errors-list';
+import {
+  GenericErrorModel,
+  GenericErrorModelDto,
+  UnexpectedErrorModelDto,
+} from '~shared/api/realworld';
 
 type ErrorHandlerProps = {
-  errorData: GenericErrorModel;
+  error: GenericErrorModel;
 };
 
 export function ErrorHandler(props: ErrorHandlerProps) {
-  const { errorData } = props;
+  const { error } = props;
+
+  if (!error?.error) throw error as unknown;
+
+  let errorList: string[] = [];
 
   switch (true) {
-    case Object.hasOwn(errorData.error, 'errors'):
-      const errors = errorData.error as GenericErrorModelDto;
-      return <ErrorsList errors={errors.errors} />;
+    case Object.hasOwn(error.error, 'errors'):
+      const unexpectedError = error.error as UnexpectedErrorModelDto;
+      errorList = Object.entries(unexpectedError.errors).flatMap(
+        ([key, value]) => value.map((curError) => `${key} ${curError}`),
+      );
+      break;
+
+    case Object.hasOwn(error.error, 'message'):
+      const genericError = error.error as GenericErrorModelDto;
+      errorList = [genericError.message];
+      break;
 
     default:
-      const error = errorData.error as { message: string };
-      return <ErrorMessage error={error} />;
+      throw new Error('Unexpected error type');
   }
+
+  return (
+    <ul className="error-messages">
+      {errorList.map((errorItem) => (
+        <li key={errorItem}>{errorItem}</li>
+      ))}
+    </ul>
+  );
 }

@@ -11,14 +11,13 @@ import type {
   CommentDto,
   NewCommentDto,
   GenericErrorModelDto,
+  UnexpectedErrorModelDto,
+  ErrorModelDto,
   HttpResponse,
   RequestParams,
 } from './Api';
 
-type GenericErrorModel = HttpResponse<
-  unknown,
-  GenericErrorModelDto | { message: string }
->;
+type GenericErrorModel = HttpResponse<unknown, ErrorModelDto>;
 
 const realworldApi = new Api<string>({
   baseApiParams: {
@@ -44,6 +43,8 @@ export type {
   CommentDto,
   NewCommentDto,
   GenericErrorModelDto,
+  UnexpectedErrorModelDto,
+  ErrorModelDto,
   HttpResponse,
   RequestParams,
   GenericErrorModel,

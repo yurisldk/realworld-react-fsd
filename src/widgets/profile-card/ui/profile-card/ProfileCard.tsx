@@ -81,7 +81,7 @@ export function ProfileCard(props: ProfileCardProps) {
 
           {isError && (
             <ProfileWrapper>
-              <ErrorHandler errorData={error} />
+              <ErrorHandler error={error} />
             </ProfileWrapper>
           )}
 

@@ -88,10 +88,17 @@ export interface NewCommentDto {
 }
 
 export interface GenericErrorModelDto {
+  status: string;
+  message: string;
+}
+
+export interface UnexpectedErrorModelDto {
   errors: {
     body: string[];
   };
 }
+
+export type ErrorModelDto = GenericErrorModelDto | UnexpectedErrorModelDto;
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
@@ -371,7 +378,7 @@ export class Api<
         {
           user: UserDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/users/login`,
         method: 'POST',
@@ -396,7 +403,7 @@ export class Api<
         {
           user: UserDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/users`,
         method: 'POST',
@@ -419,7 +426,7 @@ export class Api<
         {
           user: UserDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/user`,
         method: 'GET',
@@ -446,7 +453,7 @@ export class Api<
         {
           user: UserDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/user`,
         method: 'PUT',
@@ -469,7 +476,7 @@ export class Api<
         {
           profile: ProfileDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/profiles/${username}`,
         method: 'GET',
@@ -490,7 +497,7 @@ export class Api<
         {
           profile: ProfileDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/profiles/${username}/follow`,
         method: 'POST',
@@ -512,7 +519,7 @@ export class Api<
         {
           profile: ProfileDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/profiles/${username}/follow`,
         method: 'DELETE',
@@ -551,7 +558,7 @@ export class Api<
           articles: ArticleDto[];
           articlesCount: number;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/articles/feed`,
         method: 'GET',
@@ -595,7 +602,7 @@ export class Api<
           articles: ArticleDto[];
           articlesCount: number;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/articles`,
         method: 'GET',
@@ -622,7 +629,7 @@ export class Api<
         {
           article: ArticleDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/articles`,
         method: 'POST',
@@ -644,7 +651,7 @@ export class Api<
         {
           article: ArticleDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/articles/${slug}`,
         method: 'GET',
@@ -671,7 +678,7 @@ export class Api<
         {
           article: ArticleDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/articles/${slug}`,
         method: 'PUT',
@@ -690,7 +697,7 @@ export class Api<
      * @secure
      */
     deleteArticle: (slug: string, params: RequestParams = {}) =>
-      this.request<any, GenericErrorModelDto>({
+      this.request<any, ErrorModelDto>({
         path: `/articles/${slug}`,
         method: 'DELETE',
         secure: true,
@@ -710,7 +717,7 @@ export class Api<
         {
           comments: CommentDto[];
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/articles/${slug}/comments`,
         method: 'GET',
@@ -737,7 +744,7 @@ export class Api<
         {
           comment: CommentDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/articles/${slug}/comments`,
         method: 'POST',
@@ -760,7 +767,7 @@ export class Api<
       id: number,
       params: RequestParams = {},
     ) =>
-      this.request<any, GenericErrorModelDto>({
+      this.request<any, ErrorModelDto>({
         path: `/articles/${slug}/comments/${id}`,
         method: 'DELETE',
         secure: true,
@@ -781,7 +788,7 @@ export class Api<
         {
           article: ArticleDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/articles/${slug}/favorite`,
         method: 'POST',
@@ -803,7 +810,7 @@ export class Api<
         {
           article: ArticleDto;
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/articles/${slug}/favorite`,
         method: 'DELETE',
@@ -825,7 +832,7 @@ export class Api<
         {
           tags: string[];
         },
-        GenericErrorModelDto
+        ErrorModelDto
       >({
         path: `/tags`,
         method: 'GET',

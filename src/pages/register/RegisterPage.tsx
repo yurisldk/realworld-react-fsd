@@ -19,7 +19,7 @@ export function RegisterPage() {
               <Link to={PATH_PAGE.login}>Have an account?</Link>
             </p>
 
-            {isError && <ErrorHandler errorData={error} />}
+            {isError && <ErrorHandler error={error} />}
 
             <Formik
               initialValues={{
