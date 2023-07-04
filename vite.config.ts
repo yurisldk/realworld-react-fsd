@@ -31,7 +31,6 @@ export default defineConfig({
     setupFiles: 'src/shared/lib/test/setup.ts',
     coverage: {
       provider: 'v8',
-      reportsDirectory: 'src/shared/lib/test/coverage',
       exclude: ['src/shared/api/realworld/**'],
     },
   },
