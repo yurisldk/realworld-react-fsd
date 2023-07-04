@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { IoAdd, IoSettingsSharp } from 'react-icons/io5';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { profileApi } from '~entities/profile';
 import { sessionModel } from '~entities/session';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
@@ -119,13 +119,15 @@ export function ProfileCard(props: ProfileCardProps) {
                 ))}
 
               {isCurrentUser && (
-                <Link
-                  className="btn btn-sm btn-outline-secondary action-btn"
-                  to={PATH_PAGE.settings}
+                <Button
+                  color="secondary"
+                  variant="outline"
+                  className="action-btn"
+                  onClick={() => navigate(PATH_PAGE.settings)}
                 >
                   <IoSettingsSharp size={14} />
                   &nbsp; Edit Profile Settings
-                </Link>
+                </Button>
               )}
             </div>
           )}
