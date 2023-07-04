@@ -1,24 +1,20 @@
-<!-- # ![RealWorld Example App](logo.png) -->
+### React + Zustand + React-Query codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API. Powered by [FSD (Feature-Sliced Design)](https://feature-sliced.design/) architectural methodology.
+
+<br/>
 
 [![Netlify Status][netlify-domain]](https://realworld-fsd.netlify.app/)
+[![Build workflow][build-domain]](https://github.com/sldk-yuri/realworld-react-fsd/actions/workflows/build.yml)
+[![Codecov][codecov-domain]](https://app.codecov.io/gh/sldk-yuri/realworld-react-fsd/branch/master)
+[![Code style: prettier][prettier-domain]](https://github.com/prettier/prettier)
+[![license][license-domain]](https://github.com/sldk-yuri/realworld-react-fsd/blob/master/LICENSE)
 
-[![Feature-Sliced Design][shields-fsd-domain]](https://feature-sliced.design/)
-[![Vite][shields-vite-domain]](https://vitejs.dev/)
-[![React][shields-react-domain]](https://react.dev/)
-[![React Router][shields-react-router-domain]](https://reactrouter.com/)
-[![React Query][shields-react-query-domain]](https://tanstack.com/query/v4/)
-[![Zustand][shields-zustand-domain]](https://zustand-demo.pmnd.rs/)
-[![TypeScript][shields-typescript-domain]](https://www.typescriptlang.org/)
+![Dependency Graph][dependency-graph-domain]
 
-> ### React + Zustand + React-Query codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
+This codebase was created to demonstrate a fully fledged fullstack application built with **React + Zustand + React-Query and Feature-Sliced Design architectural methodology** including CRUD operations, authentication, routing, pagination, and more.
 
-### [Demo](https://realworld-fsd.netlify.app/)&nbsp;&nbsp;&nbsp;&nbsp;[RealWorld](https://github.com/gothinkster/realworld)
+We've gone to great lengths to adhere to the **React + Zustand + React-Query and Feature-Sliced Design architectural methodology** community styleguides & best practices.
 
-This codebase was created to demonstrate a fully fledged fullstack application built with **React + Zustand + React-Query** including CRUD operations, authentication, routing, pagination, and more.
-
-We've gone to great lengths to adhere to the **React + Zustand + React-Query** community styleguides & best practices.
-
-For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
+For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) and [FSD](https://github.com/feature-sliced/documentation) repos.
 
 # Features
 
@@ -66,19 +62,36 @@ To get the frontend running locally:
 
 # Scripts
 
-- `yarn run dev` - start a development server with hot reload.
-- `yarn run build` - build for production. The generated files will be on the dist folder.
-- `yarn run preview` - locally preview the production build.
-- `yarn run generate:api` - generate api via swagger scheme
-- `yarn run lint` - run ESLint.
-- `yarn run lint:perf` - run ESLint and track the performance of individual rules.
-- `yarn run prettier` - run Prettier on changed files.
-- `yarn run prettier:all` - run Prettier on all files.
-- `yarn run test:run` - run all test suites.
-- `yarn run test:watch` - run all test suites but watch for changes and rerun tests when they change.
-- `yarn run test:coverage` - run all test suites and enable coverage report.
+- `yarn dev` - start a development server with hot reload.
+- `yarn build` - build for production. The generated files will be on the dist folder.
+- `yarn preview` - locally preview the production build.
+- `yarn generate:api` - generate api via swagger scheme
+- `yarn lint` - run ESLint.
+- `yarn lint:perf` - run ESLint and track the performance of individual rules.
+- `yarn prettier` - run Prettier on changed files.
+- `yarn prettier:all` - run Prettier on all files.
+- `yarn test:run` - run all test suites.
+- `yarn test:watch` - run all test suites but watch for changes and rerun tests when they change.
+- `yarn test:coverage` - run all test suites and enable coverage report.
 - `coverage:open` - open coverage report in browser.
-- `yarn run test:coverage:open` - run all test suites and enable coverage report then open coverage report in browser.
+- `yarn test:coverage:open` - run all test suites and enable coverage report then open coverage report in browser.
+- `yarn dep-cruiser:preview` - create a graph of the dependencies[^1]
+
+[^1]:
+    This assumes the GraphViz `dot` command is available - on most linux and
+    comparable systems this will be. In case it's not, see
+    [GraphViz' download page](https://www.graphviz.org/download/) for instructions
+    on how to get it on your machine.
+
+<br/>
+
+[![Feature-Sliced Design][shields-fsd-domain]](https://feature-sliced.design/)
+[![Vite][shields-vite-domain]](https://vitejs.dev/)
+[![React][shields-react-domain]](https://react.dev/)
+[![React Router][shields-react-router-domain]](https://reactrouter.com/)
+[![React Query][shields-react-query-domain]](https://tanstack.com/query/v4/)
+[![Zustand][shields-zustand-domain]](https://zustand-demo.pmnd.rs/)
+[![TypeScript][shields-typescript-domain]](https://www.typescriptlang.org/)
 
 [shields-react-router-domain]: https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white
 [shields-react-query-domain]: https://img.shields.io/badge/-React%20Query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white
@@ -88,3 +101,8 @@ To get the frontend running locally:
 [shields-vite-domain]: https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white
 [shields-react-domain]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
 [netlify-domain]: https://api.netlify.com/api/v1/badges/5d5013c3-ec61-4496-8f48-caa7145fb166/deploy-status
+[dependency-graph-domain]: ./dependency-graph-preview.svg
+[build-domain]: https://github.com/sldk-yuri/realworld-react-fsd/actions/workflows/build.yml/badge.svg
+[codecov-domain]: https://codecov.io/gh/sldk-yuri/realworld-react-fsd/branch/master/graph/badge.svg?token=IXE2YRPYK5
+[prettier-domain]: https://img.shields.io/badge/code_style-prettier-ff69b4.svg
+[license-domain]: https://img.shields.io/badge/license-MIT-green.svg
