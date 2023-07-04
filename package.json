@@ -16,7 +16,8 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "coverage:open": "npx vite preview --outDir ./coverage",
-    "test:coverage:open": "yarn run test:coverage && yarn run coverage:open"
+    "test:coverage:open": "yarn run test:coverage && yarn run coverage:open",
+    "dep-cruiser:preview": "npx depcruise src --include-only \"^src\" --output-type dot | dot -T svg > dependency-graph-preview.svg"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.29.11",
