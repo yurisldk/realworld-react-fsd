@@ -1,8 +1,10 @@
+import { IoHeart } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
-import { ArticleMeta, FavoriteButton } from '~entities/article';
+import { ArticleMeta } from '~entities/article';
 import { FollowButton } from '~entities/profile';
 import { ArticleDto } from '~shared/api/realworld';
 import { PATH_PAGE } from '~shared/lib/react-router';
+import { Button } from '~shared/ui/button';
 
 type GuestArticleMetaProps = {
   article: ArticleDto;
@@ -25,15 +27,11 @@ export function GuestArticleMeta(props: GuestArticleMetaProps) {
             onClick={onButtonClick}
           />
           &nbsp;&nbsp;
-          <FavoriteButton
-            title={
-              <>
-                &nbsp; Favorite Article{' '}
-                <span className="counter">({article.favoritesCount})</span>
-              </>
-            }
-            onClick={onButtonClick}
-          />
+          <Button color="primary" variant="outline" onClick={onButtonClick}>
+            <IoHeart size={16} />
+            &nbsp;Favorite Article&nbsp;
+            <span className="counter">({article.favoritesCount})</span>
+          </Button>
         </>
       }
     />

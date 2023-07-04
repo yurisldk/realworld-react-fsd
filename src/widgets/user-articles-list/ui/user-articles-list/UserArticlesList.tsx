@@ -5,7 +5,10 @@ import {
   ArticlesList,
   LoadMoreButton,
 } from '~entities/article';
-import { ToggleFavoriteArticleButton } from '~features/article';
+import {
+  UnfavoriteArticleButton,
+  FavoriteArticleButton,
+} from '~features/article';
 
 type UserArticlesListProps = {
   query: articleApi.UserfeedQuery;
@@ -39,12 +42,21 @@ export function UserArticlesList(props: UserArticlesListProps) {
             <ArticleMeta
               article={article}
               actionSlot={
-                <ToggleFavoriteArticleButton
-                  article={article}
-                  followTitle={article.favoritesCount.toString()}
-                  unfollowTitle={article.favoritesCount.toString()}
-                  float="right"
-                />
+                article.favorited ? (
+                  <UnfavoriteArticleButton
+                    className="pull-xs-right"
+                    article={article}
+                  >
+                    {article.favoritesCount}
+                  </UnfavoriteArticleButton>
+                ) : (
+                  <FavoriteArticleButton
+                    className="pull-xs-right"
+                    article={article}
+                  >
+                    {article.favoritesCount}
+                  </FavoriteArticleButton>
+                )
               }
             />
           }
