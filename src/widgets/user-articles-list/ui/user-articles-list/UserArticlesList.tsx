@@ -3,12 +3,12 @@ import {
   ArticleMeta,
   ArticlePreviewCard,
   ArticlesList,
-  LoadMoreButton,
 } from '~entities/article';
 import {
   UnfavoriteArticleButton,
   FavoriteArticleButton,
 } from '~features/article';
+import { Button } from '~shared/ui/button';
 
 type UserArticlesListProps = {
   query: articleApi.UserfeedQuery;
@@ -63,11 +63,14 @@ export function UserArticlesList(props: UserArticlesListProps) {
         />
       )}
       nextPageAction={
-        <LoadMoreButton
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
+        <Button
+          color="primary"
+          variant="outline"
           onClick={() => fetchNextPage()}
-        />
+          disabled={!hasNextPage || isFetchingNextPage}
+        >
+          {isFetchingNextPage ? 'Loading more...' : 'Load More'}
+        </Button>
       }
     />
   );

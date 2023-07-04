@@ -6,7 +6,6 @@ import {
   ArticleMeta,
   ArticlePreviewCard,
   ArticlesList,
-  LoadMoreButton,
 } from '~entities/article';
 import { sessionModel } from '~entities/session';
 import {
@@ -85,11 +84,14 @@ export function GlobalArticlesList(props: GlobalArticlesListProps) {
         />
       )}
       nextPageAction={
-        <LoadMoreButton
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
+        <Button
+          color="primary"
+          variant="outline"
           onClick={() => fetchNextPage()}
-        />
+          disabled={!hasNextPage || isFetchingNextPage}
+        >
+          {isFetchingNextPage ? 'Loading more...' : 'Load More'}
+        </Button>
       }
     />
   );
