@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { IoSettingsSharp } from 'react-icons/io5';
+import { IoAdd, IoSettingsSharp } from 'react-icons/io5';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { FollowButton, profileApi } from '~entities/profile';
+import { profileApi } from '~entities/profile';
 import { sessionModel } from '~entities/session';
-import { ToggleFollowButton } from '~features/profile';
+import { FollowUserButton, UnfollowUserButton } from '~features/profile';
 import { PATH_PAGE } from '~shared/lib/react-router';
+import { Button } from '~shared/ui/button';
 import { ErrorHandler } from '~shared/ui/error-handler';
 import { Spinner } from '~shared/ui/spinner';
 
@@ -96,13 +97,26 @@ export function ProfileCard(props: ProfileCardProps) {
               <p>{profile.bio}</p>
 
               {isGuest && (
-                <FollowButton
-                  title={profile.username}
+                <Button
+                  color="secondary"
+                  variant="outline"
+                  className="action-btn"
                   onClick={() => navigate(PATH_PAGE.login)}
-                />
+                >
+                  <IoAdd size={16} />
+                  &nbsp; Follow {profile.username}
+                </Button>
               )}
 
-              {isUser && <ToggleFollowButton profile={profile} />}
+              {isUser &&
+                (profile.following ? (
+                  <UnfollowUserButton
+                    profile={profile}
+                    className="action-btn"
+                  />
+                ) : (
+                  <FollowUserButton profile={profile} className="action-btn" />
+                ))}
 
               {isCurrentUser && (
                 <Link

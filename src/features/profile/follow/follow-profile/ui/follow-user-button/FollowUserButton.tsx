@@ -1,13 +1,16 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { FollowButton, profileApi } from '~entities/profile';
+import { IoAdd } from 'react-icons/io5';
+import { profileApi } from '~entities/profile';
+import { Button } from '~shared/ui/button';
 import { useMutationFollowUser } from '../../api/followUser';
 
 type FollowUserButtonProps = {
   profile: profileApi.Profile;
+  className?: string;
 };
 
 export function FollowUserButton(props: FollowUserButtonProps) {
-  const { profile } = props;
+  const { profile, className } = props;
 
   const queryClient = useQueryClient();
 
@@ -21,5 +24,15 @@ export function FollowUserButton(props: FollowUserButtonProps) {
     followUser.mutate(newUser);
   };
 
-  return <FollowButton title={profile.username} onClick={handleClick} />;
+  return (
+    <Button
+      color="secondary"
+      variant="outline"
+      className={className}
+      onClick={handleClick}
+    >
+      <IoAdd size={16} />
+      &nbsp; Follow {profile.username}
+    </Button>
+  );
 }

@@ -3,7 +3,7 @@ import {
   UnfavoriteArticleButton,
   FavoriteArticleButton,
 } from '~features/article';
-import { ToggleFollowButton } from '~features/profile';
+import { UnfollowUserButton, FollowUserButton } from '~features/profile';
 import { ArticleDto } from '~shared/api/realworld';
 
 type UserArticleMetaProps = {
@@ -18,7 +18,11 @@ export function UserArticleMeta(props: UserArticleMetaProps) {
       article={article}
       actionSlot={
         <>
-          <ToggleFollowButton profile={article.author} />
+          {article.author.following ? (
+            <UnfollowUserButton profile={article.author} />
+          ) : (
+            <FollowUserButton profile={article.author} />
+          )}
           &nbsp;&nbsp;
           {article.favorited ? (
             <UnfavoriteArticleButton article={article}>
