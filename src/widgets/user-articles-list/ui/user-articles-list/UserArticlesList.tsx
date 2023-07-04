@@ -3,9 +3,12 @@ import {
   ArticleMeta,
   ArticlePreviewCard,
   ArticlesList,
-  LoadMoreButton,
 } from '~entities/article';
-import { ToggleFavoriteArticleButton } from '~features/article';
+import {
+  UnfavoriteArticleButton,
+  FavoriteArticleButton,
+} from '~features/article';
+import { Button } from '~shared/ui/button';
 
 type UserArticlesListProps = {
   query: articleApi.UserfeedQuery;
@@ -39,23 +42,35 @@ export function UserArticlesList(props: UserArticlesListProps) {
             <ArticleMeta
               article={article}
               actionSlot={
-                <ToggleFavoriteArticleButton
-                  article={article}
-                  followTitle={article.favoritesCount.toString()}
-                  unfollowTitle={article.favoritesCount.toString()}
-                  float="right"
-                />
+                article.favorited ? (
+                  <UnfavoriteArticleButton
+                    className="pull-xs-right"
+                    article={article}
+                  >
+                    {article.favoritesCount}
+                  </UnfavoriteArticleButton>
+                ) : (
+                  <FavoriteArticleButton
+                    className="pull-xs-right"
+                    article={article}
+                  >
+                    {article.favoritesCount}
+                  </FavoriteArticleButton>
+                )
               }
             />
           }
         />
       )}
       nextPageAction={
-        <LoadMoreButton
-          hasNextPage={hasNextPage}
-          isFetchingNextPage={isFetchingNextPage}
+        <Button
+          color="primary"
+          variant="outline"
           onClick={() => fetchNextPage()}
-        />
+          disabled={!hasNextPage || isFetchingNextPage}
+        >
+          {isFetchingNextPage ? 'Loading more...' : 'Load More'}
+        </Button>
       }
     />
   );

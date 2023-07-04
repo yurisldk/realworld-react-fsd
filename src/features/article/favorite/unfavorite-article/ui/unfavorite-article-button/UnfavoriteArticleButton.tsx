@@ -1,17 +1,18 @@
 import { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { FavoriteButton } from '~entities/article';
+import { IoHeart } from 'react-icons/io5';
 import { ArticleDto } from '~shared/api/realworld';
+import { Button } from '~shared/ui/button';
 import { useMutationUnfavoriteArticle } from '../../api/unfavoriteArticle';
 
 type UnfavoriteArticleButtonProps = {
   article: ArticleDto;
-  title?: ReactNode;
-  float?: 'none' | 'left' | 'right';
+  className?: string;
+  children?: ReactNode;
 };
 
 export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
-  const { article, title, float = 'none' } = props;
+  const { article, className, children } = props;
 
   const queryClient = useQueryClient();
 
@@ -27,11 +28,9 @@ export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
   };
 
   return (
-    <FavoriteButton
-      favorited
-      title={title}
-      float={float}
-      onClick={handleUnfavorite}
-    />
+    <Button className={className} onClick={handleUnfavorite}>
+      <IoHeart size={16} />
+      {children}
+    </Button>
   );
 }

@@ -1,13 +1,16 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { FollowButton, profileApi } from '~entities/profile';
+import { IoRemove } from 'react-icons/io5';
+import { profileApi } from '~entities/profile';
+import { Button } from '~shared/ui/button';
 import { useMutationUnfollowUser } from '../../api/unfollowUser';
 
 type UnfollowUserButtonProps = {
   profile: profileApi.Profile;
+  className?: string;
 };
 
 export function UnfollowUserButton(props: UnfollowUserButtonProps) {
-  const { profile } = props;
+  const { profile, className } = props;
 
   const queryClient = useQueryClient();
 
@@ -22,6 +25,9 @@ export function UnfollowUserButton(props: UnfollowUserButtonProps) {
   };
 
   return (
-    <FollowButton title={profile.username} following onClick={handleClick} />
+    <Button color="secondary" onClick={handleClick} className={className}>
+      <IoRemove size={16} />
+      &nbsp; Unfollow {profile.username}
+    </Button>
   );
 }

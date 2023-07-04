@@ -1,6 +1,9 @@
 import { ArticleMeta } from '~entities/article';
-import { ToggleFavoriteArticleButton } from '~features/article';
-import { ToggleFollowButton } from '~features/profile';
+import {
+  UnfavoriteArticleButton,
+  FavoriteArticleButton,
+} from '~features/article';
+import { UnfollowUserButton, FollowUserButton } from '~features/profile';
 import { ArticleDto } from '~shared/api/realworld';
 
 type UserArticleMetaProps = {
@@ -15,23 +18,23 @@ export function UserArticleMeta(props: UserArticleMetaProps) {
       article={article}
       actionSlot={
         <>
-          <ToggleFollowButton profile={article.author} />
+          {article.author.following ? (
+            <UnfollowUserButton profile={article.author} />
+          ) : (
+            <FollowUserButton profile={article.author} />
+          )}
           &nbsp;&nbsp;
-          <ToggleFavoriteArticleButton
-            article={article}
-            followTitle={
-              <>
-                &nbsp; Favorite Article{' '}
-                <span className="counter">({article.favoritesCount})</span>
-              </>
-            }
-            unfollowTitle={
-              <>
-                &nbsp; Unfavorite Article{' '}
-                <span className="counter">({article.favoritesCount})</span>
-              </>
-            }
-          />
+          {article.favorited ? (
+            <UnfavoriteArticleButton article={article}>
+              &nbsp;Unfavorite Article&nbsp;
+              <span className="counter">({article.favoritesCount})</span>
+            </UnfavoriteArticleButton>
+          ) : (
+            <FavoriteArticleButton article={article}>
+              &nbsp; Favorite Article&nbsp;
+              <span className="counter">({article.favoritesCount})</span>
+            </FavoriteArticleButton>
+          )}
         </>
       }
     />

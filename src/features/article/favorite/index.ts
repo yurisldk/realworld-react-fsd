@@ -1,1 +1,2 @@
-export { ToggleFavoriteArticleButton } from './toggle-favorite-article/index';
+export { FavoriteArticleButton } from './favorite-article';
+export { UnfavoriteArticleButton } from './unfavorite-article';
