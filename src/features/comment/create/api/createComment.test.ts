@@ -3,8 +3,8 @@ import { renderHook } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import { vi } from 'vitest';
 import { commentApi } from '~entities/comment';
-import { CommentDto, realworldApi } from '~shared/api/realworld';
-import { wait } from '~shared/lib/msw';
+import { wait } from '~shared/api/msw';
+import { realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
 import { useCreateComment } from './createComment';
 import { setupPostCreateArticleHandlers } from './msw/postCreateCommentHandlers';
@@ -12,7 +12,7 @@ import { setupPostCreateArticleHandlers } from './msw/postCreateCommentHandlers'
 const slug =
   'If-we-quantify-the-alarm-we-can-get-to-the-FTP-pixel-through-the-online-SSL-interface!-120863';
 
-const newComment: CommentDto = {
+const newComment: commentApi.Comment = {
   id: 3,
   createdAt: '2023-06-23T00:00:00.000Z',
   updatedAt: '2023-06-23T00:00:00.000Z',

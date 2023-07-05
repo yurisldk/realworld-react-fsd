@@ -7,13 +7,17 @@ import {
 } from '~shared/api/realworld';
 import { addUser } from '../model/sessionModel';
 
-export type User = {
+export interface User {
   email: string;
   token: string;
   username: string;
   bio: string;
   image: string;
-};
+}
+
+function mapUser(userDto: UserDto): User {
+  return userDto;
+}
 
 export const sessionKeys = {
   session: {
@@ -35,10 +39,6 @@ type UseCurrentUserQuery = UseQueryOptions<
 >;
 type UseCurrentUserOptions = Omit<UseCurrentUserQuery, 'queryKey' | 'queryFn'>;
 
-function mapUserDto(userDto: UserDto): User {
-  return { ...userDto };
-}
-
 export const useCurrentUser = (
   options?: UseCurrentUserOptions,
   params?: RequestParams,
@@ -51,7 +51,7 @@ export const useCurrentUser = (
         ...params,
       });
 
-      const user = mapUserDto(response.data.user);
+      const user = mapUser(response.data.user);
 
       addUser(user);
 

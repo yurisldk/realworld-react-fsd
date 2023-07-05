@@ -1,10 +1,6 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { commentApi } from '~entities/comment';
-import {
-  CommentDto,
-  GenericErrorModel,
-  realworldApi,
-} from '~shared/api/realworld';
+import { GenericErrorModel, realworldApi } from '~shared/api/realworld';
 
 type UseDeleteCommentProps = {
   slug: string;
@@ -16,7 +12,7 @@ export function useDeleteComment(queryClient: QueryClient) {
     any,
     GenericErrorModel,
     UseDeleteCommentProps,
-    { queryKey: string[]; prevComments: CommentDto[] }
+    { queryKey: string[]; prevComments: commentApi.Comment[] }
   >(
     async ({ slug, id }: UseDeleteCommentProps) => {
       const response = await realworldApi.articles.deleteArticleComment(
@@ -32,13 +28,13 @@ export function useDeleteComment(queryClient: QueryClient) {
         await queryClient.cancelQueries({ queryKey });
 
         const prevComments =
-          queryClient.getQueryData<CommentDto[]>(queryKey) || [];
+          queryClient.getQueryData<commentApi.Comment[]>(queryKey) || [];
 
-        const newComments: CommentDto[] = prevComments.filter(
+        const newComments: commentApi.Comment[] = prevComments.filter(
           (comment) => comment.id !== id,
         );
 
-        queryClient.setQueryData<CommentDto[]>(queryKey, newComments);
+        queryClient.setQueryData<commentApi.Comment[]>(queryKey, newComments);
 
         return { queryKey, prevComments };
       },

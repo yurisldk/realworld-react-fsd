@@ -1,12 +1,13 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
-import { ArticleDto, realworldApi } from '~shared/api/realworld';
+import { articleApi } from '~entities/article';
+import { realworldApi } from '~shared/api/realworld';
 import { renderWithClient } from '~shared/lib/react-query';
 import { useMutationUnfavoriteArticle } from '../../api/unfavoriteArticle';
 import { UnfavoriteArticleButton } from './UnfavoriteArticleButton';
 
-const newArticle: ArticleDto = {
+const newArticle: articleApi.Article = {
   slug: 'Ill-synthesize-the-primary-AI-capacitor-that-should-array-the-JBOD-sensor!-120863',
   title:
     'Ill synthesize the primary AI capacitor, that should array the JBOD sensor!',

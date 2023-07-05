@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
 import { InfiniteData } from '@tanstack/react-query';
-import { ArticleDto, GenericErrorModel } from '~shared/api/realworld';
+import { GenericErrorModel } from '~shared/api/realworld';
 import { ErrorHandler } from '~shared/ui/error-handler';
+import { Article } from '../../api/articleApi';
 
 type ArticlesListProps = {
   isLoading: boolean;
@@ -9,8 +10,8 @@ type ArticlesListProps = {
   isSuccess: boolean;
   error: GenericErrorModel | null;
   hasNextPage?: boolean;
-  infinityArticles?: InfiniteData<ArticleDto[]>;
-  renderArticles: (article: ArticleDto) => ReactNode;
+  infinityArticles?: InfiniteData<Article[]>;
+  renderArticles: (article: Article) => ReactNode;
   nextPageAction: ReactNode;
 };
 

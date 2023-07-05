@@ -2,8 +2,8 @@ import { QueryClient } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
 import { commentApi } from '~entities/comment';
-import { CommentDto, realworldApi } from '~shared/api/realworld';
-import { wait } from '~shared/lib/msw';
+import { wait } from '~shared/api/msw';
+import { realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
 import { useDeleteComment } from './deleteComment';
 import { setupdeleteCommentHandlers } from './msw/deleteCommentHandlers';
@@ -11,7 +11,7 @@ import { setupdeleteCommentHandlers } from './msw/deleteCommentHandlers';
 const slug =
   'If-we-quantify-the-alarm-we-can-get-to-the-FTP-pixel-through-the-online-SSL-interface!-120863';
 
-const comment: CommentDto = {
+const comment: commentApi.Comment = {
   id: 1,
   createdAt: '2016-02-18T03:22:56.637Z',
   updatedAt: '2016-02-18T03:22:56.637Z',

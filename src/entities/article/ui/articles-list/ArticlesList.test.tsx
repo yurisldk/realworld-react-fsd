@@ -70,7 +70,7 @@ describe('<ArticlesList />', () => {
       ),
     };
 
-    // @ts-expect-error articles is not assignable to type 'ArticleDto[]'
+    // @ts-expect-error articles is not assignable to type 'Article[]'
     render(<ArticlesList {...successProps} />);
     expect(screen.getByText('Article 1')).toBeInTheDocument();
     expect(screen.getByText('Article 2')).toBeInTheDocument();

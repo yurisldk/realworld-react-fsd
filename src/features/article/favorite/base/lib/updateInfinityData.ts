@@ -1,11 +1,11 @@
 import { InfiniteData } from '@tanstack/react-query';
-import { ArticleDto } from '~shared/api/realworld';
+import { articleApi } from '~entities/article';
 
-export type ArticlesInfinityData = InfiniteData<ArticleDto[]>;
+export type ArticlesInfinityData = InfiniteData<articleApi.Article[]>;
 
 export const updateInfinityData = (
   infinityData: ArticlesInfinityData,
-  newArticle: ArticleDto,
+  newArticle: articleApi.Article,
 ) => {
   const articleOrderIdx = infinityData.pages
     .flat()

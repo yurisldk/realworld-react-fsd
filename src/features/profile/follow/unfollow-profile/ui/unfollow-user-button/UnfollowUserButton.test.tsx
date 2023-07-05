@@ -1,12 +1,12 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
-import { ProfileDto } from '~shared/api/realworld';
+import { profileApi } from '~entities/profile';
 import { renderWithClient } from '~shared/lib/react-query';
 import { useMutationUnfollowUser } from '../../api/unfollowUser';
 import { UnfollowUserButton } from './UnfollowUserButton';
 
-const newProfile: ProfileDto = {
+const newProfile: profileApi.Profile = {
   username: 'Anah Benešová',
   bio: 'I work at statefarm',
   image: 'https://api.realworld.io/images/demo-avatar.png',

@@ -1,12 +1,11 @@
 import { IoAdd, IoHeart } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
-import { ArticleMeta } from '~entities/article';
-import { ArticleDto } from '~shared/api/realworld';
+import { ArticleMeta, articleApi } from '~entities/article';
 import { PATH_PAGE } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
 
 type GuestArticleMetaProps = {
-  article: ArticleDto;
+  article: articleApi.Article;
 };
 
 export function GuestArticleMeta(props: GuestArticleMetaProps) {

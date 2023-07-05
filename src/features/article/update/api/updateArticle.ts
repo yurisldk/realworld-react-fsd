@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
+import { articleApi } from '~entities/article';
 import {
-  ArticleDto,
   GenericErrorModel,
   UpdateArticleDto,
   realworldApi,
@@ -12,12 +12,15 @@ type UpdateArticleProps = {
 };
 
 export const useUpdateArticle = () =>
-  useMutation<ArticleDto, GenericErrorModel, UpdateArticleProps, unknown>(
-    async ({ slug, article }: UpdateArticleProps) => {
-      const response = await realworldApi.articles.updateArticle(slug, {
-        article,
-      });
+  useMutation<
+    articleApi.Article,
+    GenericErrorModel,
+    UpdateArticleProps,
+    unknown
+  >(async ({ slug, article }: UpdateArticleProps) => {
+    const response = await realworldApi.articles.updateArticle(slug, {
+      article,
+    });
 
-      return response.data.article;
-    },
-  );
+    return articleApi.mapArticle(response.data.article);
+  });

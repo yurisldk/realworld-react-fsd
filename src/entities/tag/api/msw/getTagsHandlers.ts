@@ -1,6 +1,6 @@
 import { rest } from 'msw';
+import { server, initTestDatabase } from '~shared/api/msw';
 import { realworldApi } from '~shared/api/realworld';
-import { server, initTestDatabase } from '~shared/lib/msw';
 
 const databaseApi = initTestDatabase();
 

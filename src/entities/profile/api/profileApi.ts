@@ -1,16 +1,21 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import {
   GenericErrorModel,
+  ProfileDto,
   RequestParams,
   realworldApi,
 } from '~shared/api/realworld';
 
-export type Profile = {
+export interface Profile {
   username: string;
   bio: string;
   image: string;
   following: boolean;
-};
+}
+
+export function mapProfile(profileDto: ProfileDto): Profile {
+  return profileDto;
+}
 
 export const profileKeys = {
   profile: {
@@ -40,7 +45,7 @@ export function useProfile(
         { signal, ...params },
       );
 
-      return { ...response.data.profile };
+      return mapProfile(response.data.profile);
     },
     ...options,
   });

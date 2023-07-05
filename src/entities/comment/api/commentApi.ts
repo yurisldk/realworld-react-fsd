@@ -1,10 +1,29 @@
 import { useQuery } from '@tanstack/react-query';
+// FIXME: add no-restricted-imports exceptions for ~entities/*/@x/**
+// eslint-disable-next-line no-restricted-imports
+import { Profile, mapProfile } from '~entities/profile/@x/comment';
 import {
   CommentDto,
   GenericErrorModel,
   RequestParams,
   realworldApi,
 } from '~shared/api/realworld';
+
+export interface Comment {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  body: string;
+  author: Profile;
+}
+
+export function mapComment(commentDto: CommentDto): Comment {
+  const { author, ...comment } = commentDto;
+  return {
+    ...comment,
+    author: mapProfile(author),
+  };
+}
 
 export const commentKeys = {
   comments: {
@@ -14,7 +33,7 @@ export const commentKeys = {
 };
 
 export const useCommentsQuery = (slug: string, params?: RequestParams) =>
-  useQuery<CommentDto[], GenericErrorModel, CommentDto[], string[]>({
+  useQuery<Comment[], GenericErrorModel, Comment[], string[]>({
     queryKey: commentKeys.comments.slug(slug),
 
     queryFn: async ({ signal }) => {
@@ -23,6 +42,6 @@ export const useCommentsQuery = (slug: string, params?: RequestParams) =>
         ...params,
       });
 
-      return response.data.comments;
+      return response.data.comments.map(mapComment);
     },
   });

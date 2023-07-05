@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
-import { ArticleDto, NewArticleDto, realworldApi } from '~shared/api/realworld';
+import { articleApi } from '~entities/article';
+import { NewArticleDto, realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
 import { useCreateArticle } from '..';
 import { setupPostCreateArticleHandlers } from './msw/postCreateArticleHandlers';
@@ -19,7 +20,7 @@ const newInvalidArticle = {
   tagList: ['tag #1', 'tag #2'],
 };
 
-const mockApiResponse: ArticleDto = {
+const mockApiResponse: articleApi.Article = {
   slug: 'test-article',
   title: 'Test Article',
   description: 'This is a test description.',

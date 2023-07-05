@@ -1,12 +1,12 @@
 import { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { IoHeart } from 'react-icons/io5';
-import { ArticleDto } from '~shared/api/realworld';
+import { articleApi } from '~entities/article';
 import { Button } from '~shared/ui/button';
 import { useMutationFavoriteArticle } from '../../api/favoriteArticle';
 
 type FavoriteArticleButtonProps = {
-  article: ArticleDto;
+  article: articleApi.Article;
   className?: string;
   children?: ReactNode;
 };
@@ -19,7 +19,7 @@ export function FavoriteArticleButton(props: FavoriteArticleButtonProps) {
   const favoriteArticle = useMutationFavoriteArticle(queryClient);
 
   const handleFavorite = async () => {
-    const newArticle: ArticleDto = {
+    const newArticle: articleApi.Article = {
       ...article,
       favorited: true,
       favoritesCount: article.favoritesCount + 1,
