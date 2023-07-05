@@ -4,7 +4,7 @@ import { act, cleanup } from '@testing-library/react';
 import { expect, afterEach, vi } from 'vitest';
 import { StateCreator } from 'zustand';
 import { realworldApi } from '~shared/api/realworld';
-import { server } from '../msw';
+import { server } from '../../api/msw';
 
 type ZustandModel = typeof import('zustand');
 

@@ -1,11 +1,11 @@
 import { rest } from 'msw';
-import { NewCommentDto, realworldApi } from '~shared/api/realworld';
 import {
   server,
   initTestDatabase,
   parseTokenFromRequest,
   mapMswCommentDto,
-} from '~shared/lib/msw';
+} from '~shared/api/msw';
+import { NewCommentDto, realworldApi } from '~shared/api/realworld';
 
 const databaseApi = initTestDatabase();
 
