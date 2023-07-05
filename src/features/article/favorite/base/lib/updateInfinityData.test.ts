@@ -1,4 +1,4 @@
-import { ArticleDto } from '~shared/api/realworld';
+import { articleApi } from '~entities/article';
 import { ArticlesInfinityData, updateInfinityData } from './updateInfinityData';
 
 const infinityData = {
@@ -26,7 +26,7 @@ describe('updateInfinityData', () => {
     const newArticle = {
       slug: 'article-1',
       title: 'Updated Article 1',
-    } as ArticleDto;
+    } as articleApi.Article;
 
     const updatedInfinityData = updateInfinityData(infinityData, newArticle);
 
@@ -57,7 +57,7 @@ describe('updateInfinityData', () => {
     const newArticle = {
       slug: 'article-5',
       title: 'Updated Article 5',
-    } as ArticleDto;
+    } as articleApi.Article;
 
     const updatedInfinityData = updateInfinityData(infinityData, newArticle);
 
@@ -88,7 +88,7 @@ describe('updateInfinityData', () => {
     const newArticle = {
       slug: 'article-7',
       title: 'Updated Article 7',
-    } as ArticleDto;
+    } as articleApi.Article;
 
     const updatedInfinityData = updateInfinityData(infinityData, newArticle);
 
@@ -119,7 +119,7 @@ describe('updateInfinityData', () => {
     const newArticle = {
       slug: 'article-11',
       title: 'Article 11',
-    } as ArticleDto;
+    } as articleApi.Article;
 
     const updatedInfinityData = updateInfinityData(infinityData, newArticle);
 

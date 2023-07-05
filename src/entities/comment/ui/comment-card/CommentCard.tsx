@@ -1,11 +1,11 @@
 import { ReactNode } from 'react';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
-import { CommentDto } from '~shared/api/realworld';
 import { PATH_PAGE } from '~shared/lib/react-router';
+import { Comment } from '../../api/commentApi';
 
 type CommentCardProps = {
-  comment: CommentDto;
+  comment: Comment;
   actions?: ReactNode;
 };
 

@@ -1,12 +1,13 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
-import { ArticleDto, realworldApi } from '~shared/api/realworld';
+import { articleApi } from '~entities/article';
+import { realworldApi } from '~shared/api/realworld';
 import { renderWithClient } from '~shared/lib/react-query';
 import { useMutationFavoriteArticle } from '../../api/favoriteArticle';
 import { FavoriteArticleButton } from './FavoriteArticleButton';
 
-const newArticle: ArticleDto = {
+const newArticle: articleApi.Article = {
   slug: 'If-we-quantify-the-alarm-we-can-get-to-the-FTP-pixel-through-the-online-SSL-interface!-120863',
   title:
     'If we quantify the alarm, we can get to the FTP pixel through the online SSL interface!',

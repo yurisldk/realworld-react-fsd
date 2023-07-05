@@ -1,13 +1,9 @@
 import { InfiniteData, QueryClient, useMutation } from '@tanstack/react-query';
 import { articleApi } from '~entities/article';
-import {
-  ArticleDto,
-  GenericErrorModel,
-  realworldApi,
-} from '~shared/api/realworld';
+import { GenericErrorModel, realworldApi } from '~shared/api/realworld';
 import { updateInfinityData } from '../lib';
 
-type ArticlesInfinityData = InfiniteData<ArticleDto[]>;
+type ArticlesInfinityData = InfiniteData<articleApi.Article[]>;
 
 type MutateFnType = typeof realworldApi.articles.createArticleFavorite;
 
@@ -16,18 +12,18 @@ export const useMutateFavoriteArticle = (
   queryClient: QueryClient,
 ) =>
   useMutation<
-    ArticleDto,
+    articleApi.Article,
     GenericErrorModel,
-    ArticleDto,
+    articleApi.Article,
     {
       articlesQueryKey: string[];
       articleQueryKey: string[];
-      prevArticle: ArticleDto;
+      prevArticle: articleApi.Article;
     }
   >(
-    async (article: ArticleDto) => {
+    async (article: articleApi.Article) => {
       const response = await mutateFn(article.slug);
-      return response.data.article;
+      return articleApi.mapArticle(response.data.article);
     },
 
     {
@@ -43,7 +39,7 @@ export const useMutateFavoriteArticle = (
         await queryClient.cancelQueries({ queryKey: articleQueryKey });
 
         // Snapshot the previous article.
-        const prevArticle: ArticleDto = {
+        const prevArticle: articleApi.Article = {
           ...newArticle,
           favorited: !newArticle.favorited,
           favoritesCount: newArticle.favorited
@@ -62,7 +58,10 @@ export const useMutateFavoriteArticle = (
           /* c8 ignore end */
         );
 
-        queryClient.setQueryData<ArticleDto>(articleQueryKey, newArticle);
+        queryClient.setQueryData<articleApi.Article>(
+          articleQueryKey,
+          newArticle,
+        );
 
         // Return a context object with the snapshotted value and query keys
         return { articlesQueryKey, articleQueryKey, prevArticle };
@@ -85,7 +84,10 @@ export const useMutateFavoriteArticle = (
           /* c8 ignore end */
         );
 
-        queryClient.setQueryData<ArticleDto>(articleQueryKey, prevArticle);
+        queryClient.setQueryData<articleApi.Article>(
+          articleQueryKey,
+          prevArticle,
+        );
       },
 
       // Always refetch after error or success:

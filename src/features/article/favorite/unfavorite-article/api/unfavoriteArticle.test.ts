@@ -4,12 +4,12 @@ import { act } from 'react-dom/test-utils';
 import { vi } from 'vitest';
 import { articleApi } from '~entities/article';
 import { wait } from '~shared/api/msw';
-import { ArticleDto, realworldApi } from '~shared/api/realworld';
+import { realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
 import { setupDeleteUnfavoriteArticleHandlers } from './msw/deleteUnfavoriteArticleHandlers';
 import { useMutationUnfavoriteArticle } from './unfavoriteArticle';
 
-const newArticle: ArticleDto = {
+const newArticle: articleApi.Article = {
   slug: 'Ill-synthesize-the-primary-AI-capacitor-that-should-array-the-JBOD-sensor!-120863',
   title:
     'Ill synthesize the primary AI capacitor, that should array the JBOD sensor!',
@@ -29,7 +29,7 @@ const newArticle: ArticleDto = {
   },
 };
 
-const rolledBackArticle: ArticleDto = {
+const rolledBackArticle: articleApi.Article = {
   ...newArticle,
   favorited: true,
   favoritesCount: 1,

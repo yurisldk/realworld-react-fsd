@@ -3,19 +3,19 @@ import { act, renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
 import { profileApi } from '~entities/profile';
 import { wait } from '~shared/api/msw';
-import { ProfileDto, realworldApi } from '~shared/api/realworld';
+import { realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
 import { useMutationFollowUser } from './followUser';
 import { setupPostFollowUserHandlers } from './msw/postFollowUserHandlers';
 
-const newProfile: ProfileDto = {
+const newProfile: profileApi.Profile = {
   username: 'John Doe',
   bio: 'I work at statefarm',
   image: 'https://api.realworld.io/images/demo-avatar.png',
   following: true,
 };
 
-const rolledBackProfile: ProfileDto = {
+const rolledBackProfile: profileApi.Profile = {
   ...newProfile,
   following: false,
 };

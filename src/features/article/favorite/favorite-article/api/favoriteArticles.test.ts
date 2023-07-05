@@ -3,12 +3,12 @@ import { act, renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
 import { articleApi } from '~entities/article';
 import { wait } from '~shared/api/msw';
-import { ArticleDto, realworldApi } from '~shared/api/realworld';
+import { realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
 import { useMutationFavoriteArticle } from './favoriteArticle';
 import { setupPostFavoriteArticleHandlers } from './msw/postFavoriteArticleHandlers';
 
-const newArticle: ArticleDto = {
+const newArticle: articleApi.Article = {
   slug: 'If-we-quantify-the-alarm-we-can-get-to-the-FTP-pixel-through-the-online-SSL-interface!-120863',
   title:
     'If we quantify the alarm, we can get to the FTP pixel through the online SSL interface!',
@@ -28,7 +28,7 @@ const newArticle: ArticleDto = {
   },
 };
 
-const rolledBackArticle: ArticleDto = {
+const rolledBackArticle: articleApi.Article = {
   ...newArticle,
   favorited: false,
   favoritesCount: 0,

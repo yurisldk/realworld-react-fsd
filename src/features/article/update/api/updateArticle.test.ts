@@ -1,15 +1,12 @@
 import { renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
-import {
-  ArticleDto,
-  UpdateArticleDto,
-  realworldApi,
-} from '~shared/api/realworld';
+import { articleApi } from '~entities/article';
+import { UpdateArticleDto, realworldApi } from '~shared/api/realworld';
 import { createWrapper } from '~shared/lib/react-query';
 import { setupPutUpdateArticleHandlers } from './msw/putUpdateArticleHandlers';
 import { useUpdateArticle } from './updateArticle';
 
-const article: ArticleDto = {
+const article: articleApi.Article = {
   slug: 'Try-to-transmit-the-HTTP-card-maybe-it-will-override-the-multi-byte-hard-drive!-120863',
   title:
     'Try to transmit the HTTP card, maybe it will override the multi-byte hard drive!',
@@ -34,7 +31,7 @@ const updatedArticle: UpdateArticleDto = {
   body: 'updated body',
 };
 
-const expectedArticle: ArticleDto = {
+const expectedArticle: articleApi.Article = {
   ...article,
   ...updatedArticle,
   updatedAt: '2023-06-23T00:00:00.000Z',

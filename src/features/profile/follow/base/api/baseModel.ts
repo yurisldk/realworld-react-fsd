@@ -1,12 +1,7 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { articleApi } from '~entities/article';
 import { profileApi } from '~entities/profile';
-import {
-  ArticleDto,
-  GenericErrorModel,
-  ProfileDto,
-  realworldApi,
-} from '~shared/api/realworld';
+import { GenericErrorModel, realworldApi } from '~shared/api/realworld';
 
 type MutateFnType = typeof realworldApi.profiles.followUserByUsername;
 
@@ -16,18 +11,18 @@ export const useMutateFollowUser = (
 ) =>
   // We have to optimistic update profile as part of article and profile to avoid desynchronize when user follow profile then instant switch beetwen article page and profile page and have old state before our query refetched.
   useMutation<
-    ProfileDto,
+    profileApi.Profile,
     GenericErrorModel,
     profileApi.Profile,
     {
       profileQueryKey: string[];
       articleQueryKey: string[];
-      prevProfile: ProfileDto;
+      prevProfile: profileApi.Profile;
     }
   >(
     async (profile: profileApi.Profile) => {
       const response = await mutateFn(profile.username);
-      return response.data.profile;
+      return profileApi.mapProfile(response.data.profile);
     },
 
     {
@@ -42,13 +37,13 @@ export const useMutateFollowUser = (
         await queryClient.cancelQueries({ queryKey: profileQueryKey });
 
         // Snapshot the previous article
-        const prevProfile: ProfileDto = {
+        const prevProfile: profileApi.Profile = {
           ...newProfile,
           following: !newProfile.following,
         };
 
         // Optimistically update to the new value
-        queryClient.setQueriesData<ArticleDto>(
+        queryClient.setQueriesData<articleApi.Article>(
           articleQueryKey,
           /* c8 ignore start */
           (prevArticle) => {
@@ -73,7 +68,7 @@ export const useMutateFollowUser = (
 
         const { profileQueryKey, articleQueryKey, prevProfile } = context;
 
-        queryClient.setQueriesData<ArticleDto>(
+        queryClient.setQueriesData<articleApi.Article>(
           articleQueryKey,
           /* c8 ignore start */
           (newArticle) => {

@@ -3,12 +3,36 @@ import {
   useInfiniteQuery,
   useQuery,
 } from '@tanstack/react-query';
+// FIXME: add no-restricted-imports exceptions for ~entities/*/@x/**
+// eslint-disable-next-line no-restricted-imports
+import { Profile, mapProfile } from '~entities/profile/@x/article';
 import {
   ArticleDto,
   GenericErrorModel,
   RequestParams,
   realworldApi,
 } from '~shared/api/realworld';
+
+export interface Article {
+  slug: string;
+  title: string;
+  description: string;
+  body: string;
+  tagList: string[];
+  createdAt: string;
+  updatedAt: string;
+  favorited: boolean;
+  favoritesCount: number;
+  author: Profile;
+}
+
+export function mapArticle(articleDto: ArticleDto): Article {
+  const { author, ...article } = articleDto;
+  return {
+    ...article,
+    author: mapProfile(author),
+  };
+}
 
 export type GlobalfeedQuery = {
   tag?: string;
@@ -63,12 +87,7 @@ const useInfinityArticles = ({
 }: UseInfinityArticlesProps) => {
   const { offset, limit } = query;
 
-  return useInfiniteQuery<
-    ArticleDto[],
-    GenericErrorModel,
-    ArticleDto[],
-    unknown[]
-  >({
+  return useInfiniteQuery<Article[], GenericErrorModel, Article[], unknown[]>({
     queryKey,
 
     queryFn: async ({ pageParam = offset, signal }) => {
@@ -77,7 +96,7 @@ const useInfinityArticles = ({
         { signal, ...params },
       );
 
-      return response.data.articles;
+      return response.data.articles.map(mapArticle);
     },
 
     getNextPageParam: (lastPage, pages) => {
@@ -113,9 +132,9 @@ export const useUserInfinityArticles = (
   });
 
 type UseArticleQuery = UseQueryOptions<
-  ArticleDto,
+  Article,
   GenericErrorModel,
-  ArticleDto,
+  Article,
   string[]
 >;
 type UseArticleQueryOptions = Omit<UseArticleQuery, 'queryKey' | 'queryFn'>;
@@ -125,7 +144,7 @@ export const useArticle = (
   params?: RequestParams,
   options?: UseArticleQueryOptions,
 ) =>
-  useQuery({
+  useQuery<Article, GenericErrorModel, Article, string[]>({
     queryKey: articleKeys.article.slug(slug),
 
     queryFn: async ({ signal }) => {
@@ -134,7 +153,7 @@ export const useArticle = (
         ...params,
       });
 
-      return response.data.article;
+      return mapArticle(response.data.article);
     },
 
     ...options,

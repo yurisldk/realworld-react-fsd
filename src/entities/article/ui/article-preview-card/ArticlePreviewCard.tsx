@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ArticleDto } from '~shared/api/realworld';
 import { PATH_PAGE } from '~shared/lib/react-router';
+import { Article } from '../../api/articleApi';
 
 type ArticlePreviewCardProps = {
-  article: ArticleDto;
+  article: Article;
   meta?: ReactNode;
 };
 
