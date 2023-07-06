@@ -1,6 +1,19 @@
-### React + Zustand + React-Query codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API. Powered by [FSD (Feature-Sliced Design)](https://feature-sliced.design/) architectural methodology.
+<div>
+  <h1 align="center">🙌 RealWorld example app 🍰 Feature-Sliced Design</h1>
 
-<br/>
+  <p>
+    This codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the <a href="https://github.com/gothinkster/realworld">RealWorld</a> spec and API. Powered by <a href="https://feature-sliced.design">FSD (Feature-Sliced Design)</a> architectural methodology.
+  </p>
+
+  <a href="https://realworld-fsd.netlify.app">
+    <img
+      alt="Realworld example app website"
+      src="./logo.gif"
+    />
+  </a>
+</div>
+
+<hr />
 
 [![Netlify Status][netlify-domain]](https://realworld-fsd.netlify.app/)
 [![Build workflow][build-domain]](https://github.com/sldk-yuri/realworld-react-fsd/actions/workflows/build.yml)
@@ -8,17 +21,11 @@
 [![Code style: prettier][prettier-domain]](https://github.com/prettier/prettier)
 [![license][license-domain]](https://github.com/sldk-yuri/realworld-react-fsd/blob/master/LICENSE)
 
-![Dependency Graph][dependency-graph-domain]
-
-This codebase was created to demonstrate a fully fledged fullstack application built with **React + Zustand + React-Query and Feature-Sliced Design architectural methodology** including CRUD operations, authentication, routing, pagination, and more.
-
-We've gone to great lengths to adhere to the **React + Zustand + React-Query and Feature-Sliced Design architectural methodology** community styleguides & best practices.
-
-For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) and [FSD](https://github.com/feature-sliced/documentation) repos.
-
 # Features
 
 The example application is a social blogging site (i.e. a Medium.com clone) called "Conduit". It uses a custom API for all requests, including authentication.
+
+![Dependency Graph][dependency-graph-domain]
 
 **General functionality:**
 
