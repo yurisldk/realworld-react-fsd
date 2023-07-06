@@ -342,6 +342,7 @@ module.exports = {
           'node_modules/(@[^/]+/[^/]+|[^/]+)',
           'src/(app/[^/]+/)',
           'src/(pages/[^/]+/)',
+          'src/(features/[^/]+/[^/]+/)',
           'src/([^/]+/[^/]+)',
           // 'src/(app/[^/]+/)',
           // 'src/(pages/[^/]+/)',
