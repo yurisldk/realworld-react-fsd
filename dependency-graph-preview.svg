@@ -29,15 +29,15 @@
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M122,-168.25C122,-168.25 924,-168.25 924,-168.25 930,-168.25 936,-174.25 936,-180.25 936,-180.25 936,-273.25 936,-273.25 936,-279.25 930,-285.25 924,-285.25 924,-285.25 122,-285.25 122,-285.25 116,-285.25 110,-279.25 110,-273.25 110,-273.25 110,-180.25 110,-180.25 110,-174.25 116,-168.25 122,-168.25"/>
 <text text-anchor="middle" x="523" y="-272.7" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">features</text>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_src/features/comment</title>
-<path fill="#ffffff" stroke="black" stroke-width="2" d="M450,-176.25C450,-176.25 562,-176.25 562,-176.25 568,-176.25 574,-182.25 574,-188.25 574,-188.25 574,-218.75 574,-218.75 574,-224.75 568,-230.75 562,-230.75 562,-230.75 450,-230.75 450,-230.75 444,-230.75 438,-224.75 438,-218.75 438,-218.75 438,-188.25 438,-188.25 438,-182.25 444,-176.25 450,-176.25"/>
-<text text-anchor="start" x="485.75" y="-218.2" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">comment</text>
-</g>
 <g id="clust5" class="cluster">
 <title>cluster_src/features/article</title>
 <path fill="#ffffff" stroke="black" stroke-width="2" d="M672,-176.25C672,-176.25 916,-176.25 916,-176.25 922,-176.25 928,-182.25 928,-188.25 928,-188.25 928,-218.75 928,-218.75 928,-224.75 922,-230.75 916,-230.75 916,-230.75 672,-230.75 672,-230.75 666,-230.75 660,-224.75 660,-218.75 660,-218.75 660,-188.25 660,-188.25 660,-182.25 666,-176.25 672,-176.25"/>
 <text text-anchor="start" x="780.5" y="-218.2" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">article</text>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_src/features/comment</title>
+<path fill="#ffffff" stroke="black" stroke-width="2" d="M450,-176.25C450,-176.25 562,-176.25 562,-176.25 568,-176.25 574,-182.25 574,-188.25 574,-188.25 574,-218.75 574,-218.75 574,-224.75 568,-230.75 562,-230.75 562,-230.75 450,-230.75 450,-230.75 444,-230.75 438,-224.75 438,-218.75 438,-218.75 438,-188.25 438,-188.25 438,-182.25 444,-176.25 450,-176.25"/>
+<text text-anchor="start" x="485.75" y="-218.2" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="9.00">comment</text>
 </g>
 <g id="clust7" class="cluster">
 <title>cluster_src/features/profile</title>
