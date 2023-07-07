@@ -1,43 +1,9 @@
-import { ElementType, ReactNode, Suspense, lazy } from 'react';
+import { lazy } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
-import { sessionModel } from '~entities/session';
+import { AuthGuard, GuestGuard, sessionModel } from '~entities/session';
 import { MainLayout } from '~pages/layouts';
 import { PATH_PAGE } from '~shared/lib/react-router';
-import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
-import { Spinner } from '~shared/ui/spinner';
-
-const Loadable = (Component: ElementType) =>
-  function fn(props: any) {
-    return (
-      <Suspense
-        fallback={
-          <FullPageWrapper>
-            <Spinner />
-          </FullPageWrapper>
-        }
-      >
-        <Component {...props} />
-      </Suspense>
-    );
-  };
-
-function GuestGuard(props: { children: ReactNode }) {
-  const { children } = props;
-  const isAuth = sessionModel.useAuth();
-
-  if (!isAuth) return <Navigate to={PATH_PAGE.root} />;
-
-  return <> {children} </>;
-}
-
-function AuthGuard(props: { children: ReactNode }) {
-  const { children } = props;
-  const isAuth = sessionModel.useAuth();
-
-  if (isAuth) return <Navigate to={PATH_PAGE.root} />;
-
-  return <> {children} </>;
-}
+import { Loadable } from '~shared/ui/loadable';
 
 const ArticlePage = Loadable(lazy(() => import('~pages/article')));
 const EditorPage = Loadable(lazy(() => import('~pages/editor')));
@@ -62,23 +28,23 @@ export function Router() {
         {
           path: 'login',
           element: (
-            <AuthGuard>
-              <LoginPage />,
+            <AuthGuard isAuth={isAuth}>
+              <LoginPage />
             </AuthGuard>
           ),
         },
         {
           path: 'register',
           element: (
-            <AuthGuard>
-              <RegisterPage />,
+            <AuthGuard isAuth={isAuth}>
+              <RegisterPage />
             </AuthGuard>
           ),
         },
         {
           path: 'settings',
           element: (
-            <GuestGuard>
+            <GuestGuard isAuth={isAuth}>
               <SettingsPage />
             </GuestGuard>
           ),
@@ -88,7 +54,7 @@ export function Router() {
           children: [
             {
               element: (
-                <GuestGuard>
+                <GuestGuard isAuth={isAuth}>
                   <EditorPage />
                 </GuestGuard>
               ),
@@ -97,7 +63,7 @@ export function Router() {
             {
               path: ':slug',
               element: (
-                <GuestGuard>
+                <GuestGuard isAuth={isAuth}>
                   <EditorPage edit />
                 </GuestGuard>
               ),
