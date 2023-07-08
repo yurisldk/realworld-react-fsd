@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import cn from 'classnames';
 import { useParams } from 'react-router-dom';
+import { Tabs, useTabs } from '~shared/ui/tabs';
 import { GlobalArticlesList } from '~widgets/global-articles-list';
 import { ProfileCard } from '~widgets/profile-card';
 
@@ -8,25 +7,30 @@ type ProfilePageProps = {
   favorites?: boolean;
 };
 
-type TabsState = {
-  author?: string;
-  favorited?: string;
-};
+enum TabKey {
+  Author = 'Author',
+  Favorited = 'Favorited',
+}
 
 export function ProfilePage(props: ProfilePageProps) {
   const { favorites } = props;
 
   const { username } = useParams();
 
-  const initTabsState: TabsState = {
-    ...(favorites && { favorited: username }),
-    ...(!favorites && { author: username }),
-  };
-
-  const [tabs, setTabs] = useState<TabsState>(initTabsState);
-
-  const onAuthorfeedClick = () => setTabs({ author: username });
-  const onFavoritedfeedClick = () => setTabs({ favorited: username });
+  const { tabsState, onTabsChange, activeTab } = useTabs({
+    initialItems: [
+      {
+        key: TabKey.Author,
+        active: !favorites,
+        label: 'My Articles',
+      },
+      {
+        key: TabKey.Favorited,
+        active: favorites,
+        label: 'Favorited Articles',
+      },
+    ],
+  });
 
   return (
     <div className="profile-page">
@@ -36,37 +40,18 @@ export function ProfilePage(props: ProfilePageProps) {
         <div className="row">
           <div className="col-xs-12 col-md-10 offset-md-1">
             <div className="articles-toggle">
-              <ul className="nav nav-pills outline-active">
-                <li className="nav-item">
-                  <button
-                    className={cn('nav-link', { active: tabs.author })}
-                    type="button"
-                    onClick={onAuthorfeedClick}
-                  >
-                    My Articles
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className={cn('nav-link', { active: tabs.favorited })}
-                    type="button"
-                    onClick={onFavoritedfeedClick}
-                  >
-                    Favorited Articles
-                  </button>
-                </li>
-              </ul>
+              <Tabs items={tabsState} onChange={onTabsChange} />
             </div>
 
-            {tabs.author && (
+            {activeTab?.key === TabKey.Author && (
               <GlobalArticlesList
-                query={{ limit: 10, offset: 0, author: tabs.author }}
+                query={{ limit: 10, offset: 0, author: username }}
               />
             )}
 
-            {tabs.favorited && (
+            {activeTab?.key === TabKey.Favorited && (
               <GlobalArticlesList
-                query={{ limit: 10, offset: 0, favorited: tabs.favorited }}
+                query={{ limit: 10, offset: 0, favorited: username }}
               />
             )}
           </div>
