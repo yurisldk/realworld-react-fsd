@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Tabs, useTabs } from '~shared/ui/tabs';
+import { Tabs } from '~shared/ui/tabs';
 import { GlobalArticlesList } from '~widgets/global-articles-list';
 import { ProfileCard } from '~widgets/profile-card';
 
@@ -7,30 +8,14 @@ type ProfilePageProps = {
   favorites?: boolean;
 };
 
-enum TabKey {
-  Author = 'Author',
-  Favorited = 'Favorited',
-}
-
 export function ProfilePage(props: ProfilePageProps) {
   const { favorites } = props;
 
   const { username } = useParams();
 
-  const { tabsState, onTabsChange, activeTab } = useTabs({
-    initialItems: [
-      {
-        key: TabKey.Author,
-        active: !favorites,
-        label: 'My Articles',
-      },
-      {
-        key: TabKey.Favorited,
-        active: favorites,
-        label: 'Favorited Articles',
-      },
-    ],
-  });
+  const [activeTab, setActiveTab] = useState(
+    favorites ? 'favoritedfeed' : 'authorfeed',
+  );
 
   return (
     <div className="profile-page">
@@ -39,21 +24,26 @@ export function ProfilePage(props: ProfilePageProps) {
       <div className="container">
         <div className="row">
           <div className="col-xs-12 col-md-10 offset-md-1">
-            <div className="articles-toggle">
-              <Tabs items={tabsState} onChange={onTabsChange} />
-            </div>
+            <Tabs keepUnmounted value={activeTab} onTabChange={setActiveTab}>
+              <div className="articles-toggle">
+                <Tabs.List>
+                  <Tabs.Tab value="authorfeed">My Articles</Tabs.Tab>
+                  <Tabs.Tab value="favoritedfeed">Favorited Articles</Tabs.Tab>
+                </Tabs.List>
+              </div>
 
-            {activeTab?.key === TabKey.Author && (
-              <GlobalArticlesList
-                query={{ limit: 10, offset: 0, author: username }}
-              />
-            )}
+              <Tabs.Panel value="authorfeed">
+                <GlobalArticlesList
+                  query={{ limit: 10, offset: 0, author: username }}
+                />
+              </Tabs.Panel>
 
-            {activeTab?.key === TabKey.Favorited && (
-              <GlobalArticlesList
-                query={{ limit: 10, offset: 0, favorited: username }}
-              />
-            )}
+              <Tabs.Panel value="favoritedfeed">
+                <GlobalArticlesList
+                  query={{ limit: 10, offset: 0, favorited: username }}
+                />
+              </Tabs.Panel>
+            </Tabs>
           </div>
         </div>
       </div>
