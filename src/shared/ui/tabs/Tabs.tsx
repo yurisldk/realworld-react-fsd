@@ -1,46 +1,28 @@
 import { ReactNode } from 'react';
-import cn from 'classnames';
+import { Tab } from './Tab';
+import { TabsContextProps } from './Tabs.context';
+import { TabsList } from './TabsList';
+import { TabsPanel } from './TabsPanel';
+import { TabsProvider } from './TabsProvider';
 
-export type TabItem = {
-  key: string;
-  label: ReactNode;
-  active?: boolean;
-  disabled?: boolean;
-  hidden?: boolean;
-  className?: string;
+type TabsProps = TabsContextProps & {
+  children: ReactNode;
 };
 
-export type TabsProps = {
-  items: TabItem[];
-  onChange?: (activeKey: TabItem) => void;
-  className?: string;
-};
-
-export function Tabs({ items, className, onChange }: TabsProps) {
-  const handleClick = (tab: TabItem) => () => {
-    onChange?.(tab);
-  };
+export function Tabs(props: TabsProps) {
+  const { value, onTabChange, keepUnmounted = false, children } = props;
 
   return (
-    <ul className={cn('nav nav-pills', 'outline-active', className || '')}>
-      {items.map((tab) => {
-        if (tab.hidden) return null;
-
-        return (
-          <li className={cn('nav-item', tab.className || '')} key={tab.key}>
-            <button
-              className={cn('nav-link', {
-                active: tab.active,
-                disabled: tab.disabled,
-              })}
-              type="button"
-              onClick={handleClick(tab)}
-            >
-              {tab.label}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+    <TabsProvider
+      value={value}
+      onTabChange={onTabChange}
+      keepUnmounted={keepUnmounted}
+    >
+      {children}
+    </TabsProvider>
   );
 }
+
+Tabs.List = TabsList;
+Tabs.Tab = Tab;
+Tabs.Panel = TabsPanel;
