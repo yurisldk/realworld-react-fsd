@@ -70,6 +70,14 @@ export const articleKeys = {
     root: ['article'],
     slug: (slug: string) => [...articleKeys.article.root, slug],
   },
+
+  mutation: {
+    create: () => [...articleKeys.article.root, 'create'],
+    delete: () => [...articleKeys.article.root, 'delete'],
+    update: () => [...articleKeys.article.root, 'update'],
+    favorite: () => [...articleKeys.article.root, 'favorite'],
+    unfavorite: () => [...articleKeys.article.root, 'unfavorite'],
+  },
 };
 
 type UseInfinityArticlesProps = {
