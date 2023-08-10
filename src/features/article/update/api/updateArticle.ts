@@ -17,10 +17,13 @@ export const useUpdateArticle = () =>
     GenericErrorModel,
     UpdateArticleProps,
     unknown
-  >(async ({ slug, article }: UpdateArticleProps) => {
-    const response = await realworldApi.articles.updateArticle(slug, {
-      article,
-    });
+  >({
+    mutationKey: articleApi.articleKeys.mutation.update(),
+    mutationFn: async ({ slug, article }: UpdateArticleProps) => {
+      const response = await realworldApi.articles.updateArticle(slug, {
+        article,
+      });
 
-    return articleApi.mapArticle(response.data.article);
+      return articleApi.mapArticle(response.data.article);
+    },
   });
