@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import cn from 'classnames';
 import { useParams } from 'react-router-dom';
+import { Tabs } from '~shared/ui/tabs';
 import { GlobalArticlesList } from '~widgets/global-articles-list';
 import { ProfileCard } from '~widgets/profile-card';
 
@@ -8,25 +8,14 @@ type ProfilePageProps = {
   favorites?: boolean;
 };
 
-type TabsState = {
-  author?: string;
-  favorited?: string;
-};
-
 export function ProfilePage(props: ProfilePageProps) {
   const { favorites } = props;
 
   const { username } = useParams();
 
-  const initTabsState: TabsState = {
-    ...(favorites && { favorited: username }),
-    ...(!favorites && { author: username }),
-  };
-
-  const [tabs, setTabs] = useState<TabsState>(initTabsState);
-
-  const onAuthorfeedClick = () => setTabs({ author: username });
-  const onFavoritedfeedClick = () => setTabs({ favorited: username });
+  const [activeTab, setActiveTab] = useState(
+    favorites ? 'favoritedfeed' : 'authorfeed',
+  );
 
   return (
     <div className="profile-page">
@@ -35,40 +24,26 @@ export function ProfilePage(props: ProfilePageProps) {
       <div className="container">
         <div className="row">
           <div className="col-xs-12 col-md-10 offset-md-1">
-            <div className="articles-toggle">
-              <ul className="nav nav-pills outline-active">
-                <li className="nav-item">
-                  <button
-                    className={cn('nav-link', { active: tabs.author })}
-                    type="button"
-                    onClick={onAuthorfeedClick}
-                  >
-                    My Articles
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className={cn('nav-link', { active: tabs.favorited })}
-                    type="button"
-                    onClick={onFavoritedfeedClick}
-                  >
-                    Favorited Articles
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <Tabs keepUnmounted value={activeTab} onTabChange={setActiveTab}>
+              <div className="articles-toggle">
+                <Tabs.List>
+                  <Tabs.Tab value="authorfeed">My Articles</Tabs.Tab>
+                  <Tabs.Tab value="favoritedfeed">Favorited Articles</Tabs.Tab>
+                </Tabs.List>
+              </div>
 
-            {tabs.author && (
-              <GlobalArticlesList
-                query={{ limit: 10, offset: 0, author: tabs.author }}
-              />
-            )}
+              <Tabs.Panel value="authorfeed">
+                <GlobalArticlesList
+                  query={{ limit: 10, offset: 0, author: username }}
+                />
+              </Tabs.Panel>
 
-            {tabs.favorited && (
-              <GlobalArticlesList
-                query={{ limit: 10, offset: 0, favorited: tabs.favorited }}
-              />
-            )}
+              <Tabs.Panel value="favoritedfeed">
+                <GlobalArticlesList
+                  query={{ limit: 10, offset: 0, favorited: username }}
+                />
+              </Tabs.Panel>
+            </Tabs>
           </div>
         </div>
       </div>

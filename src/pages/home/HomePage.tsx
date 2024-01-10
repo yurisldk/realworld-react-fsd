@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import cn from 'classnames';
+import { Tabs } from '~shared/ui/tabs';
 import { GlobalArticlesList } from '~widgets/global-articles-list';
 import { PopularTags } from '~widgets/popular-tags';
 import { UserArticlesList } from '~widgets/user-articles-list';
@@ -8,25 +8,22 @@ type HomePageProps = {
   auth?: boolean;
 };
 
-type TabsState = {
-  globalfeed?: boolean;
-  userfeed?: boolean;
-  tagfeed?: string;
-};
-
 export function HomePage(props: HomePageProps) {
   const { auth } = props;
 
-  const initTabsState: TabsState = {
-    ...(auth && { userfeed: true }),
-    ...(!auth && { globalfeed: true }),
+  const [activeTab, setActiveTab] = useState(auth ? 'userfeed' : 'globalfeed');
+
+  const [tag, setTag] = useState<string | null>(null);
+
+  const handleTabChange = (value: string) => {
+    if (value !== 'tagfeed') setTag(null);
+    setActiveTab(value);
   };
 
-  const [tabs, setTabs] = useState<TabsState>(initTabsState);
-
-  const onUserfeedClick = () => setTabs({ userfeed: true });
-  const onGlobalfeedClick = () => setTabs({ globalfeed: true });
-  const onTabfeedClick = (tag: string) => setTabs({ tagfeed: tag });
+  const handleTagClick = (_tag: string) => {
+    setTag(_tag);
+    setActiveTab('tagfeed');
+  };
 
   return (
     <div className="home-page">
@@ -40,58 +37,33 @@ export function HomePage(props: HomePageProps) {
       <div className="container page">
         <div className="row">
           <div className="col-md-9">
-            <div className="feed-toggle">
-              <ul className="nav nav-pills outline-active">
-                {auth && (
-                  <li className="nav-item">
-                    <button
-                      className={cn('nav-link', { active: tabs.userfeed })}
-                      type="button"
-                      onClick={onUserfeedClick}
-                    >
-                      Your Feed
-                    </button>
-                  </li>
-                )}
-                <li className="nav-item">
-                  <button
-                    className={cn('nav-link', { active: tabs.globalfeed })}
-                    type="button"
-                    onClick={onGlobalfeedClick}
-                  >
-                    Global Feed
-                  </button>
-                </li>
-                {tabs.tagfeed && (
-                  <li className="nav-item">
-                    <button
-                      className={cn('nav-link', { active: tabs.tagfeed })}
-                      type="button"
-                    >
-                      #{tabs.tagfeed}
-                    </button>
-                  </li>
-                )}
-              </ul>
-            </div>
+            <Tabs keepUnmounted value={activeTab} onTabChange={handleTabChange}>
+              <div className="feed-toggle">
+                <Tabs.List>
+                  {auth && <Tabs.Tab value="userfeed">Your Feed</Tabs.Tab>}
+                  <Tabs.Tab value="globalfeed">Global Feed</Tabs.Tab>
+                  {tag && <Tabs.Tab value="tagfeed">#{tag}</Tabs.Tab>}
+                </Tabs.List>
+              </div>
 
-            {tabs.userfeed && (
-              <UserArticlesList query={{ limit: 10, offset: 0 }} />
-            )}
+              <Tabs.Panel value="userfeed">
+                <UserArticlesList query={{ limit: 10, offset: 0 }} />
+              </Tabs.Panel>
 
-            {tabs.globalfeed && (
-              <GlobalArticlesList query={{ limit: 10, offset: 0 }} />
-            )}
+              <Tabs.Panel value="globalfeed">
+                <GlobalArticlesList query={{ limit: 10, offset: 0 }} />
+              </Tabs.Panel>
 
-            {tabs.tagfeed && (
-              <GlobalArticlesList
-                query={{ limit: 10, offset: 0, tag: tabs.tagfeed }}
-              />
-            )}
+              <Tabs.Panel value="tagfeed">
+                <GlobalArticlesList
+                  query={{ limit: 10, offset: 0, tag: tag! }}
+                />
+              </Tabs.Panel>
+            </Tabs>
           </div>
 
           <div className="col-md-3">
-            <PopularTags onTagClick={onTabfeedClick} />
+            <PopularTags onTagClick={handleTagClick} />
           </div>
         </div>
       </div>
