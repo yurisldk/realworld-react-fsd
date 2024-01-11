@@ -46,7 +46,7 @@ describe('<FavoriteArticleButton />', () => {
     renderWithClient(<FavoriteArticleButton article={newArticle} />);
 
     const favoriteButton = screen.getByRole('button');
-    expect(favoriteButton).toBeInTheDocument();
+    expect(favoriteButton).toBeDefined();
   });
 
   it('should call the article API', async () => {

@@ -21,7 +21,7 @@ describe('<ArticlesList />', () => {
     };
 
     render(<ArticlesList {...loadingProps} />);
-    expect(screen.getByText('Loading articles...')).toBeInTheDocument();
+    expect(screen.getByText('Loading articles...')).toBeDefined();
   });
 
   it('renders error state when isError is true', () => {
@@ -39,7 +39,7 @@ describe('<ArticlesList />', () => {
 
     // @ts-expect-error error is not assignable to type 'GenericErrorModel'
     render(<ArticlesList {...errorProps} />);
-    expect(screen.getByText('Error message')).toBeInTheDocument();
+    expect(screen.getByText('Error message')).toBeDefined();
   });
 
   it('renders empty state when isSuccess is true and no articles are available', () => {
@@ -50,9 +50,7 @@ describe('<ArticlesList />', () => {
     };
 
     render(<ArticlesList {...successEmptyProps} />);
-    expect(
-      screen.getByText('No articles are here... yet.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('No articles are here... yet.')).toBeDefined();
   });
 
   it('renders articles when isSuccess is true and articles are available', () => {
@@ -72,8 +70,8 @@ describe('<ArticlesList />', () => {
 
     // @ts-expect-error articles is not assignable to type 'Article[]'
     render(<ArticlesList {...successProps} />);
-    expect(screen.getByText('Article 1')).toBeInTheDocument();
-    expect(screen.getByText('Article 2')).toBeInTheDocument();
+    expect(screen.getByText('Article 1')).toBeDefined();
+    expect(screen.getByText('Article 2')).toBeDefined();
   });
 
   it('renders next page action when hasNextPage is true', () => {
@@ -86,6 +84,6 @@ describe('<ArticlesList />', () => {
     };
 
     render(<ArticlesList {...successProps} />);
-    expect(screen.getByText('Load More')).toBeInTheDocument();
+    expect(screen.getByText('Load More')).toBeDefined();
   });
 });

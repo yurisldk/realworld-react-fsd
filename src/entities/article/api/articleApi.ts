@@ -98,14 +98,16 @@ const useInfinityArticles = ({
   return useInfiniteQuery<Article[], GenericErrorModel, Article[], unknown[]>({
     queryKey,
 
-    queryFn: async ({ pageParam = offset, signal }) => {
+    queryFn: async ({ pageParam, signal }) => {
       const response = await queryFn(
-        { ...query, offset: pageParam },
+        { ...query, offset: pageParam as number },
         { signal, ...params },
       );
 
       return response.data.articles.map(mapArticle);
     },
+
+    initialPageParam: offset,
 
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.length < limit) return null;

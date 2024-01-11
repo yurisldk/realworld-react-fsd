@@ -25,7 +25,7 @@ describe('<DeleteCommentIconButtton />', () => {
     renderWithClient(<DeleteCommentIconButtton slug="slug" id={1} />);
 
     const deleteButton = screen.getByRole('button');
-    expect(deleteButton).toBeInTheDocument();
+    expect(deleteButton).toBeDefined();
   });
 
   it('should call the delete article API', async () => {

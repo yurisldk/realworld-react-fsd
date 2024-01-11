@@ -26,17 +26,17 @@ describe('<ArticlePreviewCard />', () => {
 
     renderWithRouter(<ArticlePreviewCard article={article} meta={meta} />);
 
-    expect(screen.getByText('How to train your dragon')).toBeInTheDocument();
-    expect(screen.getByText('Ever wonder how?')).toBeInTheDocument();
-    expect(screen.getByText('Meta Data')).toBeInTheDocument();
+    expect(screen.getByText('How to train your dragon')).toBeDefined();
+    expect(screen.getByText('Ever wonder how?')).toBeDefined();
+    expect(screen.getByText('Meta Data')).toBeDefined();
   });
 
   it('renders ArticlePreviewCard component without meta data', () => {
     renderWithRouter(<ArticlePreviewCard article={article} />);
 
-    expect(screen.getByText('How to train your dragon')).toBeInTheDocument();
-    expect(screen.getByText('Ever wonder how?')).toBeInTheDocument();
-    expect(screen.queryByText('Meta Data')).not.toBeInTheDocument();
+    expect(screen.getByText('How to train your dragon')).toBeDefined();
+    expect(screen.getByText('Ever wonder how?')).toBeDefined();
+    expect(screen.queryByText('Meta Data')).toBeNull();
   });
 
   it('navigates to the article page when clicking on the article link', async () => {

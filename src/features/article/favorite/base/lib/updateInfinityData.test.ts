@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { articleApi } from '~entities/article';
 import { ArticlesInfinityData, updateInfinityData } from './updateInfinityData';
 

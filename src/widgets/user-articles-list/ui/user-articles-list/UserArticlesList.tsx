@@ -19,7 +19,9 @@ export function UserArticlesList(props: UserArticlesListProps) {
 
   const {
     data: articlesData,
-    status: articlesStatus,
+    isPending,
+    isError,
+    isSuccess,
     error,
     fetchNextPage,
     hasNextPage,
@@ -28,11 +30,12 @@ export function UserArticlesList(props: UserArticlesListProps) {
 
   return (
     <ArticlesList
-      isLoading={articlesStatus === 'loading'}
-      isError={articlesStatus === 'error'}
-      isSuccess={articlesStatus === 'success'}
+      isLoading={isPending}
+      isError={isError}
+      isSuccess={isSuccess}
       error={error}
       hasNextPage={hasNextPage}
+      // @ts-ignore
       infinityArticles={articlesData}
       renderArticles={(article) => (
         <ArticlePreviewCard

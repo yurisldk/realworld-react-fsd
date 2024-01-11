@@ -15,33 +15,32 @@ export const useUpdateCurrentUser = (queryClient: QueryClient) =>
       queryKey: string[];
       prevUser: UserDto | undefined;
     }
-  >(
-    async (user: UserDto) => {
+  >({
+    mutationFn: async (user: UserDto) => {
       const response = await realworldApi.user.updateCurrentUser({ user });
 
       return response.data.user;
     },
-    {
-      onMutate: async (newUser) => {
-        const queryKey = sessionApi.sessionKeys.session.currentUser();
 
-        await queryClient.cancelQueries({ queryKey });
+    onMutate: async (newUser) => {
+      const queryKey = sessionApi.sessionKeys.session.currentUser();
 
-        const prevUser = queryClient.getQueryData<UserDto>(queryKey);
+      await queryClient.cancelQueries({ queryKey });
 
-        queryClient.setQueryData<UserDto>(queryKey, newUser);
+      const prevUser = queryClient.getQueryData<UserDto>(queryKey);
 
-        return { queryKey, prevUser };
-      },
+      queryClient.setQueryData<UserDto>(queryKey, newUser);
 
-      onError: (_error, _variables, context) => {
-        if (!context) return;
-        queryClient.setQueryData(context.queryKey, context.prevUser);
-      },
-
-      onSettled: (_data, _error, _valiables, context) => {
-        if (!context) return;
-        queryClient.invalidateQueries({ queryKey: context.queryKey });
-      },
+      return { queryKey, prevUser };
     },
-  );
+
+    onError: (_error, _variables, context) => {
+      if (!context) return;
+      queryClient.setQueryData(context.queryKey, context.prevUser);
+    },
+
+    onSettled: (_data, _error, _valiables, context) => {
+      if (!context) return;
+      queryClient.invalidateQueries({ queryKey: context.queryKey });
+    },
+  });

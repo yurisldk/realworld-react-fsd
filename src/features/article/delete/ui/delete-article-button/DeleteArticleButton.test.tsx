@@ -24,7 +24,7 @@ describe('<DeleteArticleButton />', () => {
     renderWithRouter(<DeleteArticleButton slug="article-slug" />);
 
     const deleteButton = screen.getByText('Delete Article');
-    expect(deleteButton).toBeInTheDocument();
+    expect(deleteButton).toBeDefined();
   });
 
   it('should call the delete article API and navigates to root path on successful deletion', async () => {

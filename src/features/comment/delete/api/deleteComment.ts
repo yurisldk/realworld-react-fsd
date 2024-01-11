@@ -13,41 +13,40 @@ export function useDeleteComment(queryClient: QueryClient) {
     GenericErrorModel,
     UseDeleteCommentProps,
     { queryKey: string[]; prevComments: commentApi.Comment[] }
-  >(
-    async ({ slug, id }: UseDeleteCommentProps) => {
+  >({
+    mutationFn: async ({ slug, id }: UseDeleteCommentProps) => {
       const response = await realworldApi.articles.deleteArticleComment(
         slug,
         id,
       );
       return response.data;
     },
-    {
-      onMutate: async ({ slug, id }) => {
-        const queryKey = commentApi.commentKeys.comments.slug(slug);
 
-        await queryClient.cancelQueries({ queryKey });
+    onMutate: async ({ slug, id }) => {
+      const queryKey = commentApi.commentKeys.comments.slug(slug);
 
-        const prevComments =
-          queryClient.getQueryData<commentApi.Comment[]>(queryKey) || [];
+      await queryClient.cancelQueries({ queryKey });
 
-        const newComments: commentApi.Comment[] = prevComments.filter(
-          (comment) => comment.id !== id,
-        );
+      const prevComments =
+        queryClient.getQueryData<commentApi.Comment[]>(queryKey) || [];
 
-        queryClient.setQueryData<commentApi.Comment[]>(queryKey, newComments);
+      const newComments: commentApi.Comment[] = prevComments.filter(
+        (comment) => comment.id !== id,
+      );
 
-        return { queryKey, prevComments };
-      },
+      queryClient.setQueryData<commentApi.Comment[]>(queryKey, newComments);
 
-      onError: (_error, _variables, context) => {
-        if (!context) return;
-        queryClient.setQueryData(context.queryKey, context.prevComments);
-      },
-
-      onSettled: (_data, _error, _valiables, context) => {
-        if (!context) return;
-        queryClient.invalidateQueries({ queryKey: context.queryKey });
-      },
+      return { queryKey, prevComments };
     },
-  );
+
+    onError: (_error, _variables, context) => {
+      if (!context) return;
+      queryClient.setQueryData(context.queryKey, context.prevComments);
+    },
+
+    onSettled: (_data, _error, _valiables, context) => {
+      if (!context) return;
+      queryClient.invalidateQueries({ queryKey: context.queryKey });
+    },
+  });
 }

@@ -19,6 +19,7 @@ export function DeleteCommentIconButtton(props: DeleteCommentIconButttonProps) {
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/control-has-associated-label
     <button
       style={{ border: 0, backgroundColor: 'transparent' }}
       className="mod-options"

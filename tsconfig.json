@@ -7,6 +7,7 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    "types": ["vitest/globals"],
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -18,7 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "typeRoots": ["node_modules/@types", "types/"],
+    "typeRoots": ["./node_modules/@types", "./types/", "./node_modules"],
     "baseUrl": "./src",
     "paths": {
       "~app": ["./app"],

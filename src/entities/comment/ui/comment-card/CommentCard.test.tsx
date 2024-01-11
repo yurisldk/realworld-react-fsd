@@ -24,10 +24,10 @@ describe('<CommentCard />', () => {
     const commentDate = screen.getByText('February 18, 2016');
     const commentAuthorImage = screen.getByAltText('jake');
 
-    expect(commentBody).toBeInTheDocument();
-    expect(commentAuthor).toBeInTheDocument();
-    expect(commentDate).toBeInTheDocument();
-    expect(commentAuthorImage).toHaveAttribute(
+    expect(commentBody).toBeDefined();
+    expect(commentAuthor).toBeDefined();
+    expect(commentDate).toBeDefined();
+    expect(commentAuthorImage).toHaveProperty(
       'src',
       'https://i.stack.imgur.com/xHWG8.jpg',
     );
@@ -39,7 +39,7 @@ describe('<CommentCard />', () => {
     renderWithRouter(<CommentCard comment={comment} actions={actions} />);
 
     const additionalActions = screen.getByRole('button', { name: 'Like' });
-    expect(additionalActions).toBeInTheDocument();
+    expect(additionalActions).toBeDefined();
   });
 
   it('navigates to the profile page when clicking on the profile link or image', async () => {

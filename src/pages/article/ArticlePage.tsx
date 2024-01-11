@@ -19,12 +19,12 @@ export function ArticlePage() {
 
   const {
     data: article,
-    isLoading,
+    isPending,
     isError,
     error,
   } = articleApi.useArticle(slug!, { secure: !!user });
 
-  if (isLoading)
+  if (isPending)
     return (
       <FullPageWrapper>
         <Spinner />

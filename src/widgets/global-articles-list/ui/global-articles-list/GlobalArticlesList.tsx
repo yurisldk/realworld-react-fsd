@@ -28,7 +28,9 @@ export function GlobalArticlesList(props: GlobalArticlesListProps) {
 
   const {
     data: articlesData,
-    status: articlesStatus,
+    isPending,
+    isError,
+    isSuccess,
     error,
     fetchNextPage,
     hasNextPage,
@@ -37,11 +39,12 @@ export function GlobalArticlesList(props: GlobalArticlesListProps) {
 
   return (
     <ArticlesList
-      isLoading={articlesStatus === 'loading'}
-      isError={articlesStatus === 'error'}
-      isSuccess={articlesStatus === 'success'}
+      isLoading={isPending}
+      isError={isError}
+      isSuccess={isSuccess}
       error={error}
       hasNextPage={hasNextPage}
+      // @ts-ignore
       infinityArticles={articlesData}
       renderArticles={(article) => (
         <ArticlePreviewCard

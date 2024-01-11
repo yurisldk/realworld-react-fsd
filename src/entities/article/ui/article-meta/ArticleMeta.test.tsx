@@ -28,9 +28,9 @@ describe('<ArticleMeta />', () => {
     const date = screen.getByText('February 18, 2016');
     const image = screen.getByAltText('jake');
 
-    expect(authorLink).toBeInTheDocument();
-    expect(date).toBeInTheDocument();
-    expect(image).toBeInTheDocument();
+    expect(authorLink).toBeDefined();
+    expect(date).toBeDefined();
+    expect(image).toBeDefined();
   });
 
   it('renders ArticleMeta component with action slot', () => {
@@ -40,7 +40,7 @@ describe('<ArticleMeta />', () => {
 
     const actionButton = screen.getByText('Like');
 
-    expect(actionButton).toBeInTheDocument();
+    expect(actionButton).toBeDefined();
   });
 
   it('navigates to the author profile page when clicking on the author link or image', async () => {

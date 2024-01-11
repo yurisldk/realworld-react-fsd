@@ -28,7 +28,7 @@ describe('<FollowUserButton />', () => {
     renderWithClient(<FollowUserButton profile={newProfile} />);
 
     const favoriteButton = screen.getByRole('button');
-    expect(favoriteButton).toBeInTheDocument();
+    expect(favoriteButton).toBeDefined();
   });
 
   it('should call the profile API', async () => {

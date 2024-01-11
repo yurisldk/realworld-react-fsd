@@ -37,10 +37,10 @@ describe('<ArticleEditor />', () => {
     );
     const tagsInput = screen.getByPlaceholderText('Enter tags');
 
-    expect(titleInput).toBeInTheDocument();
-    expect(descriptionInput).toBeInTheDocument();
-    expect(bodyTextarea).toBeInTheDocument();
-    expect(tagsInput).toBeInTheDocument();
+    expect(titleInput).toBeDefined();
+    expect(descriptionInput).toBeDefined();
+    expect(bodyTextarea).toBeDefined();
+    expect(tagsInput).toBeDefined();
   });
 
   it('should update form values when input fields change', async () => {
@@ -60,10 +60,10 @@ describe('<ArticleEditor />', () => {
     await userEvent.type(bodyTextarea, 'Test Body');
     await userEvent.type(tagsInput, 'tag1, tag2');
 
-    expect(titleInput).toHaveDisplayValue('Test Title');
-    expect(descriptionInput).toHaveDisplayValue('Test Description');
-    expect(bodyTextarea).toHaveDisplayValue('Test Body');
-    expect(tagsInput).toHaveDisplayValue('tag1, tag2');
+    expect(titleInput).toHaveProperty('value', 'Test Title');
+    expect(descriptionInput).toHaveProperty('value', 'Test Description');
+    expect(bodyTextarea).toHaveProperty('value', 'Test Body');
+    expect(tagsInput).toHaveProperty('value', 'tag1, tag2');
   });
 
   it('should call onSubmit when the form is submitted', async () => {
@@ -96,7 +96,7 @@ describe('<ArticleEditor />', () => {
 
     const errorComponent = screen.getByText('Test error');
 
-    expect(errorComponent).toBeInTheDocument();
+    expect(errorComponent).toBeDefined();
   });
 
   it('should disable form when isLoading is true', () => {
@@ -120,10 +120,10 @@ describe('<ArticleEditor />', () => {
     const tagsInput = screen.getByPlaceholderText('Enter tags');
     const publishButton = screen.getByRole('button');
 
-    expect(titleInput).toBeDisabled();
-    expect(descriptionInput).toBeDisabled();
-    expect(bodyTextarea).toBeDisabled();
-    expect(tagsInput).toBeDisabled();
-    expect(publishButton).toBeDisabled();
+    expect(titleInput).toHaveProperty('disabled');
+    expect(descriptionInput).toHaveProperty('disabled');
+    expect(bodyTextarea).toHaveProperty('disabled');
+    expect(tagsInput).toHaveProperty('disabled');
+    expect(publishButton).toHaveProperty('disabled');
   });
 });

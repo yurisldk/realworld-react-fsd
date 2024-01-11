@@ -3,7 +3,9 @@ import { vi } from 'vitest';
 import { ErrorHandler } from './ErrorHandler';
 
 describe('ErrorHandler', () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   it('should render UnexpectedError successfully', () => {
     const error = {
@@ -19,7 +21,7 @@ describe('ErrorHandler', () => {
     render(<ErrorHandler error={error} />);
     const errorsListElement = screen.getByRole('list');
 
-    expect(errorsListElement).toBeInTheDocument();
+    expect(errorsListElement).toBeDefined();
   });
 
   it('should render GenericErrorModelDto successfully', () => {
@@ -29,7 +31,7 @@ describe('ErrorHandler', () => {
     render(<ErrorHandler error={error} />);
     const errorMessageElement = screen.getByRole('list');
 
-    expect(errorMessageElement).toBeInTheDocument();
+    expect(errorMessageElement).toBeDefined();
   });
 
   it('should throw `Unexpected error type` error', () => {

@@ -1,5 +1,3 @@
-/* eslint-disable func-names */
-/* eslint-disable no-console */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
 
@@ -9,11 +7,6 @@ const createTestQueryClient = () =>
       queries: {
         retry: false,
       },
-    },
-    logger: {
-      log: console.log,
-      warn: console.warn,
-      error: () => {},
     },
   });
 
@@ -37,6 +30,7 @@ export function renderWithClient(ui: React.ReactElement) {
 
 export function createWrapper() {
   const testQueryClient = createTestQueryClient();
+  // eslint-disable-next-line func-names
   return function ({ children }: { children: React.ReactNode }) {
     return (
       <QueryClientProvider client={testQueryClient}>

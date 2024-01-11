@@ -3,5 +3,7 @@ import { sessionApi, sessionModel } from '~entities/session';
 
 export function logout(queryClient: QueryClient) {
   sessionModel.deleteToken();
-  queryClient.removeQueries(sessionApi.sessionKeys.session.currentUser());
+  queryClient.removeQueries({
+    queryKey: sessionApi.sessionKeys.session.currentUser(),
+  });
 }

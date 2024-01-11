@@ -15,14 +15,14 @@ export function CommentsList(props: CommentsListProps) {
 
   const {
     data: comments,
-    isLoading,
+    isPending,
     isError,
     error,
   } = commentApi.useCommentsQuery(slug, {
     secure: isAuth,
   });
 
-  if (isLoading)
+  if (isPending)
     return (
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <Spinner />
