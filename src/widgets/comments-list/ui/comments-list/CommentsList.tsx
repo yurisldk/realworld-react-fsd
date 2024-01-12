@@ -1,7 +1,6 @@
 import { CommentCard, commentApi } from '~entities/comment';
 import { sessionModel } from '~entities/session';
 import { DeleteCommentIconButtton } from '~features/comment';
-import { ErrorHandler } from '~shared/ui/error-handler';
 import { Spinner } from '~shared/ui/spinner';
 
 type CommentsListProps = {
@@ -16,8 +15,8 @@ export function CommentsList(props: CommentsListProps) {
   const {
     data: comments,
     isPending,
-    isError,
-    error,
+    // isError,
+    // error,
   } = commentApi.useCommentsQuery(slug, {
     secure: isAuth,
   });
@@ -29,11 +28,11 @@ export function CommentsList(props: CommentsListProps) {
       </div>
     );
 
-  if (isError) return <ErrorHandler error={error} />;
+  // if (isError) return <ErrorHandler error={error} />;
 
   return (
     <div>
-      {comments.map((comment) => (
+      {comments!.map((comment) => (
         <CommentCard
           key={comment.id}
           comment={comment}

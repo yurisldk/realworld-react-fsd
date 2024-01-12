@@ -1,14 +1,12 @@
 import { ReactNode } from 'react';
 import { InfiniteData } from '@tanstack/react-query';
-import { GenericErrorModel } from '~shared/api/realworld';
-import { ErrorHandler } from '~shared/ui/error-handler';
 import { Article } from '../../api/articleApi';
 
 type ArticlesListProps = {
   isLoading: boolean;
   isError: boolean;
   isSuccess: boolean;
-  error: GenericErrorModel | null;
+  // error: GenericErrorModel | null;
   hasNextPage?: boolean;
   infinityArticles?: InfiniteData<Article[]>;
   renderArticles: (article: Article) => ReactNode;
@@ -20,7 +18,7 @@ export function ArticlesList(props: ArticlesListProps) {
     isLoading,
     isError,
     isSuccess,
-    error,
+    // error,
     hasNextPage,
     infinityArticles,
     renderArticles,
@@ -33,7 +31,7 @@ export function ArticlesList(props: ArticlesListProps) {
 
       {isError && (
         <div className="article-preview">
-          <ErrorHandler error={error!} />
+          {/* <ErrorHandler error={error!} /> */}
         </div>
       )}
 

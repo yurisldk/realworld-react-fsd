@@ -7,7 +7,6 @@ import { sessionApi } from '~entities/session';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
 import { PATH_PAGE } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
-import { ErrorHandler } from '~shared/ui/error-handler';
 import { Spinner } from '~shared/ui/spinner';
 
 type ProfileWrapperProps = {
@@ -84,11 +83,11 @@ export function ProfileCard(props: ProfileCardProps) {
             </ProfileWrapper>
           )}
 
-          {isError && (
+          {/* {isError && (
             <ProfileWrapper>
               <ErrorHandler error={error} />
             </ProfileWrapper>
-          )}
+          )} */}
 
           {isSuccess && (
             <div className="col-xs-12 col-md-10 offset-md-1">

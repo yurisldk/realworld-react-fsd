@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
-import { AuthGuard, GuestGuard, sessionModel } from '~entities/session';
+import { AuthGuard, GuestGuard } from '~entities/session';
 import { MainLayout } from '~pages/layouts';
 import { PATH_PAGE } from '~shared/lib/react-router';
 import { Loadable } from '~shared/ui/loadable';
@@ -15,20 +15,18 @@ const RegisterPage = Loadable(lazy(() => import('~pages/register')));
 const SettingsPage = Loadable(lazy(() => import('~pages/settings')));
 
 export function Router() {
-  const isAuth = sessionModel.useAuth();
-
   return useRoutes([
     {
       element: <MainLayout />,
       children: [
         {
           path: PATH_PAGE.root,
-          element: isAuth ? <HomePage auth /> : <HomePage />,
+          element: <HomePage />,
         },
         {
           path: 'login',
           element: (
-            <AuthGuard isAuth={isAuth}>
+            <AuthGuard>
               <LoginPage />
             </AuthGuard>
           ),
@@ -36,7 +34,7 @@ export function Router() {
         {
           path: 'register',
           element: (
-            <AuthGuard isAuth={isAuth}>
+            <AuthGuard>
               <RegisterPage />
             </AuthGuard>
           ),
@@ -44,7 +42,7 @@ export function Router() {
         {
           path: 'settings',
           element: (
-            <GuestGuard isAuth={isAuth}>
+            <GuestGuard>
               <SettingsPage />
             </GuestGuard>
           ),
@@ -54,7 +52,7 @@ export function Router() {
           children: [
             {
               element: (
-                <GuestGuard isAuth={isAuth}>
+                <GuestGuard>
                   <EditorPage />
                 </GuestGuard>
               ),
@@ -63,7 +61,7 @@ export function Router() {
             {
               path: ':slug',
               element: (
-                <GuestGuard isAuth={isAuth}>
+                <GuestGuard>
                   <EditorPage edit />
                 </GuestGuard>
               ),

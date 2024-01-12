@@ -1,24 +1,32 @@
-import { useMutation } from '@tanstack/react-query';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Formik, Form, Field, ErrorMessage, useFormikContext } from 'formik';
 import { Link } from 'react-router-dom';
-import { object, string } from 'yup';
-import { sessionApi, sessionModel } from '~entities/session';
+import {
+  sessionApi,
+  sessionContracts,
+  sessionModel,
+  sessionTypes,
+} from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
-
-const initialUser = {
-  email: '',
-  username: '',
-  password: '',
-};
+import { formikContract } from '~shared/lib/zod';
+import { ErrorHandler } from '~shared/ui/error';
 
 export function RegisterPage() {
+  const queryClient = useQueryClient();
   const updateToken = sessionModel.useUpdateToken();
 
   const { mutate, isPending, isError, error } = useMutation({
     mutationKey: sessionApi.CREATE_USER_KEY,
     mutationFn: sessionApi.createUserMutation,
-    onSuccess: (user) => {
+    onSuccess: async (user) => {
       updateToken(user.token);
+      queryClient.setQueryData<sessionTypes.User>(
+        sessionApi.CURRENT_USER_KEY,
+        user,
+      );
+      await queryClient.invalidateQueries({
+        queryKey: sessionApi.CURRENT_USER_KEY,
+      });
     },
   });
 
@@ -32,16 +40,12 @@ export function RegisterPage() {
               <Link to={PATH_PAGE.login}>Have an account?</Link>
             </p>
 
-            {isError && <div>{error.message}</div>}
+            {isError && <ErrorHandler error={error} />}
 
             <Formik
               initialValues={initialUser}
-              validationSchema={object().shape({
-                username: string().min(5).required(),
-                email: string().email().required(),
-                password: string().min(5).required(),
-              })}
-              onSubmit={mutate}
+              validate={formikContract(sessionContracts.CreateUserDtoSchema)}
+              onSubmit={(createUser) => mutate(createUser)}
             >
               <Form>
                 <fieldset disabled={isPending}>
@@ -72,13 +76,7 @@ export function RegisterPage() {
                     />
                     <ErrorMessage name="password" />
                   </fieldset>
-                  <button
-                    className="btn btn-lg btn-primary pull-xs-right"
-                    type="submit"
-                    disabled={isPending}
-                  >
-                    Sign up
-                  </button>
+                  <SubmitButton />
                 </fieldset>
               </Form>
             </Formik>
@@ -88,3 +86,23 @@ export function RegisterPage() {
     </div>
   );
 }
+
+const initialUser: sessionTypes.CreateUserDto = {
+  email: '',
+  username: '',
+  password: '',
+};
+
+const SubmitButton = () => {
+  const { isValidating, isValid } = useFormikContext();
+
+  return (
+    <button
+      className="btn btn-lg btn-primary pull-xs-right"
+      type="submit"
+      disabled={!isValid || isValidating}
+    >
+      Sign up
+    </button>
+  );
+};

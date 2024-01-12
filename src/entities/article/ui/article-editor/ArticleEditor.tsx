@@ -1,6 +1,4 @@
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from 'formik';
-import { GenericErrorModel } from '~shared/api/realworld';
-import { ErrorHandler } from '~shared/ui/error-handler';
 
 type EditorArticle = {
   title?: string;
@@ -20,8 +18,8 @@ type ArticleEditorProps = {
   article?: EditorArticle;
   validationSchema: any | (() => any);
   isLoading: boolean;
-  isError: boolean;
-  error: GenericErrorModel | null;
+  // isError: boolean;
+  // error: GenericErrorModel | null;
   onSubmit: (
     values: EditorArticle,
     helpers: FormikHelpers<FormikArticle>,
@@ -50,8 +48,8 @@ export function ArticleEditor(props: ArticleEditorProps) {
     article = initialArticle,
     validationSchema,
     isLoading,
-    isError,
-    error,
+    // isError,
+    // error,
     onSubmit,
   } = props;
 
@@ -62,7 +60,7 @@ export function ArticleEditor(props: ArticleEditorProps) {
       <div className="container page">
         <div className="row">
           <div className="col-md-10 offset-md-1 col-xs-12">
-            {isError && <ErrorHandler error={error!} />}
+            {/* {isError && <ErrorHandler error={error!} />} */}
 
             <Formik
               initialValues={formikArticle}

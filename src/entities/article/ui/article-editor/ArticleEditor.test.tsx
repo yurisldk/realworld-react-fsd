@@ -19,8 +19,8 @@ describe('<ArticleEditor />', () => {
       <ArticleEditor
         validationSchema={validationSchema}
         isLoading={false}
-        isError={false}
-        error={null}
+        // isError={false}
+        // error={null}
         onSubmit={mockOnSubmit}
       />,
     );
@@ -79,17 +79,16 @@ describe('<ArticleEditor />', () => {
   });
 
   it('should display an error message when isError is true', () => {
-    const mockError = {
-      error: { message: 'Test error' },
-    };
+    // const mockError = {
+    //   error: { message: 'Test error' },
+    // };
 
     render(
       <ArticleEditor
         validationSchema={validationSchema}
         isLoading={false}
-        isError
-        // @ts-expect-error Type '{ error: { message: string; }; }' is missing properties
-        error={mockError}
+        // isError
+        // error={mockError}
         onSubmit={mockOnSubmit}
       />,
     );
@@ -104,8 +103,8 @@ describe('<ArticleEditor />', () => {
       <ArticleEditor
         validationSchema={validationSchema}
         isLoading
-        isError={false}
-        error={null}
+        // isError={false}
+        // error={null}
         onSubmit={mockOnSubmit}
       />,
     );

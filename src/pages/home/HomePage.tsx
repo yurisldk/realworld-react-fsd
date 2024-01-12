@@ -1,17 +1,16 @@
 import { useState } from 'react';
+import { sessionModel } from '~entities/session';
 import { Tabs } from '~shared/ui/tabs';
 import { GlobalArticlesList } from '~widgets/global-articles-list';
 import { PopularTags } from '~widgets/popular-tags';
 import { UserArticlesList } from '~widgets/user-articles-list';
 
-type HomePageProps = {
-  auth?: boolean;
-};
+export function HomePage() {
+  const isAuth = sessionModel.useAuth();
 
-export function HomePage(props: HomePageProps) {
-  const { auth } = props;
-
-  const [activeTab, setActiveTab] = useState(auth ? 'userfeed' : 'globalfeed');
+  const [activeTab, setActiveTab] = useState(
+    isAuth ? 'userfeed' : 'globalfeed',
+  );
 
   const [tag, setTag] = useState<string | null>(null);
 
@@ -40,7 +39,7 @@ export function HomePage(props: HomePageProps) {
             <Tabs keepUnmounted value={activeTab} onTabChange={handleTabChange}>
               <div className="feed-toggle">
                 <Tabs.List>
-                  {auth && <Tabs.Tab value="userfeed">Your Feed</Tabs.Tab>}
+                  {isAuth && <Tabs.Tab value="userfeed">Your Feed</Tabs.Tab>}
                   <Tabs.Tab value="globalfeed">Global Feed</Tabs.Tab>
                   {tag && <Tabs.Tab value="tagfeed">#{tag}</Tabs.Tab>}
                 </Tabs.List>

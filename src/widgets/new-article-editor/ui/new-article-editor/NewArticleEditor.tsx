@@ -20,7 +20,7 @@ const validationSchema = object().shape({
 });
 
 export function NewArticleEditor() {
-  const { mutate, isError, error } = useCreateArticle();
+  const { mutate } = useCreateArticle();
 
   const navigate = useNavigate();
 
@@ -29,8 +29,8 @@ export function NewArticleEditor() {
       article={initialArticle}
       validationSchema={validationSchema}
       isLoading={false}
-      isError={isError}
-      error={error}
+      // isError={isError}
+      // error={error}
       onSubmit={(values, { setSubmitting }) => {
         const newArticle = values as NewArticleDto;
 

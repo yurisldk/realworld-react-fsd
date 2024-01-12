@@ -1,5 +1,4 @@
 import { tagApi } from '~entities/tag';
-import { ErrorHandler } from '~shared/ui/error-handler';
 
 type PopularTagsProps = {
   onTagClick: (tag: string) => void;
@@ -8,7 +7,7 @@ type PopularTagsProps = {
 export function PopularTags(props: PopularTagsProps) {
   const { onTagClick } = props;
 
-  const { data: tags, isLoading, isError, error } = tagApi.useGlobalTags();
+  const { data: tags, isLoading } = tagApi.useGlobalTags();
 
   return (
     <div className="sidebar">
@@ -16,7 +15,7 @@ export function PopularTags(props: PopularTagsProps) {
       <div className="tag-list">
         {isLoading && 'Loading tags...'}
 
-        {isError && <ErrorHandler error={error} />}
+        {/* {isError && <ErrorHandler error={error} />} */}
 
         {tags &&
           tags.length &&

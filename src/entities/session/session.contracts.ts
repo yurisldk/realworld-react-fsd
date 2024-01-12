@@ -1,25 +1,33 @@
 import { z } from 'zod';
 
-const userSchema = z.object({
-  email: z.string(),
-  token: z.string(),
-  username: z.string(),
-  bio: z.nullable(z.string()),
-  image: z.string(),
-});
-
 export const UserDtoSchema = z.object({
-  user: userSchema,
+  user: z.object({
+    email: z.string(),
+    token: z.string(),
+    username: z.string(),
+    bio: z.nullable(z.string()),
+    image: z.string(),
+  }),
 });
 
-export const UpdateUserDtoSchema = userSchema
+export const UpdateUserDtoSchema = z
+  .object({
+    email: z.string().email().optional().or(z.literal('')),
+    username: z.string().min(5).optional().or(z.literal('')),
+    bio: z.string().optional().or(z.literal('')),
+    image: z.string().optional().or(z.literal('')),
+    password: z.string().min(8).optional().or(z.literal('')),
+  })
   .partial()
-  .and(z.object({ password: z.optional(z.string()) }));
+  .refine((args) => Object.values(args).some(Boolean), {
+    path: ['form'],
+    message: 'One of the fields must be defined',
+  });
 
 export const CreateUserDtoSchema = z.object({
-  username: z.string(),
-  email: z.string(),
-  password: z.string(),
+  username: z.string().min(5),
+  email: z.string().email(),
+  password: z.string().min(8),
 });
 
 export const LoginUserDtoSchema = z.object({

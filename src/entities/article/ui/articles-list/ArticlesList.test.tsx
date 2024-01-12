@@ -37,7 +37,6 @@ describe('<ArticlesList />', () => {
       error,
     };
 
-    // @ts-expect-error error is not assignable to type 'GenericErrorModel'
     render(<ArticlesList {...errorProps} />);
     expect(screen.getByText('Error message')).toBeDefined();
   });

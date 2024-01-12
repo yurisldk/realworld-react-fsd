@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { articleApi } from '~entities/article';
 import { sessionApi } from '~entities/session';
-import { ErrorHandler } from '~shared/ui/error-handler';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
 import { Spinner } from '~shared/ui/spinner';
 import {
@@ -25,8 +24,8 @@ export function ArticlePage() {
   const {
     data: article,
     isPending,
-    isError,
-    error,
+    // isError,
+    // error,
   } = articleApi.useArticle(slug!, { secure: !!user });
 
   if (isPending)
@@ -36,14 +35,14 @@ export function ArticlePage() {
       </FullPageWrapper>
     );
 
-  if (isError)
-    return (
-      <FullPageWrapper>
-        <ErrorHandler error={error} />
-      </FullPageWrapper>
-    );
+  // if (isError)
+  //   return (
+  //     <FullPageWrapper>
+  //       <ErrorHandler error={error} />
+  //     </FullPageWrapper>
+  //   );
 
-  const { title, body, tagList, author } = article;
+  const { title, body, tagList, author } = article!;
 
   const isAuth = Boolean(user);
   const isGuest = !isAuth;
@@ -57,12 +56,12 @@ export function ArticlePage() {
           <h1>{title}</h1>
 
           {isCurrentUser && (
-            <CurrentUserArticleMeta slug={slug!} article={article} />
+            <CurrentUserArticleMeta slug={slug!} article={article!} />
           )}
 
-          {isUser && <UserArticleMeta article={article} />}
+          {isUser && <UserArticleMeta article={article!} />}
 
-          {isGuest && <GuestArticleMeta article={article} />}
+          {isGuest && <GuestArticleMeta article={article!} />}
         </div>
       </div>
 
@@ -86,12 +85,12 @@ export function ArticlePage() {
 
         <div className="article-actions">
           {isCurrentUser && (
-            <CurrentUserArticleMeta slug={slug!} article={article} />
+            <CurrentUserArticleMeta slug={slug!} article={article!} />
           )}
 
-          {isUser && <UserArticleMeta article={article} />}
+          {isUser && <UserArticleMeta article={article!} />}
 
-          {isGuest && <GuestArticleMeta article={article} />}
+          {isGuest && <GuestArticleMeta article={article!} />}
         </div>
 
         <div className="row">

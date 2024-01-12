@@ -1,76 +1,44 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import { useNavigate } from 'react-router-dom';
-import { object, string } from 'yup';
-import { sessionApi, sessionModel, sessionTypes } from '~entities/session';
+import {
+  sessionApi,
+  sessionContracts,
+  sessionModel,
+  sessionTypes,
+} from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
-
-function LogoutButton() {
-  const queryClient = useQueryClient();
-  const updateToken = sessionModel.useUpdateToken();
-
-  const handleClick = () => {
-    updateToken(null);
-    queryClient.removeQueries({ queryKey: sessionApi.CURRENT_USER_KEY });
-  };
-
-  return (
-    <button
-      className="btn btn-outline-danger"
-      type="button"
-      onClick={handleClick}
-    >
-      Or click here to logout.
-    </button>
-  );
-}
-
-const initialUser = {
-  email: '',
-  token: '',
-  username: '',
-  bio: '',
-  image: '',
-  password: '',
-};
+import { formikContract } from '~shared/lib/zod';
+import { ErrorHandler } from '~shared/ui/error';
 
 export function SettingsPage() {
-  // TODO: add loading, error, etc... states
-  const { data: currentUser, isPending: isUserPending } = useQuery({
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const { data: currentUser } = useQuery({
     queryKey: sessionApi.CURRENT_USER_KEY,
     queryFn: sessionApi.currentUserQuery,
   });
 
-  const navigate = useNavigate();
-
-  const queryClient = useQueryClient();
-
   const { mutate, isPending, isError, error } = useMutation({
     mutationKey: sessionApi.UPDATE_USER_KEY,
     mutationFn: sessionApi.updateUserMutation,
-    onMutate: async (updateUser) => {
-      const queryKey = sessionApi.CURRENT_USER_KEY;
-      await queryClient.cancelQueries({ queryKey });
-
-      const prevUser = queryClient.getQueryData<sessionTypes.User>(queryKey);
-
-      queryClient.setQueryData<sessionTypes.UpdateUserDto>(
-        queryKey,
-        updateUser,
-      );
-
-      return { queryKey, prevUser };
+    onMutate: (updateUser) => {
+      const prevUser = queryClient.getQueryData(sessionApi.CURRENT_USER_KEY);
+      queryClient.setQueryData(sessionApi.CURRENT_USER_KEY, updateUser);
+      return prevUser as sessionTypes.User;
     },
-    onError: (_error, _variables, context) => {
-      if (!context) return;
-      queryClient.setQueryData(context.queryKey, context.prevUser);
+    onError: (_error, _variables, prevUser) => {
+      if (!prevUser) return;
+      queryClient.setQueryData(sessionApi.CURRENT_USER_KEY, prevUser);
     },
-    onSuccess: () => {
-      navigate(PATH_PAGE.profile.root(currentUser!.username));
+    onSuccess: (user) => {
+      navigate(PATH_PAGE.profile.root(user.username));
     },
-    onSettled: (_data, _error, _valiables, context) => {
-      if (!context) return;
-      queryClient.invalidateQueries({ queryKey: context.queryKey });
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: sessionApi.CURRENT_USER_KEY,
+      });
     },
   });
 
@@ -81,27 +49,17 @@ export function SettingsPage() {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Your Settings</h1>
 
-            {/* FIXME: */}
-            {isError && <div>{error.message}</div>}
+            {isError && <ErrorHandler error={error} />}
 
             <Formik
               enableReinitialize
-              initialValues={{
-                ...initialUser,
-                ...currentUser,
-              }}
-              validationSchema={object().shape({
-                email: string().email(),
-                token: string(),
-                username: string().min(5),
-                bio: string(),
-                image: string(),
-                password: string().min(5),
-              })}
-              onSubmit={mutate}
+              initialValues={{ ...initialUser, ...currentUser }}
+              validate={formikContract(sessionContracts.UpdateUserDtoSchema)}
+              onSubmit={({ form, ...updateUser }) => mutate(updateUser)}
+              initialTouched={{ form: true }}
             >
               <Form>
-                <fieldset disabled={isPending || isUserPending}>
+                <fieldset disabled={isPending}>
                   <fieldset className="form-group">
                     <Field
                       name="image"
@@ -148,12 +106,11 @@ export function SettingsPage() {
                     />
                     <ErrorMessage name="password" />
                   </fieldset>
-                  <button
-                    className="btn btn-lg btn-primary pull-xs-right"
-                    type="submit"
-                  >
-                    Update Settings
-                  </button>
+                  <fieldset className="form-group">
+                    <Field name="form" type="hidden" />
+                    <ErrorMessage name="form" />
+                  </fieldset>
+                  <SubmitButton />
                 </fieldset>
               </Form>
             </Formik>
@@ -167,3 +124,46 @@ export function SettingsPage() {
     </div>
   );
 }
+
+const initialUser: sessionTypes.UpdateUserDto & { form: string } = {
+  form: '',
+  email: '',
+  username: '',
+  bio: '',
+  image: '',
+  password: '',
+};
+
+const LogoutButton = () => {
+  const queryClient = useQueryClient();
+  const updateToken = sessionModel.useUpdateToken();
+
+  const handleClick = () => {
+    updateToken(null);
+    queryClient.removeQueries({ queryKey: sessionApi.CURRENT_USER_KEY });
+  };
+
+  return (
+    <button
+      className="btn btn-outline-danger"
+      type="button"
+      onClick={handleClick}
+    >
+      Or click here to logout.
+    </button>
+  );
+};
+
+const SubmitButton = () => {
+  const { isValidating, isValid } = useFormikContext();
+
+  return (
+    <button
+      className="btn btn-lg btn-primary pull-xs-right"
+      type="submit"
+      disabled={!isValid || isValidating}
+    >
+      Update Settings
+    </button>
+  );
+};
