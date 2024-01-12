@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query';
 // FIXME: add no-restricted-imports exceptions for ~entities/*/@x/**
 // eslint-disable-next-line no-restricted-imports
-import { Profile, mapProfile } from '~entities/profile/@x/article';
+import { ProfileDto, mapProfile } from '~entities/profile/@x/article';
 import {
   ArticleDto,
   GenericErrorModel,
@@ -23,14 +23,14 @@ export interface Article {
   updatedAt: string;
   favorited: boolean;
   favoritesCount: number;
-  author: Profile;
+  author: ProfileDto;
 }
 
 export function mapArticle(articleDto: ArticleDto): Article {
   const { author, ...article } = articleDto;
   return {
     ...article,
-    author: mapProfile({ profile: author }),
+    author: mapProfile(author),
   };
 }
 

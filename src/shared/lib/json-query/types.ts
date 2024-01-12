@@ -12,6 +12,13 @@ type Json =
   | { [x: string]: Json }
   | Array<Json>;
 
+type Query =
+  | string
+  | Record<string, string>
+  | string[][]
+  | URLSearchParams
+  | undefined;
+
 export interface QueryConfig<Params, Data, TransformedData> {
   params?: Params;
   request: {
@@ -26,9 +33,7 @@ export interface QueryConfig<Params, Data, TransformedData> {
       | 'QUERY'
       | 'OPTIONS';
     headers?: (headers: Record<string, string>) => void;
-    query?:
-      | Record<string, string>
-      | ((params: Params) => Record<string, string>);
+    query?: Query | ((params: Params) => Query);
     body?: Json | ((params: Params) => Json);
   };
   response: {

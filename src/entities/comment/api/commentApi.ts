@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 // FIXME: add no-restricted-imports exceptions for ~entities/*/@x/**
 // eslint-disable-next-line no-restricted-imports
-import { Profile, mapProfile } from '~entities/profile/@x/comment';
+import { ProfileDto, mapProfile } from '~entities/profile/@x/comment';
 import {
   CommentDto,
   GenericErrorModel,
@@ -14,14 +14,14 @@ export interface Comment {
   createdAt: string;
   updatedAt: string;
   body: string;
-  author: Profile;
+  author: ProfileDto;
 }
 
 export function mapComment(commentDto: CommentDto): Comment {
   const { author, ...comment } = commentDto;
   return {
     ...comment,
-    author: mapProfile({ profile: author }),
+    author: mapProfile(author),
   };
 }
 

@@ -6,7 +6,7 @@ import {
   declareParams,
   zodContract,
 } from '~shared/lib/json-query';
-import { ProfileDtoSchema } from './profie.contracts';
+import { ProfileResponseSchema } from './profie.contracts';
 import { mapProfile } from './profile.lib';
 
 export const PROFILE_KEY = ['profile', 'profile'];
@@ -17,8 +17,8 @@ export const profileQuery = createQuery({
     method: 'GET',
   },
   response: {
-    contract: zodContract(ProfileDtoSchema),
-    mapData: ({ result }) => mapProfile(result),
+    contract: zodContract(ProfileResponseSchema),
+    mapData: ({ result }) => mapProfile(result.profile),
   },
 });
 
@@ -33,8 +33,8 @@ export const followProfileMutation = createQuery({
     },
   },
   response: {
-    contract: zodContract(ProfileDtoSchema),
-    mapData: ({ result }) => mapProfile(result),
+    contract: zodContract(ProfileResponseSchema),
+    mapData: ({ result }) => mapProfile(result.profile),
   },
 });
 
@@ -49,7 +49,7 @@ export const unfollowProfileMutation = createQuery({
     },
   },
   response: {
-    contract: zodContract(ProfileDtoSchema),
-    mapData: ({ result }) => mapProfile(result),
+    contract: zodContract(ProfileResponseSchema),
+    mapData: ({ result }) => mapProfile(result.profile),
   },
 });
