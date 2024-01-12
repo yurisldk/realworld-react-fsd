@@ -1,12 +1,18 @@
+import { useQuery } from '@tanstack/react-query';
 import { IoCreateOutline, IoSettingsSharp } from 'react-icons/io5';
 import { NavLink, Outlet } from 'react-router-dom';
 import { sessionApi, sessionModel } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
 export function MainLayout() {
-  const user = sessionModel.useCurrentUser();
+  const isAuth = sessionModel.useAuth();
 
-  sessionApi.useCurrentUser({ enabled: !!user });
+  // TODO: add loading, error, etc... states
+  const { data: user } = useQuery({
+    queryKey: sessionApi.CURRENT_USER_KEY,
+    queryFn: sessionApi.currentUserQuery,
+    enabled: isAuth,
+  });
 
   return (
     <>

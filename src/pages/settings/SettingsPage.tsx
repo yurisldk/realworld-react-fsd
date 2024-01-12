@@ -1,20 +1,66 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { object, string } from 'yup';
-import { sessionModel } from '~entities/session';
-import { LogoutButton, useUpdateCurrentUser } from '~features/session';
+import { sessionApi, sessionModel, sessionTypes } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
-import { ErrorHandler } from '~shared/ui/error-handler';
+
+function LogoutButton() {
+  const queryClient = useQueryClient();
+  const updateToken = sessionModel.useUpdateToken();
+
+  const handleClick = () => {
+    updateToken(null);
+    queryClient.removeQueries({ queryKey: sessionApi.CREATE_USER_KEY });
+  };
+
+  return (
+    <button
+      className="btn btn-outline-danger"
+      type="button"
+      onClick={handleClick}
+    >
+      Or click here to logout.
+    </button>
+  );
+}
 
 export function SettingsPage() {
-  const user = sessionModel.useCurrentUser();
+  // TODO: add loading, error, etc... states
+  const { data: user } = useQuery({
+    queryKey: sessionApi.CURRENT_USER_KEY,
+    queryFn: sessionApi.currentUserQuery,
+  });
 
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
 
-  const { mutate, isError, error } = useUpdateCurrentUser(queryClient);
+  const { mutate, isError, error } = useMutation({
+    mutationKey: sessionApi.UPDATE_USER_KEY,
+    mutationFn: sessionApi.updateUserMutation,
+    onMutate: async (updateUser) => {
+      const queryKey = sessionApi.CURRENT_USER_KEY;
+      await queryClient.cancelQueries({ queryKey });
+
+      const prevUser = queryClient.getQueryData<sessionTypes.User>(queryKey);
+
+      queryClient.setQueryData<sessionTypes.UpdateUserDto>(
+        queryKey,
+        updateUser,
+      );
+
+      return { queryKey, prevUser };
+    },
+    onError: (_error, _variables, context) => {
+      if (!context) return;
+      queryClient.setQueryData(context.queryKey, context.prevUser);
+    },
+    onSettled: (_data, _error, _valiables, context) => {
+      if (!context) return;
+      queryClient.invalidateQueries({ queryKey: context.queryKey });
+    },
+  });
 
   return (
     <div className="settings-page">
@@ -23,7 +69,7 @@ export function SettingsPage() {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Your Settings</h1>
 
-            {isError && <ErrorHandler error={error} />}
+            {isError && <div>{error.message}</div>}
 
             <Formik
               initialValues={{

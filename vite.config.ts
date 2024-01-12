@@ -33,6 +33,7 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     environment: 'jsdom',
     setupFiles: 'src/shared/lib/test/setup.ts',
+    include: ['**/__tests__/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     coverage: {
       provider: 'v8',
       exclude: ['src/shared/api/realworld/**'],

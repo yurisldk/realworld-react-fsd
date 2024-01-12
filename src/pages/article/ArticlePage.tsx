@@ -1,6 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { articleApi } from '~entities/article';
-import { sessionModel } from '~entities/session';
+import { sessionApi } from '~entities/session';
 import { ErrorHandler } from '~shared/ui/error-handler';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
 import { Spinner } from '~shared/ui/spinner';
@@ -15,7 +16,11 @@ import { NewCommentEditor } from '~widgets/new-comment-editor';
 export function ArticlePage() {
   const { slug } = useParams();
 
-  const user = sessionModel.useCurrentUser();
+  // TODO: add loading, error, etc... states
+  const { data: user } = useQuery({
+    queryKey: sessionApi.CURRENT_USER_KEY,
+    queryFn: sessionApi.currentUserQuery,
+  });
 
   const {
     data: article,

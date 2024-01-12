@@ -1,13 +1,17 @@
+import { useMutation } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
-import { sessionModel } from '~entities/session';
-import { useLoginUser } from '~features/session';
+import { sessionApi, sessionModel } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
-import { ErrorHandler } from '~shared/ui/error-handler';
 
 export function LoginPage() {
-  const { mutate, isError, error } = useLoginUser();
+  const { mutate, isError, error } = useMutation({
+    mutationKey: sessionApi.LOGIN_USER_KEY,
+    mutationFn: sessionApi.loginUserMutation,
+  });
+
+  const updateToken = sessionModel.useUpdateToken();
 
   return (
     <div className="auth-page">
@@ -19,7 +23,7 @@ export function LoginPage() {
               <Link to={PATH_PAGE.register}>Need an account?</Link>
             </p>
 
-            {isError && <ErrorHandler error={error!} />}
+            {isError && <div>{error.message}</div>}
 
             <Formik
               initialValues={{
@@ -32,8 +36,8 @@ export function LoginPage() {
               })}
               onSubmit={(values, { setSubmitting }) => {
                 mutate(values, {
-                  onSuccess: (response) => {
-                    sessionModel.addUser(response.data.user);
+                  onSuccess: (user) => {
+                    updateToken(user.token);
                   },
                   onSettled: () => {
                     setSubmitting(false);

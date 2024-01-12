@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { IoAdd, IoSettingsSharp } from 'react-icons/io5';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { profileApi } from '~entities/profile';
-import { sessionModel } from '~entities/session';
+import { sessionApi } from '~entities/session';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
 import { PATH_PAGE } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
@@ -44,7 +44,11 @@ export function ProfileCard(props: ProfileCardProps) {
 
   const navigate = useNavigate();
 
-  const user = sessionModel.useCurrentUser();
+  // TODO: add loading, error, etc... states
+  const { data: user } = useQuery({
+    queryKey: sessionApi.CURRENT_USER_KEY,
+    queryFn: sessionApi.currentUserQuery,
+  });
 
   const isAuth = Boolean(user);
   const isGuest = !isAuth;

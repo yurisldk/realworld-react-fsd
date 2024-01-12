@@ -1,11 +1,11 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
 import { commentApi } from '~entities/comment';
 import { profileApi } from '~entities/profile';
-import { sessionModel } from '~entities/session';
+import { sessionApi } from '~entities/session';
 import { useCreateComment } from '~features/comment';
 import { NewCommentDto } from '~shared/api/realworld';
 import { PATH_PAGE } from '~shared/lib/react-router';
@@ -23,7 +23,11 @@ type NewCommentEditorProps = {
 export function NewCommentEditor(props: NewCommentEditorProps) {
   const { slug } = props;
 
-  const user = sessionModel.useCurrentUser();
+  // TODO: add loading, error, etc... states
+  const { data: user } = useQuery({
+    queryKey: sessionApi.CURRENT_USER_KEY,
+    queryFn: sessionApi.currentUserQuery,
+  });
 
   const queryClient = useQueryClient();
 
