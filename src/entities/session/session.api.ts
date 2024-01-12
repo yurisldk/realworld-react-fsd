@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { baseUrl } from '~shared/api/realworld';
 import {
   createQuery,
@@ -6,7 +7,7 @@ import {
 } from '~shared/lib/json-query';
 import { UserDtoSchema } from './session.contracts';
 import { mapUser } from './session.lib';
-import { authorizationHeader } from './session.model';
+import { authorization } from './session.model';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './session.types';
 
 export const CURRENT_USER_KEY = ['session', 'currentUser'];
@@ -14,7 +15,9 @@ export const currentUserQuery = createQuery({
   request: {
     url: baseUrl('/user'),
     method: 'GET',
-    headers: { ...authorizationHeader },
+    headers: (headers) => {
+      headers.Authorization = authorization.accessToken;
+    },
   },
   response: {
     contract: zodContract(UserDtoSchema),
@@ -56,6 +59,9 @@ export const updateUserMutation = createQuery({
   request: {
     url: baseUrl('/user'),
     method: 'PUT',
+    headers: (headers) => {
+      headers.Authorization = authorization.accessToken;
+    },
     body: (user) => ({ user }),
   },
   response: {

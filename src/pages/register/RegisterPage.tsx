@@ -5,13 +5,22 @@ import { object, string } from 'yup';
 import { sessionApi, sessionModel } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
+const initialUser = {
+  email: '',
+  username: '',
+  password: '',
+};
+
 export function RegisterPage() {
-  const { mutate, isError, error } = useMutation({
+  const updateToken = sessionModel.useUpdateToken();
+
+  const { mutate, isPending, isError, error } = useMutation({
     mutationKey: sessionApi.CREATE_USER_KEY,
     mutationFn: sessionApi.createUserMutation,
+    onSuccess: (user) => {
+      updateToken(user.token);
+    },
   });
-
-  const updateToken = sessionModel.useUpdateToken();
 
   return (
     <div className="auth-page">
@@ -26,67 +35,52 @@ export function RegisterPage() {
             {isError && <div>{error.message}</div>}
 
             <Formik
-              initialValues={{
-                username: '',
-                email: '',
-                password: '',
-              }}
+              initialValues={initialUser}
               validationSchema={object().shape({
                 username: string().min(5).required(),
                 email: string().email().required(),
                 password: string().min(5).required(),
               })}
-              onSubmit={(values, { setSubmitting }) => {
-                mutate(values, {
-                  onSuccess: (user) => {
-                    updateToken(user.token);
-                  },
-                  onSettled: () => {
-                    setSubmitting(false);
-                  },
-                });
-              }}
+              onSubmit={mutate}
             >
-              {({ isSubmitting }) => (
-                <Form>
-                  <fieldset disabled={isSubmitting}>
-                    <fieldset className="form-group">
-                      <Field
-                        name="username"
-                        className="form-control form-control-lg"
-                        type="text"
-                        placeholder="Your Name"
-                      />
-                      <ErrorMessage name="username" />
-                    </fieldset>
-                    <fieldset className="form-group">
-                      <Field
-                        name="email"
-                        className="form-control form-control-lg"
-                        type="text"
-                        placeholder="Email"
-                      />
-                      <ErrorMessage name="email" />
-                    </fieldset>
-                    <fieldset className="form-group">
-                      <Field
-                        name="password"
-                        className="form-control form-control-lg"
-                        type="password"
-                        placeholder="Password"
-                      />
-                      <ErrorMessage name="password" />
-                    </fieldset>
-                    <button
-                      className="btn btn-lg btn-primary pull-xs-right"
-                      type="submit"
-                      disabled={isSubmitting}
-                    >
-                      Sign up
-                    </button>
+              <Form>
+                <fieldset disabled={isPending}>
+                  <fieldset className="form-group">
+                    <Field
+                      name="username"
+                      className="form-control form-control-lg"
+                      type="text"
+                      placeholder="Your Name"
+                    />
+                    <ErrorMessage name="username" />
                   </fieldset>
-                </Form>
-              )}
+                  <fieldset className="form-group">
+                    <Field
+                      name="email"
+                      className="form-control form-control-lg"
+                      type="text"
+                      placeholder="Email"
+                    />
+                    <ErrorMessage name="email" />
+                  </fieldset>
+                  <fieldset className="form-group">
+                    <Field
+                      name="password"
+                      className="form-control form-control-lg"
+                      type="password"
+                      placeholder="Password"
+                    />
+                    <ErrorMessage name="password" />
+                  </fieldset>
+                  <button
+                    className="btn btn-lg btn-primary pull-xs-right"
+                    type="submit"
+                    disabled={isPending}
+                  >
+                    Sign up
+                  </button>
+                </fieldset>
+              </Form>
             </Formik>
           </div>
         </div>

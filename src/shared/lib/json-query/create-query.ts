@@ -10,7 +10,7 @@ export function createQuery<Params, Data, TransformedData>(
     const {
       url: incomingUrl,
       method,
-      headers: incomingHeaders = { 'content-type': 'application/json' },
+      headers: incomingHeaders = () => {},
       query: incomingQuery = {},
       body: incomingBody = undefined,
     } = incomingRequest;
@@ -32,9 +32,14 @@ export function createQuery<Params, Data, TransformedData>(
 
     responseUrl.search = new URLSearchParams(query).toString();
 
+    const headers: Record<string, string> = {
+      'content-type': 'application/json',
+    };
+    incomingHeaders(headers);
+
     const responseHeaders = new Headers();
-    Object.keys(incomingHeaders).forEach((name) => {
-      const value = incomingHeaders[name];
+    Object.keys(headers).forEach((name) => {
+      const value = headers[name];
       responseHeaders.append(name, value);
     });
 

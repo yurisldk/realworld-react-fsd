@@ -25,7 +25,7 @@ export interface QueryConfig<Params, Data, TransformedData> {
       | 'DELETE'
       | 'QUERY'
       | 'OPTIONS';
-    headers?: Record<string, string>;
+    headers?: (headers: Record<string, string>) => void;
     query?:
       | Record<string, string>
       | ((params: Params) => Record<string, string>);

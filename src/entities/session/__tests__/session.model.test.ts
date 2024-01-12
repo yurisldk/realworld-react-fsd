@@ -1,10 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 import { vi } from 'vitest';
-import { authorizationHeader, useAuth, useUpdateToken } from '../session.model';
+import { authorization, useAuth, useUpdateToken } from '../session.model';
 
 const token = 'jwt.token';
-const emptyHeader = { Authorization: '' };
-const filledHeader = { Authorization: `Bearer ${token}` };
+const emptyAuthorization = { accessToken: '' };
+const filledAuthorization = { accessToken: `Bearer ${token}` };
 
 const spySetItem = vi.spyOn(Storage.prototype, 'setItem');
 
@@ -19,16 +19,16 @@ describe('sessionModel', () => {
 
     expect(spySetItem).not.toBeCalled();
     expect(isAuth.current).toBeFalsy();
-    expect(authorizationHeader).toEqual(emptyHeader);
+    expect(authorization).toEqual(emptyAuthorization);
 
     act(() => updateToken.current(token));
     expect(spySetItem).toBeCalledTimes(1);
     expect(isAuth.current).toBeTruthy();
-    expect(authorizationHeader).toEqual(filledHeader);
+    expect(authorization).toEqual(filledAuthorization);
 
     act(() => updateToken.current(null));
     expect(spySetItem).toBeCalledTimes(2);
     expect(isAuth.current).toBeFalsy();
-    expect(authorizationHeader).toEqual(emptyHeader);
+    expect(authorization).toEqual(emptyAuthorization);
   });
 });

@@ -11,7 +11,7 @@ function LogoutButton() {
 
   const handleClick = () => {
     updateToken(null);
-    queryClient.removeQueries({ queryKey: sessionApi.CREATE_USER_KEY });
+    queryClient.removeQueries({ queryKey: sessionApi.CURRENT_USER_KEY });
   };
 
   return (
@@ -25,9 +25,18 @@ function LogoutButton() {
   );
 }
 
+const initialUser = {
+  email: '',
+  token: '',
+  username: '',
+  bio: '',
+  image: '',
+  password: '',
+};
+
 export function SettingsPage() {
   // TODO: add loading, error, etc... states
-  const { data: user } = useQuery({
+  const { data: currentUser, isPending: isUserPending } = useQuery({
     queryKey: sessionApi.CURRENT_USER_KEY,
     queryFn: sessionApi.currentUserQuery,
   });
@@ -36,7 +45,7 @@ export function SettingsPage() {
 
   const queryClient = useQueryClient();
 
-  const { mutate, isError, error } = useMutation({
+  const { mutate, isPending, isError, error } = useMutation({
     mutationKey: sessionApi.UPDATE_USER_KEY,
     mutationFn: sessionApi.updateUserMutation,
     onMutate: async (updateUser) => {
@@ -56,6 +65,9 @@ export function SettingsPage() {
       if (!context) return;
       queryClient.setQueryData(context.queryKey, context.prevUser);
     },
+    onSuccess: () => {
+      navigate(PATH_PAGE.profile.root(currentUser!.username));
+    },
     onSettled: (_data, _error, _valiables, context) => {
       if (!context) return;
       queryClient.invalidateQueries({ queryKey: context.queryKey });
@@ -69,13 +81,14 @@ export function SettingsPage() {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Your Settings</h1>
 
+            {/* FIXME: */}
             {isError && <div>{error.message}</div>}
 
             <Formik
+              enableReinitialize
               initialValues={{
-                ...user!,
-                password: undefined,
-                ...(!user!.bio && { bio: undefined }),
+                ...initialUser,
+                ...currentUser,
               }}
               validationSchema={object().shape({
                 email: string().email(),
@@ -85,75 +98,64 @@ export function SettingsPage() {
                 image: string(),
                 password: string().min(5),
               })}
-              onSubmit={(values, { setSubmitting }) => {
-                mutate(values, {
-                  onSuccess: () => {
-                    navigate(PATH_PAGE.profile.root(user!.username));
-                  },
-                  onSettled: () => {
-                    setSubmitting(false);
-                  },
-                });
-              }}
+              onSubmit={mutate}
             >
-              {({ isSubmitting }) => (
-                <Form>
-                  <fieldset disabled={isSubmitting}>
-                    <fieldset className="form-group">
-                      <Field
-                        name="image"
-                        className="form-control"
-                        type="text"
-                        placeholder="URL of profile picture"
-                      />
-                      <ErrorMessage name="image" />
-                    </fieldset>
-                    <fieldset className="form-group">
-                      <Field
-                        name="username"
-                        className="form-control form-control-lg"
-                        type="text"
-                        placeholder="Your Name"
-                      />
-                      <ErrorMessage name="username" />
-                    </fieldset>
-                    <fieldset className="form-group">
-                      <Field
-                        name="bio"
-                        as="textarea"
-                        className="form-control form-control-lg"
-                        rows={8}
-                        placeholder="Short bio about you"
-                      />
-                      <ErrorMessage name="bio" />
-                    </fieldset>
-                    <fieldset className="form-group">
-                      <Field
-                        name="email"
-                        className="form-control form-control-lg"
-                        type="text"
-                        placeholder="Email"
-                      />
-                      <ErrorMessage name="email" />
-                    </fieldset>
-                    <fieldset className="form-group">
-                      <Field
-                        name="password"
-                        className="form-control form-control-lg"
-                        type="password"
-                        placeholder="Password"
-                      />
-                      <ErrorMessage name="password" />
-                    </fieldset>
-                    <button
-                      className="btn btn-lg btn-primary pull-xs-right"
-                      type="submit"
-                    >
-                      Update Settings
-                    </button>
+              <Form>
+                <fieldset disabled={isPending || isUserPending}>
+                  <fieldset className="form-group">
+                    <Field
+                      name="image"
+                      className="form-control"
+                      type="text"
+                      placeholder="URL of profile picture"
+                    />
+                    <ErrorMessage name="image" />
                   </fieldset>
-                </Form>
-              )}
+                  <fieldset className="form-group">
+                    <Field
+                      name="username"
+                      className="form-control form-control-lg"
+                      type="text"
+                      placeholder="Your Name"
+                    />
+                    <ErrorMessage name="username" />
+                  </fieldset>
+                  <fieldset className="form-group">
+                    <Field
+                      name="bio"
+                      as="textarea"
+                      className="form-control form-control-lg"
+                      rows={8}
+                      placeholder="Short bio about you"
+                    />
+                    <ErrorMessage name="bio" />
+                  </fieldset>
+                  <fieldset className="form-group">
+                    <Field
+                      name="email"
+                      className="form-control form-control-lg"
+                      type="text"
+                      placeholder="Email"
+                    />
+                    <ErrorMessage name="email" />
+                  </fieldset>
+                  <fieldset className="form-group">
+                    <Field
+                      name="password"
+                      className="form-control form-control-lg"
+                      type="password"
+                      placeholder="Password"
+                    />
+                    <ErrorMessage name="password" />
+                  </fieldset>
+                  <button
+                    className="btn btn-lg btn-primary pull-xs-right"
+                    type="submit"
+                  >
+                    Update Settings
+                  </button>
+                </fieldset>
+              </Form>
             </Formik>
 
             <hr />

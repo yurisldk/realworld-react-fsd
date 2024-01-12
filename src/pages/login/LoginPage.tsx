@@ -1,17 +1,38 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { Link } from 'react-router-dom';
-import { object, string } from 'yup';
-import { sessionApi, sessionModel } from '~entities/session';
+import {
+  sessionApi,
+  sessionContracts,
+  sessionModel,
+  sessionTypes,
+} from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
+const initialUser = {
+  email: '',
+  password: '',
+};
+
 export function LoginPage() {
-  const { mutate, isError, error } = useMutation({
-    mutationKey: sessionApi.LOGIN_USER_KEY,
-    mutationFn: sessionApi.loginUserMutation,
-  });
+  const queryClient = useQueryClient();
 
   const updateToken = sessionModel.useUpdateToken();
+
+  const { mutate, isPending, isError, error } = useMutation({
+    mutationKey: sessionApi.LOGIN_USER_KEY,
+    mutationFn: sessionApi.loginUserMutation,
+    onSuccess: (user) => {
+      updateToken(user.token);
+      queryClient.setQueryData<sessionTypes.User>(
+        sessionApi.CURRENT_USER_KEY,
+        user,
+      );
+      queryClient.invalidateQueries({
+        queryKey: sessionApi.CURRENT_USER_KEY,
+      });
+    },
+  });
 
   return (
     <div className="auth-page">
@@ -26,27 +47,28 @@ export function LoginPage() {
             {isError && <div>{error.message}</div>}
 
             <Formik
-              initialValues={{
-                email: '',
-                password: '',
-              }}
-              validationSchema={object().shape({
-                email: string().email().required(),
-                password: string().min(5).required(),
-              })}
-              onSubmit={(values, { setSubmitting }) => {
-                mutate(values, {
-                  onSuccess: (user) => {
-                    updateToken(user.token);
-                  },
-                  onSettled: () => {
-                    setSubmitting(false);
-                  },
+              initialValues={initialUser}
+              // FIXME:
+              validate={(user) => {
+                const errors: Record<string, string> = {};
+
+                const parsed =
+                  sessionContracts.LoginUserDtoSchema.safeParse(user);
+
+                if (parsed.success) return errors;
+
+                parsed.error.errors.forEach((e) => {
+                  e.path.forEach((path) => {
+                    errors[path as string] = e.message;
+                  });
                 });
+
+                return errors;
               }}
+              onSubmit={(users) => mutate(users)}
             >
-              {({ isSubmitting }) => (
-                <Form>
+              <Form>
+                <fieldset disabled={isPending}>
                   <fieldset className="form-group">
                     <Field
                       name="email"
@@ -68,12 +90,12 @@ export function LoginPage() {
                   <button
                     className="btn btn-lg btn-primary pull-xs-right"
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isPending}
                   >
                     Sign in
                   </button>
-                </Form>
-              )}
+                </fieldset>
+              </Form>
             </Formik>
           </div>
         </div>
