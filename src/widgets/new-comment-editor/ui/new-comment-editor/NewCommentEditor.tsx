@@ -4,7 +4,7 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { Link } from 'react-router-dom';
 import { object, string } from 'yup';
 import { commentApi } from '~entities/comment';
-import { profileApi } from '~entities/profile';
+import { profileTypes } from '~entities/profile';
 import { sessionApi } from '~entities/session';
 import { useCreateComment } from '~features/comment';
 import { NewCommentDto } from '~shared/api/realworld';
@@ -50,7 +50,7 @@ export function NewCommentEditor(props: NewCommentEditorProps) {
       validationSchema={validationSchema}
       onSubmit={(values, { setSubmitting, resetForm }) => {
         const { token, ...other } = user;
-        const author: profileApi.Profile = { ...other, following: false };
+        const author: profileTypes.Profile = { ...other, following: false };
 
         const newComment: commentApi.Comment = {
           id: +Infinity,

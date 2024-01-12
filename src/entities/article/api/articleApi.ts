@@ -30,7 +30,7 @@ export function mapArticle(articleDto: ArticleDto): Article {
   const { author, ...article } = articleDto;
   return {
     ...article,
-    author: mapProfile(author),
+    author: mapProfile({ profile: author }),
   };
 }
 

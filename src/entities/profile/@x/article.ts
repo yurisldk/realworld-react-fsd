@@ -1,2 +1,3 @@
-export type { Profile } from '../api/profileApi';
-export { mapProfile } from '../api/profileApi';
+export type { ProfileDto, Profile } from '../profie.types';
+export { mapProfile } from '../profile.lib';
+export { ProfileDtoSchema } from '../profie.contracts';

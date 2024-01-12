@@ -27,6 +27,5 @@ export function Button(props: ButtonProps) {
     className,
   );
 
-  // eslint-disable-next-line react/button-has-type
   return <button className={classes} type={type} {...other} />;
 }

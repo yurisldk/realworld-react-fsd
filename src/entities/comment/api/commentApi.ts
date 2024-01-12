@@ -21,7 +21,7 @@ export function mapComment(commentDto: CommentDto): Comment {
   const { author, ...comment } = commentDto;
   return {
     ...comment,
-    author: mapProfile(author),
+    author: mapProfile({ profile: author }),
   };
 }
 

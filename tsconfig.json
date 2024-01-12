@@ -25,9 +25,6 @@
       "~app": ["./app"],
       "~app/*": ["./app/*"],
 
-      "~processes": ["./processes"],
-      "~processes/*": ["./processes/*"],
-
       "~pages": ["./pages"],
       "~pages/*": ["./pages/*"],
 

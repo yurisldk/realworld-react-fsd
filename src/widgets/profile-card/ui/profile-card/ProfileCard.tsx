@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { IoAdd, IoSettingsSharp } from 'react-icons/io5';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { profileApi } from '~entities/profile';
 import { sessionApi } from '~entities/session';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
@@ -61,17 +61,14 @@ export function ProfileCard(props: ProfileCardProps) {
   const {
     data: profile,
     isLoading,
-    isError,
-    error,
     isSuccess,
-  } = profileApi.useProfile(
-    username,
-    { secure: !!user },
-    { enabled: !isCurrentUser },
-  );
+  } = useQuery({
+    queryKey: [...profileApi.PROFILE_KEY, username],
+    queryFn: () => profileApi.profileQuery(username),
+  });
 
-  if (isError && error.status === 404)
-    return <Navigate to={PATH_PAGE.page404} />;
+  // if (isError && error. === 404)
+  //   return <Navigate to={PATH_PAGE.page404} />;
 
   return (
     <div className="user-info">

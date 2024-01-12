@@ -11,8 +11,8 @@ export default defineConfig(({ mode }) => ({
   ...(mode !== 'test' && {
     plugins: [
       react(),
-      // eslint(),
-      // checker({ typescript: true }),
+      eslint(),
+      checker({ typescript: true }),
       unfonts({
         google: {
           families: [
