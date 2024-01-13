@@ -1,1 +1,1 @@
-export * as tagApi from './api/tagApi';
+export * as tagApi from './tag.api';

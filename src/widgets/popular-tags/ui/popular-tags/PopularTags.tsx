@@ -1,4 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
 import { tagApi } from '~entities/tag';
+import { ErrorHandler } from '~shared/ui/error';
 
 type PopularTagsProps = {
   onTagClick: (tag: string) => void;
@@ -7,7 +9,15 @@ type PopularTagsProps = {
 export function PopularTags(props: PopularTagsProps) {
   const { onTagClick } = props;
 
-  const { data: tags, isLoading } = tagApi.useGlobalTags();
+  const {
+    data: tags,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: tagApi.TAGS_KEY,
+    queryFn: tagApi.tagsQuery,
+  });
 
   return (
     <div className="sidebar">
@@ -15,7 +25,7 @@ export function PopularTags(props: PopularTagsProps) {
       <div className="tag-list">
         {isLoading && 'Loading tags...'}
 
-        {/* {isError && <ErrorHandler error={error} />} */}
+        {isError && <ErrorHandler error={error} />}
 
         {tags &&
           tags.length &&

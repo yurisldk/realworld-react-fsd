@@ -2,7 +2,6 @@
 import { act, cleanup } from '@testing-library/react';
 import { vi } from 'vitest';
 import { StateCreator } from 'zustand';
-import { realworldApi } from '~shared/api/realworld';
 
 type ZustandModel = typeof import('zustand');
 
@@ -23,13 +22,8 @@ vi.mock('zustand', async (zustandOriginal: () => Promise<ZustandModel>) => {
   return { ...zustand, createStore };
 });
 
-beforeEach(() => {
-  realworldApi.setSecurityData('jwt.token');
-});
-
 afterEach(() => {
   cleanup();
   act(() => storeResetFns.forEach((resetFn) => resetFn()));
-  realworldApi.setSecurityData(null);
   vi.clearAllMocks();
 });
