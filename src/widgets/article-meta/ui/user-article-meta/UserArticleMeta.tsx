@@ -1,4 +1,4 @@
-import { ArticleMeta, articleApi } from '~entities/article';
+import { ArticleMeta, articleTypes } from '~entities/article';
 import {
   UnfavoriteArticleButton,
   FavoriteArticleButton,
@@ -6,7 +6,7 @@ import {
 import { UnfollowUserButton, FollowUserButton } from '~features/profile';
 
 type UserArticleMetaProps = {
-  article: articleApi.Article;
+  article: articleTypes.Article;
 };
 
 export function UserArticleMeta(props: UserArticleMetaProps) {

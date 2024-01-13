@@ -1,8 +1,4 @@
-import {
-  UseQueryOptions,
-  useInfiniteQuery,
-  useQuery,
-} from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 // FIXME: add no-restricted-imports exceptions for ~entities/*/@x/**
 // eslint-disable-next-line no-restricted-imports
 import { ProfileDto, mapProfile } from '~entities/profile/@x/article';
@@ -139,32 +135,4 @@ export const useUserInfinityArticles = (
     queryFn: realworldApi.articles.getArticlesFeed,
     query,
     params,
-  });
-
-type UseArticleQuery = UseQueryOptions<
-  Article,
-  GenericErrorModel,
-  Article,
-  string[]
->;
-type UseArticleQueryOptions = Omit<UseArticleQuery, 'queryKey' | 'queryFn'>;
-
-export const useArticle = (
-  slug: string,
-  params?: RequestParams,
-  options?: UseArticleQueryOptions,
-) =>
-  useQuery<Article, GenericErrorModel, Article, string[]>({
-    queryKey: articleKeys.article.slug(slug),
-
-    queryFn: async ({ signal }) => {
-      const response = await realworldApi.articles.getArticle(slug, {
-        signal,
-        ...params,
-      });
-
-      return mapArticle(response.data.article);
-    },
-
-    ...options,
   });

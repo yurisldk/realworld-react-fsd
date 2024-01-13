@@ -7,7 +7,9 @@ import {
   ArticlesQueryDtoSchema,
   ArticlesSchema,
   CreateArticleDtoSchema,
+  CreateArticleSchema,
   UpdateArticleDtoSchema,
+  UpdateArticleSchema,
 } from './article.contracts';
 
 export type ArticleDto = z.infer<typeof ArticleDtoSchema>;
@@ -19,3 +21,5 @@ export type UpdateArticleDto = z.infer<typeof UpdateArticleDtoSchema>;
 
 export type Article = z.infer<typeof ArticleSchema>;
 export type Articles = z.infer<typeof ArticlesSchema>;
+export type CreateArticle = z.infer<typeof CreateArticleSchema>;
+export type UpdateArticle = z.infer<typeof UpdateArticleSchema>;

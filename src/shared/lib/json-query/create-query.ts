@@ -50,7 +50,8 @@ export function createQuery<Params, Data, TransformedData>(
     });
 
     try {
-      const rawData = await response.json();
+      // FIXME:
+      const rawData = response.status === 204 ? {} : await response.json();
       if (!response.ok) {
         throw rawData as unknown;
       }
@@ -59,7 +60,9 @@ export function createQuery<Params, Data, TransformedData>(
 
       if (!isData) {
         throw new Error(
-          'Response was considered as invalid against a given contract',
+          `Response was considered as invalid against a given contract \n ${contract.getErrorMessages(
+            rawData,
+          )}`,
         );
       }
 

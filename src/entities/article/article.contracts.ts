@@ -7,10 +7,10 @@ export const ArticleDtoSchema = z.object({
   title: z.string(),
   description: z.string(),
   body: z.string(),
-  tagList: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  favorited: z.number(),
+  tagList: z.string().array(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  favorited: z.boolean(),
   favoritesCount: z.number(),
   author: ProfileDtoSchema,
 });
@@ -33,52 +33,53 @@ export const ArticlesFeedQueryDtoSchema = z.object({
   limit: z.number().min(1).optional(),
 });
 
-// {
-//   /** Filter by tag */
-//   tag?: string;
-//   /** Filter by author (username) */
-//   author?: string;
-//   /** Filter by favorites of a user (username) */
-//   favorited?: string;
-//   /**
-//    * The number of items to skip before starting to collect the result set.
-//    * @min 0
-//    */
-//   offset?: number;
-//   /**
-//    * The numbers of items to return.
-//    * @min 1
-//    * @default 20
-//    */
-//   limit?: number;
-// }
-
 export const ArticleResponseSchema = z.object({
   article: ArticleDtoSchema,
 });
 
 export const CreateArticleDtoSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  body: z.string(),
+  title: z.string().min(1),
+  description: z.string().min(1),
+  body: z.string().min(1),
   tagList: z.optional(z.string().array()),
+});
+
+export const CreateArticleSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  body: z.string().min(1),
+  tagList: z.string().min(1).optional().or(z.literal('')),
 });
 
 export const UpdateArticleDtoSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   body: z.string().optional(),
+  tagList: z.optional(z.string().array()),
 });
+
+export const UpdateArticleSchema = z
+  .object({
+    title: z.string().optional().or(z.literal('')),
+    description: z.string().optional().or(z.literal('')),
+    body: z.string().optional().or(z.literal('')),
+    tagList: z.string().optional().or(z.literal('')),
+  })
+  .partial()
+  .refine((args) => Object.values(args).some(Boolean), {
+    path: ['form'],
+    message: 'One of the fields must be defined',
+  });
 
 export const ArticleSchema = z.object({
   slug: z.string(),
   title: z.string(),
   description: z.string(),
   body: z.string(),
-  tagList: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  favorited: z.number(),
+  tagList: z.string().array(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  favorited: z.boolean(),
   favoritesCount: z.number(),
   author: ProfileSchema,
 });
@@ -87,3 +88,5 @@ export const ArticlesSchema = z.object({
   articles: z.array(ArticleSchema),
   articlesCount: z.number(),
 });
+
+export const EmptySchema = z.object({});

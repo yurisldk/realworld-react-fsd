@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { articleApi } from '~entities/article';
+import { articleApiTest } from '~entities/article';
 import { sessionApi } from '~entities/session';
+import { ErrorHandler } from '~shared/ui/error';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
 import { Spinner } from '~shared/ui/spinner';
 import {
@@ -9,13 +10,12 @@ import {
   CurrentUserArticleMeta,
   UserArticleMeta,
 } from '~widgets/article-meta';
-import { CommentsList } from '~widgets/comments-list';
-import { NewCommentEditor } from '~widgets/new-comment-editor';
+// import { CommentsList } from '~widgets/comments-list';
+// import { NewCommentEditor } from '~widgets/new-comment-editor';
 
 export function ArticlePage() {
-  const { slug } = useParams();
+  const { slug } = useParams()!;
 
-  // TODO: add loading, error, etc... states
   const { data: user } = useQuery({
     queryKey: sessionApi.CURRENT_USER_KEY,
     queryFn: sessionApi.currentUserQuery,
@@ -23,24 +23,28 @@ export function ArticlePage() {
 
   const {
     data: article,
-    isPending,
-    // isError,
-    // error,
-  } = articleApi.useArticle(slug!, { secure: !!user });
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: [...articleApiTest.ARTICLE_KEY, slug],
+    queryFn: () => articleApiTest.articleQuery(slug!),
+  });
 
-  if (isPending)
+  if (isLoading)
     return (
       <FullPageWrapper>
         <Spinner />
       </FullPageWrapper>
     );
 
-  // if (isError)
-  //   return (
-  //     <FullPageWrapper>
-  //       <ErrorHandler error={error} />
-  //     </FullPageWrapper>
-  //   );
+  if (isError) {
+    return (
+      <FullPageWrapper>
+        <ErrorHandler error={error} />
+      </FullPageWrapper>
+    );
+  }
 
   const { title, body, tagList, author } = article!;
 
@@ -58,7 +62,6 @@ export function ArticlePage() {
           {isCurrentUser && (
             <CurrentUserArticleMeta slug={slug!} article={article!} />
           )}
-
           {isUser && <UserArticleMeta article={article!} />}
 
           {isGuest && <GuestArticleMeta article={article!} />}
@@ -87,18 +90,17 @@ export function ArticlePage() {
           {isCurrentUser && (
             <CurrentUserArticleMeta slug={slug!} article={article!} />
           )}
-
           {isUser && <UserArticleMeta article={article!} />}
 
           {isGuest && <GuestArticleMeta article={article!} />}
         </div>
 
-        <div className="row">
+        {/* <div className="row">
           <div className="col-xs-12 col-md-8 offset-md-2">
             <NewCommentEditor slug={slug!} />
             <CommentsList slug={slug!} />
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
