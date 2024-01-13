@@ -10,8 +10,8 @@ import {
   CurrentUserArticleMeta,
   UserArticleMeta,
 } from '~widgets/article-meta';
-// import { CommentsList } from '~widgets/comments-list';
-// import { NewCommentEditor } from '~widgets/new-comment-editor';
+import { CommentsList } from '~widgets/comments-list';
+import { NewCommentEditor } from '~widgets/new-comment-editor';
 
 export function ArticlePage() {
   const { slug } = useParams()!;
@@ -95,12 +95,12 @@ export function ArticlePage() {
           {isGuest && <GuestArticleMeta article={article!} />}
         </div>
 
-        {/* <div className="row">
+        <div className="row">
           <div className="col-xs-12 col-md-8 offset-md-2">
             <NewCommentEditor slug={slug!} />
             <CommentsList slug={slug!} />
           </div>
-        </div> */}
+        </div>
       </div>
     </div>
   );
