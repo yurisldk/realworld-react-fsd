@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import {
-  articleApiTest,
+  articleApi,
   articleContracts,
   articleLib,
   articleTypes,
@@ -27,8 +27,8 @@ export function CurrentArticleEditor(props: CurrentArticleEditorProps) {
     isError: isArticleError,
     error: articleError,
   } = useQuery({
-    queryKey: [...articleApiTest.ARTICLE_KEY, slug],
-    queryFn: () => articleApiTest.articleQuery(slug),
+    queryKey: [...articleApi.ARTICLE_KEY, slug],
+    queryFn: () => articleApi.articleQuery(slug),
   });
 
   const {
@@ -37,15 +37,15 @@ export function CurrentArticleEditor(props: CurrentArticleEditorProps) {
     isError,
     error,
   } = useMutation({
-    mutationKey: [...articleApiTest.UPDATE_ARTICLE_KEY, slug],
-    mutationFn: articleApiTest.updateArticleMutation,
+    mutationKey: [...articleApi.UPDATE_ARTICLE_KEY, slug],
+    mutationFn: articleApi.updateArticleMutation,
     onSuccess: async (article) => {
       queryClient.setQueryData(
-        [...articleApiTest.ARTICLE_KEY, article.slug],
+        [...articleApi.ARTICLE_KEY, article.slug],
         article,
       );
       await queryClient.invalidateQueries({
-        queryKey: [...articleApiTest.ARTICLE_KEY, article.slug],
+        queryKey: [...articleApi.ARTICLE_KEY, article.slug],
       });
       navigate(PATH_PAGE.article.slug(article.slug));
     },

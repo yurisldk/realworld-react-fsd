@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { IoTrash } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
-import { articleApiTest } from '~entities/article';
+import { articleApi } from '~entities/article';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
 type DeleteArticleButtonProps = { slug: string };
@@ -13,11 +13,11 @@ export function DeleteArticleButton(props: DeleteArticleButtonProps) {
   const queryClient = useQueryClient();
 
   const { mutate: deleteArticle } = useMutation({
-    mutationKey: [...articleApiTest.DELETE_ARTICLE_KEY, slug],
-    mutationFn: articleApiTest.deleteArticleMutation,
+    mutationKey: [...articleApi.DELETE_ARTICLE_KEY, slug],
+    mutationFn: articleApi.deleteArticleMutation,
     onSuccess: () => {
       queryClient.removeQueries({
-        queryKey: [...articleApiTest.ARTICLE_KEY, slug],
+        queryKey: [...articleApi.ARTICLE_KEY, slug],
       });
       navigate(PATH_PAGE.root);
     },

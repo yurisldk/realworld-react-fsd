@@ -12,12 +12,7 @@ type Json =
   | { [x: string]: Json }
   | Array<Json>;
 
-type Query =
-  | string
-  | Record<string, string>
-  | string[][]
-  | URLSearchParams
-  | undefined;
+type Query = Record<string, string | number | undefined>;
 
 export interface QueryConfig<Params, Data, TransformedData> {
   params?: Params;

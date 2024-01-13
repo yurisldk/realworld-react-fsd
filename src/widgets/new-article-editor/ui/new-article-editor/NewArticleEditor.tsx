@@ -1,11 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import { useNavigate } from 'react-router-dom';
-import {
-  articleApiTest,
-  articleContracts,
-  articleTypes,
-} from '~entities/article';
+import { articleApi, articleContracts, articleTypes } from '~entities/article';
 import { PATH_PAGE } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
@@ -20,11 +16,11 @@ export function NewArticleEditor() {
     isError,
     error,
   } = useMutation({
-    mutationKey: articleApiTest.CREATE_ARTICLE_KEY,
-    mutationFn: articleApiTest.createArticleMutation,
+    mutationKey: articleApi.CREATE_ARTICLE_KEY,
+    mutationFn: articleApi.createArticleMutation,
     onSuccess: (article) => {
       queryClient.setQueryData(
-        [...articleApiTest.ARTICLE_KEY, article.slug],
+        [...articleApi.ARTICLE_KEY, article.slug],
         article,
       );
       navigate(PATH_PAGE.article.slug(article.slug));

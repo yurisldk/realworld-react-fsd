@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { articleApiTest } from '~entities/article';
+import { articleApi } from '~entities/article';
 import { sessionApi } from '~entities/session';
 import { ErrorHandler } from '~shared/ui/error';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
@@ -27,8 +27,8 @@ export function ArticlePage() {
     isError,
     error,
   } = useQuery({
-    queryKey: [...articleApiTest.ARTICLE_KEY, slug],
-    queryFn: () => articleApiTest.articleQuery(slug!),
+    queryKey: [...articleApi.ARTICLE_KEY, slug],
+    queryFn: () => articleApi.articleQuery(slug!),
   });
 
   if (isLoading)

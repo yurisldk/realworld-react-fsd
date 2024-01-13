@@ -24,13 +24,13 @@ export const ArticlesQueryDtoSchema = z.object({
   tag: z.string().optional(),
   author: z.string().optional(),
   favorited: z.string().optional(),
-  offset: z.number().min(0).optional(),
-  limit: z.number().min(1).optional(),
+  offset: z.number().min(0),
+  limit: z.number().min(1),
 });
 
 export const ArticlesFeedQueryDtoSchema = z.object({
-  offset: z.number().min(0).optional(),
-  limit: z.number().min(1).optional(),
+  offset: z.number().min(0),
+  limit: z.number().min(1),
 });
 
 export const ArticleResponseSchema = z.object({
@@ -84,9 +84,6 @@ export const ArticleSchema = z.object({
   author: ProfileSchema,
 });
 
-export const ArticlesSchema = z.object({
-  articles: z.array(ArticleSchema),
-  articlesCount: z.number(),
-});
+export const ArticlesSchema = z.array(ArticleSchema);
 
 export const EmptySchema = z.object({});

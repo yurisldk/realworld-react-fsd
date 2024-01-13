@@ -1,12 +1,12 @@
 import { IoPencil } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
-import { ArticleMeta, articleApi } from '~entities/article';
+import { ArticleMeta, articleTypes } from '~entities/article';
 import { DeleteArticleButton } from '~features/article';
 import { PATH_PAGE } from '~shared/lib/react-router';
 
 type CurrentUserArticleMetaProps = {
   slug: string;
-  article: articleApi.Article;
+  article: articleTypes.Article;
 };
 
 export function CurrentUserArticleMeta(props: CurrentUserArticleMetaProps) {

@@ -29,8 +29,14 @@ export function createQuery<Params, Data, TransformedData>(
       typeof incomingBody === 'function' ? incomingBody(params) : incomingBody;
 
     const responseUrl = new URL(url);
+    const searchParams = new URLSearchParams();
+    Object.keys(query).forEach((name) => {
+      const value = query[name];
+      if (value === undefined) return;
+      searchParams.append(name, value + '');
+    });
 
-    responseUrl.search = new URLSearchParams(query).toString();
+    responseUrl.search = searchParams.toString();
 
     const headers: Record<string, string> = {
       'content-type': 'application/json',

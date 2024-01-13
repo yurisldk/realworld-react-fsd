@@ -9,39 +9,13 @@ import { PATH_PAGE } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
 import { Spinner } from '~shared/ui/spinner';
 
-type ProfileWrapperProps = {
-  children: ReactNode;
-};
-
-function ProfileWrapper(props: ProfileWrapperProps) {
-  const { children } = props;
-  return (
-    <div className="col-xs-12 col-md-10 offset-md-1">
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '11rem',
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  );
-}
-
-type ProfileCardProps = {
-  username: string;
-};
+type ProfileCardProps = { username: string };
 
 export function ProfileCard(props: ProfileCardProps) {
   const { username } = props;
 
-  const queryClient = useQueryClient();
-
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // TODO: add loading, error, etc... states
   const { data: user } = useQuery({
@@ -136,3 +110,23 @@ export function ProfileCard(props: ProfileCardProps) {
     </div>
   );
 }
+
+type ProfileWrapperProps = { children: ReactNode };
+const ProfileWrapper = (props: ProfileWrapperProps) => {
+  const { children } = props;
+  return (
+    <div className="col-xs-12 col-md-10 offset-md-1">
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '11rem',
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};

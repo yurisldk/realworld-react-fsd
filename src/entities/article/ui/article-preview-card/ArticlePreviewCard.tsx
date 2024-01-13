@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { PATH_PAGE } from '~shared/lib/react-router';
-import { Article } from '../../api/articleApi';
+import { Article } from '../../article.types';
 
 type ArticlePreviewCardProps = {
   article: Article;

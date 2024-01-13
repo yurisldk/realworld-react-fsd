@@ -29,7 +29,7 @@ export const articlesQuery = createQuery({
   request: {
     url: baseUrl('/articles'),
     method: 'GET',
-    query: (query) => JSON.stringify(query),
+    query: (query) => query,
   },
   response: {
     contract: zodContract(ArticlesDtoSchema),
@@ -46,7 +46,7 @@ export const articlesFeedQuery = createQuery({
     headers: (headers) => {
       headers.Authorization = sessionModel.authorization.accessToken;
     },
-    query: (query) => JSON.stringify(query),
+    query: (query) => query,
   },
   response: {
     contract: zodContract(ArticlesDtoSchema),

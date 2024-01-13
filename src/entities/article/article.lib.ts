@@ -16,10 +16,7 @@ export function mapArticle(articleDto: ArticleDto): Article {
 }
 
 export function mapArticles(articlesDto: ArticlesDto): Articles {
-  return {
-    articles: articlesDto.articles.map(mapArticle),
-    articlesCount: articlesDto.articlesCount,
-  };
+  return articlesDto.articles.map(mapArticle);
 }
 
 export function mapCreateDtoArticle(
