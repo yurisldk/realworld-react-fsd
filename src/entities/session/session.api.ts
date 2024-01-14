@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import { baseUrl } from '~shared/api/realworld';
 import {
   createQuery,

@@ -29,6 +29,9 @@ export const articlesQuery = createQuery({
   request: {
     url: baseUrl('/articles'),
     method: 'GET',
+    headers: (headers) => {
+      headers.Authorization = sessionModel.authorization.accessToken;
+    },
     query: (query) => query,
   },
   response: {

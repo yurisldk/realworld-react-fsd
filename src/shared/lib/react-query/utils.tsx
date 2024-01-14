@@ -30,7 +30,6 @@ export function renderWithClient(ui: React.ReactElement) {
 
 export function createWrapper() {
   const testQueryClient = createTestQueryClient();
-  // eslint-disable-next-line func-names
   return function ({ children }: { children: React.ReactNode }) {
     return (
       <QueryClientProvider client={testQueryClient}>

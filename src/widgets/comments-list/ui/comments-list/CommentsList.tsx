@@ -21,8 +21,6 @@ export function CommentsList(props: CommentsListProps) {
     queryFn: () => commentApi.commentsQuery(slug),
   });
 
-  console.log(error);
-
   if (isPending) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center' }}>
