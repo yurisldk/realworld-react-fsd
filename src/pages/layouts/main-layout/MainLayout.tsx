@@ -1,39 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { IoCreateOutline, IoSettingsSharp } from 'react-icons/io5';
 import { NavLink, Outlet } from 'react-router-dom';
-import { sessionApi, sessionModel } from '~entities/session';
+import { sessionApi } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
-import { ErrorHandler } from '~shared/ui/error';
-import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
-import { Spinner } from '~shared/ui/spinner';
 
 export function MainLayout() {
-  const isAuth = sessionModel.useAuth();
-
-  const {
-    data: user,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data: user } = useQuery({
     queryKey: sessionApi.CURRENT_USER_KEY,
     queryFn: sessionApi.currentUserQuery,
-    enabled: isAuth,
   });
 
-  if (isLoading) {
-    return (
-      <FullPageWrapper>
-        <Spinner />
-      </FullPageWrapper>
-    );
-  }
-
-  if (isError) {
-    <FullPageWrapper>
-      <ErrorHandler error={error} />
-    </FullPageWrapper>;
-  }
+  // if (isLoading) {
+  //   return (
+  //     <FullPageWrapper>
+  //       <Spinner />
+  //     </FullPageWrapper>
+  //   );
+  // }
 
   return (
     <>

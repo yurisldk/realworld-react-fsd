@@ -1,13 +1,16 @@
 import { ReactNode } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
 import { useStore } from 'zustand';
-import { articleApi, articleUi } from '~entities/article';
+import { articleApi, articleTypes } from '~entities/article';
 import {
   FavoriteArticleButton,
   FilterByCategoryStore,
   FilterByPageStore,
   UnfavoriteArticleButton,
 } from '~features/article';
+import { PATH_PAGE } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
 import { ErrorHandler } from '~shared/ui/error';
 import { Spinner } from '~shared/ui/spinner';
@@ -27,6 +30,8 @@ export function ArticlesList(props: ArticlesListProps) {
 
   const filterByPage = useStore(filterByPageStore, (state) => state.filter);
 
+  const isUserFeed = Boolean(filterByCategory.following);
+
   const {
     data: articles,
     isPending,
@@ -37,9 +42,13 @@ export function ArticlesList(props: ArticlesListProps) {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: [...articleApi.ARTICLES_KEY, filterByCategory],
+    queryKey: isUserFeed
+      ? [...articleApi.ARTICLES_FEED_KEY, filterByCategory]
+      : [...articleApi.ARTICLES_KEY, filterByCategory],
     queryFn: ({ pageParam }) =>
-      articleApi.articlesQuery({ ...pageParam, ...filterByCategory }),
+      isUserFeed
+        ? articleApi.articlesFeedQuery(pageParam)
+        : articleApi.articlesQuery({ ...pageParam, ...filterByCategory }),
     initialPageParam: filterByPage,
     getNextPageParam,
   });
@@ -61,12 +70,7 @@ export function ArticlesList(props: ArticlesListProps) {
       {isSuccess &&
         articles.pages.map((page) =>
           page.map((article) => (
-            <articleUi.PreviewCard
-              key={article.slug}
-              article={article}
-              favoriteAction={<UnfavoriteArticleButton article={article} />}
-              unfavoriteAction={<FavoriteArticleButton article={article} />}
-            />
+            <ArticleMeta key={article.slug} article={article} />
           )),
         )}
 
@@ -85,6 +89,61 @@ export function ArticlesList(props: ArticlesListProps) {
     </>
   );
 }
+
+type ArticleMetaProps = { article: articleTypes.Article };
+const ArticleMeta = (props: ArticleMetaProps) => (
+  <div className="article-preview">
+    <div className="article-meta">
+      <Link to={PATH_PAGE.profile.root(props.article.author.username)}>
+        <img
+          src={props.article.author.image}
+          alt={props.article.author.username}
+        />
+      </Link>
+      <div className="info">
+        <Link
+          className="author"
+          to={PATH_PAGE.profile.root(props.article.author.username)}
+        >
+          {props.article.author.username}
+        </Link>
+        <span className="date">
+          {dayjs(props.article.updatedAt).format('MMMM D, YYYY')}
+        </span>
+      </div>
+      <FavoriteArticleActionButtons article={props.article} />
+    </div>
+    <Link
+      className="preview-link"
+      to={PATH_PAGE.article.slug(props.article.slug)}
+    >
+      <h1>{props.article.title}</h1>
+      <p>{props.article.description}</p>
+      <span>Read more...</span>
+      <ul className="tag-list">
+        {props.article.tagList.map((tag) => (
+          <li key={tag} className="tag-default tag-pill tag-outline">
+            {tag}
+          </li>
+        ))}
+      </ul>
+    </Link>
+  </div>
+);
+
+type FavoriteArticleActionButtonsProps = { article: articleTypes.Article };
+const FavoriteArticleActionButtons = (
+  props: FavoriteArticleActionButtonsProps,
+) =>
+  props.article.favorited ? (
+    <div className="pull-xs-right">
+      <UnfavoriteArticleButton article={props.article} short />
+    </div>
+  ) : (
+    <div className="pull-xs-right">
+      <FavoriteArticleButton article={props.article} short />
+    </div>
+  );
 
 type ArticlePreviewProps = { children: ReactNode };
 const ArticlePreview = (props: ArticlePreviewProps) => (

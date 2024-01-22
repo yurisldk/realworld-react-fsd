@@ -1,15 +1,24 @@
 import { StateCreator, StoreApi } from 'zustand';
 import { articleTypes } from '~entities/article';
 
-export interface FilterByCategorySlice {
-  filter: Pick<articleTypes.ArticlesQueryDto, 'author' | 'favorited' | 'tag'>;
+type FilterByCategory = Pick<
+  articleTypes.ArticlesQueryDto,
+  'author' | 'favorited' | 'tag'
+> & {
+  following?: string;
+};
+
+type FilterByCategoryState = { filter: FilterByCategory };
+
+export interface FilterByCategorySlice extends FilterByCategoryState {
   filterByAuthor: (author: string) => void;
   filterByFavorited: (favorited: string) => void;
+  filterByFollowing: (following: string) => void;
   filterByTag: (tag: string) => void;
   reset: () => void;
 }
 
-const initialState = { filter: {} };
+const initialState: FilterByCategoryState = { filter: {} };
 
 export type FilterByCategoryStore = StoreApi<FilterByCategorySlice>;
 export const createFilterByCategorySlice: StateCreator<
@@ -21,6 +30,7 @@ export const createFilterByCategorySlice: StateCreator<
   filter: {},
   filterByAuthor: (author: string) => set({ filter: { author } }),
   filterByFavorited: (favorited: string) => set({ filter: { favorited } }),
+  filterByFollowing: (following: string) => set({ filter: { following } }),
   filterByTag: (tag: string) => set({ filter: { tag } }),
   reset: () => set(initialState),
 });

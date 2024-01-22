@@ -28,6 +28,7 @@ export const authorization: { accessToken: string } = {
 useSessionStore.subscribe((state) => {
   const accessToken = state.token ? `Bearer ${state.token}` : '';
   authorization.accessToken = accessToken;
+  console.log(accessToken);
 });
 
 useSessionStore.persist.rehydrate();

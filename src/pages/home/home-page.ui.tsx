@@ -43,7 +43,7 @@ export function HomePage() {
                       active: activeTab === 'articlesFeed',
                     })}
                     type="button"
-                    onClick={onArticlesFeedClicked}
+                    onClick={() => onArticlesFeedClicked(user.username)}
                   >
                     Your Feed
                   </button>

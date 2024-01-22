@@ -18,7 +18,7 @@ export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
   };
 
   return (
-    <Button color="primary" variant="outline" onClick={handleFavorite}>
+    <Button color="primary" onClick={handleFavorite}>
       <IoHeart size={16} />
       {short ? (
         article.favoritesCount

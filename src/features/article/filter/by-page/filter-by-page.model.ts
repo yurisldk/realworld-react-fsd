@@ -1,13 +1,16 @@
 import { StateCreator, StoreApi } from 'zustand';
 import { articleTypes } from '~entities/article';
 
-export interface FilterByPageSlice {
-  filter: Pick<articleTypes.ArticlesQueryDto, 'limit' | 'offset'>;
+type FilterByPage = Pick<articleTypes.ArticlesQueryDto, 'limit' | 'offset'>;
+
+type FilterByPageState = { filter: FilterByPage };
+
+export interface FilterByPageSlice extends FilterByPageState {
   toPage: (page: number) => void;
   reset: () => void;
 }
 
-const initialState = { filter: { limit: 10, offset: 0 } };
+const initialState: FilterByPageState = { filter: { limit: 10, offset: 0 } };
 
 export type FilterByPageStore = StoreApi<FilterByPageSlice>;
 export const createFilterByPageSlice: StateCreator<

@@ -15,7 +15,12 @@ export function FollowUserButton(props: FollowUserButtonProps) {
   };
 
   return (
-    <Button color="secondary" variant="outline" onClick={handleClick}>
+    <Button
+      color="secondary"
+      variant="outline"
+      className="action-btn "
+      onClick={handleClick}
+    >
       <IoAdd size={16} />
       &nbsp; Follow {profile.username}
     </Button>

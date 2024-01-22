@@ -6,31 +6,26 @@ import {
   createFilterByPageSlice,
 } from '~features/article';
 
-type TabType = 'articlesFeed' | 'articles' | 'tag';
+type TabType = 'authorArticles' | 'favoritedArticles';
 
 interface HomePageStore {
   activeTab: TabType;
-  onArticlesFeedClicked: (following: string) => void;
-  onArticlesClicked: () => void;
-  onTagClicked: (tag: string) => void;
+  onAuthorArticlesClicked: (author: string) => void;
+  onFavoritedArticlesClicked: (author: string) => void;
 }
 
-export const homePageStore = createStore<HomePageStore>()((set) => ({
-  activeTab: 'articles',
-  onArticlesFeedClicked: (following: string) => {
-    filterByCategoryStore.getState().filterByFollowing(following);
+export const profilePageStore = createStore<HomePageStore>()((set) => ({
+  activeTab: 'authorArticles',
+  onAuthorArticlesClicked: (author: string) => {
+    filterByCategoryStore.getState().filterByAuthor(author);
     filterByPageStore.getState().reset();
-    set(() => ({ activeTab: 'articlesFeed' }));
+    set(() => ({ activeTab: 'authorArticles' }));
   },
-  onArticlesClicked: () => {
-    filterByCategoryStore.getState().reset();
+
+  onFavoritedArticlesClicked: (author: string) => {
+    filterByCategoryStore.getState().filterByFavorited(author);
     filterByPageStore.getState().reset();
-    set(() => ({ activeTab: 'articles' }));
-  },
-  onTagClicked: (tag: string) => {
-    filterByCategoryStore.getState().filterByTag(tag);
-    filterByPageStore.getState().reset();
-    set(() => ({ activeTab: 'tag' }));
+    set(() => ({ activeTab: 'favoritedArticles' }));
   },
 }));
 

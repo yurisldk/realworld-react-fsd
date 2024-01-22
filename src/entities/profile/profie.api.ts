@@ -1,4 +1,3 @@
-// FIXME:
 import { sessionModel } from '~entities/session';
 import { baseUrl } from '~shared/api/realworld';
 import {
@@ -15,6 +14,9 @@ export const profileQuery = createQuery({
   request: {
     url: (username) => baseUrl(`/profiles/${username}`),
     method: 'GET',
+    headers: (headers) => {
+      headers.Authorization = sessionModel.authorization.accessToken;
+    },
   },
   response: {
     contract: zodContract(ProfileResponseSchema),

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { IoPencil } from 'react-icons/io5';
 import { Link, useParams } from 'react-router-dom';
 import { articleApi, articleTypes } from '~entities/article';
@@ -110,7 +111,9 @@ const ArticleMeta = (props: ArticleMetaProps) => (
       >
         {props.article.author.username}
       </Link>
-      <span className="date">{props.article.updatedAt}</span>
+      <span className="date">
+        {dayjs(props.article.updatedAt).format('MMMM D, YYYY')}
+      </span>
     </div>
     <ArticleActions article={props.article} isAuthor={props.isAuthor} />
   </div>
@@ -128,6 +131,7 @@ type UserActionsProps = { article: articleTypes.Article };
 const UserActions = (props: UserActionsProps) => (
   <>
     <FollowProfileActionButtons profile={props.article.author} />
+    &nbsp;
     <FavoriteArticleActionButtons article={props.article} />
   </>
 );
@@ -159,7 +163,7 @@ const FavoriteArticleActionButtons = (
 type FollowProfileActionButtonsProps = { profile: profileTypes.Profile };
 const FollowProfileActionButtons = (props: FollowProfileActionButtonsProps) =>
   props.profile.following ? (
-    <FollowUserButton profile={props.profile} />
-  ) : (
     <UnfollowUserButton profile={props.profile} />
+  ) : (
+    <FollowUserButton profile={props.profile} />
   );

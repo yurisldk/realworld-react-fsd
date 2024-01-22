@@ -15,7 +15,7 @@ export function UnfollowUserButton(props: UnfollowUserButtonProps) {
   };
 
   return (
-    <Button color="secondary" onClick={handleClick}>
+    <Button color="secondary" className="action-btn " onClick={handleClick}>
       <IoRemove size={16} />
       &nbsp; Unfollow {profile.username}
     </Button>

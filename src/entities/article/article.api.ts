@@ -63,6 +63,9 @@ export const articleQuery = createQuery({
   request: {
     url: (slug) => baseUrl(`/articles/${slug}`),
     method: 'GET',
+    headers: (headers) => {
+      headers.Authorization = sessionModel.authorization.accessToken;
+    },
   },
   response: {
     contract: zodContract(ArticleResponseSchema),
