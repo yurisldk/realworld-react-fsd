@@ -1,6 +1,6 @@
 import { createElement } from 'react';
 import { RouteObject, redirect } from 'react-router-dom';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { pathKeys } from '~shared/lib/react-router';
 import { ProfilePage, ProfilePageParamsSchema } from './profile-page.ui';
 
 export const profilePageRoute: RouteObject = {
@@ -9,7 +9,7 @@ export const profilePageRoute: RouteObject = {
     {
       index: true,
       loader: async () => {
-        return redirect(PATH_PAGE.page404);
+        return redirect(pathKeys.page404());
       },
     },
     {

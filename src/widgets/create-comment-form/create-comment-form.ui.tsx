@@ -1,11 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import { Link } from 'react-router-dom';
 import { commentApi, commentContracts, commentTypes } from '~entities/comment';
 import { profileTypes } from '~entities/profile';
-import { sessionApi } from '~entities/session';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { sessionQueries } from '~entities/session';
+import { pathKeys } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 
 type CreateCommentFormProps = { slug: string };
@@ -16,10 +16,7 @@ export function CreateCommentForm(props: CreateCommentFormProps) {
   const commentsKey = [...commentApi.COMMENTS_KEY, slug];
 
   // TODO: add loading, error, etc... states
-  const { data: user } = useQuery({
-    queryKey: sessionApi.CURRENT_USER_KEY,
-    queryFn: sessionApi.currentUserQuery,
-  });
+  const { data: user } = sessionQueries.useCurrentUserQuery();
 
   const { mutate: createComment, isPending } = useMutation({
     mutationKey: [...commentApi.CREATE_COMMENT_KEY, slug],
@@ -59,8 +56,8 @@ export function CreateCommentForm(props: CreateCommentFormProps) {
   if (!user)
     return (
       <p>
-        <Link to={PATH_PAGE.login}>Sign in</Link> or{' '}
-        <Link to={PATH_PAGE.register}>sign up</Link> to add comments on this
+        <Link to={pathKeys.login()}>Sign in</Link> or{' '}
+        <Link to={pathKeys.register()}>sign up</Link> to add comments on this
         article.
       </p>
     );

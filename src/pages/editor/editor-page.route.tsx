@@ -1,7 +1,5 @@
 import { createElement } from 'react';
-import { RouteObject, redirect } from 'react-router-dom';
-import { sessionModel } from '~entities/session';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { RouteObject } from 'react-router-dom';
 import { EditorPage, EditorPageParamsSchema } from './editor-page.ui';
 
 export const editorPageRoute: RouteObject = {
@@ -10,31 +8,21 @@ export const editorPageRoute: RouteObject = {
     {
       index: true,
       element: createElement(EditorPage),
-      loader: async () => {
-        // sessionModel.sessionStore.get().token
-        if (sessionModel.authorization.accessToken === '') {
-          return redirect(PATH_PAGE.login);
-        }
-
-        return null;
-      },
+      loader: async (args) => args,
     },
     {
       path: ':slug',
       element: createElement(EditorPage),
-      loader: async ({ params }) => {
-        // sessionModel.sessionStore.get().token
-        if (sessionModel.authorization.accessToken === '') {
-          return redirect(PATH_PAGE.login);
-        }
+      loader: async (args) => {
+        console.log(args);
 
-        const parsed = EditorPageParamsSchema.safeParse(params);
+        const parsed = EditorPageParamsSchema.safeParse(args.params);
 
         if (!parsed.success) {
           throw new Error('Invalid params');
         }
 
-        return null;
+        return args;
       },
     },
   ],

@@ -5,14 +5,14 @@ import { Link, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { articleApi, articleTypes } from '~entities/article';
 import { profileTypes } from '~entities/profile';
-import { sessionApi } from '~entities/session';
+import { sessionQueries } from '~entities/session';
 import {
   DeleteArticleButton,
   FavoriteArticleButton,
   UnfavoriteArticleButton,
 } from '~features/article';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { pathKeys } from '~shared/lib/react-router';
 import { ErrorHandler } from '~shared/ui/error';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
 import { Spinner } from '~shared/ui/spinner';
@@ -25,10 +25,7 @@ export type ArticlePageParams = z.infer<typeof ArticlePageParamsSchema>;
 export function ArticlePage() {
   const { slug } = useParams() as ArticlePageParams;
 
-  const { data: user } = useQuery({
-    queryKey: sessionApi.CURRENT_USER_KEY,
-    queryFn: sessionApi.currentUserQuery,
-  });
+  const { data: user } = sessionQueries.useCurrentUserQuery();
 
   const {
     data: article,
@@ -102,7 +99,7 @@ export function ArticlePage() {
 type ArticleMetaProps = { article: articleTypes.Article; isAuthor: boolean };
 const ArticleMeta = (props: ArticleMetaProps) => (
   <div className="article-meta">
-    <Link to={PATH_PAGE.profile.root(props.article.author.username)}>
+    <Link to={pathKeys.profile.byUsername(props.article.author.username)}>
       <img
         src={props.article.author.image}
         alt={props.article.author.username}
@@ -111,7 +108,7 @@ const ArticleMeta = (props: ArticleMetaProps) => (
     <div className="info">
       <Link
         className="author"
-        to={PATH_PAGE.profile.root(props.article.author.username)}
+        to={pathKeys.profile.byUsername(props.article.author.username)}
       >
         {props.article.author.username}
       </Link>
@@ -145,7 +142,7 @@ const AuthorActions = (props: AuthorActionsProps) => (
   <>
     <Link
       className="btn btn-outline-secondary btn-sm"
-      to={PATH_PAGE.editor.edit(props.slug)}
+      to={pathKeys.editor.bySlug(props.slug)}
     >
       <IoPencil size={16} />
       &nbsp;Edit Article

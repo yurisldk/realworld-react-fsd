@@ -7,7 +7,7 @@ import {
   articleLib,
   articleTypes,
 } from '~entities/article';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { pathKeys } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
@@ -47,7 +47,7 @@ export function UpdateArticleForm(props: UpdateArticleFormProps) {
       await queryClient.invalidateQueries({
         queryKey: [...articleApi.ARTICLE_KEY, article.slug],
       });
-      navigate(PATH_PAGE.article.slug(article.slug));
+      navigate(pathKeys.article.bySlug(article.slug));
     },
   });
 

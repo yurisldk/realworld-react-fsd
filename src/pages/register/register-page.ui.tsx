@@ -1,34 +1,21 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Formik, Form, Field, ErrorMessage, useFormikContext } from 'formik';
 import { Link } from 'react-router-dom';
 import {
-  sessionApi,
   sessionContracts,
-  sessionModel,
+  sessionQueries,
   sessionTypes,
 } from '~entities/session';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { pathKeys } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 
 export function RegisterPage() {
-  const queryClient = useQueryClient();
-  const updateToken = sessionModel.useUpdateToken();
-
-  const { mutate, isPending, isError, error } = useMutation({
-    mutationKey: sessionApi.CREATE_USER_KEY,
-    mutationFn: sessionApi.createUserMutation,
-    onSuccess: async (user) => {
-      updateToken(user.token);
-      queryClient.setQueryData<sessionTypes.User>(
-        sessionApi.CURRENT_USER_KEY,
-        user,
-      );
-      await queryClient.invalidateQueries({
-        queryKey: sessionApi.CURRENT_USER_KEY,
-      });
-    },
-  });
+  const {
+    mutate: createUser,
+    isPending,
+    isError,
+    error,
+  } = sessionQueries.useCreateUserMutation();
 
   return (
     <div className="auth-page">
@@ -37,7 +24,7 @@ export function RegisterPage() {
           <div className="col-md-6 offset-md-3 col-xs-12">
             <h1 className="text-xs-center">Sign up</h1>
             <p className="text-xs-center">
-              <Link to={PATH_PAGE.login}>Have an account?</Link>
+              <Link to={pathKeys.login()}>Have an account?</Link>
             </p>
 
             {isError && <ErrorHandler error={error} />}
@@ -45,7 +32,7 @@ export function RegisterPage() {
             <Formik
               initialValues={initialUser}
               validate={formikContract(sessionContracts.CreateUserDtoSchema)}
-              onSubmit={(createUser) => mutate(createUser)}
+              onSubmit={(user) => createUser(user)}
             >
               <Form>
                 <fieldset disabled={isPending}>

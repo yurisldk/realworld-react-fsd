@@ -1,18 +1,45 @@
-export const PATH_PAGE = {
+export const pathKeys = {
   root: '/',
-  login: '/login',
-  register: '/register',
-  settings: '/settings',
-  profile: {
-    root: (username: string) => `/profile/${username}`,
-    favorites: (username: string) => `/profile/${username}/favorites`,
+  login() {
+    return pathKeys.root.concat('login/');
   },
-  editor: {
-    root: '/editor',
-    edit: (slug: string) => `/editor/${slug}`,
+  register() {
+    return pathKeys.root.concat('register/');
+  },
+  settings() {
+    return pathKeys.root.concat('settings/');
+  },
+  home() {
+    return pathKeys.root;
+  },
+  page404() {
+    return pathKeys.root.concat('404/');
   },
   article: {
-    slug: (slug: string) => `/article/${slug}`,
+    root() {
+      return pathKeys.root.concat('article/');
+    },
+    bySlug(slug: string) {
+      return pathKeys.article.root().concat(slug, '/');
+    },
   },
-  page404: '/404',
+  profile: {
+    root() {
+      return pathKeys.root.concat('profile/');
+    },
+    byUsername(username: string) {
+      return pathKeys.profile.root().concat(username, '/');
+    },
+    byUsernameFavorites(username: string) {
+      return pathKeys.profile.byUsername(username).concat('favorites/');
+    },
+  },
+  editor: {
+    root() {
+      return pathKeys.root.concat('editor/');
+    },
+    bySlug(slug: string) {
+      return pathKeys.editor.root().concat(slug, '/');
+    },
+  },
 };

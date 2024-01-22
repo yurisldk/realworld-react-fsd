@@ -1,7 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
 import cn from 'classnames';
 import { useStore } from 'zustand';
-import { sessionApi } from '~entities/session';
+import { sessionQueries } from '~entities/session';
 import { ArticlesList } from '~widgets/articles-list';
 import { PopularTags } from '~widgets/popular-tags';
 import {
@@ -14,10 +13,7 @@ const onArticlesFeedClicked = homePageStore.getState().onArticlesFeedClicked;
 const onArticlesClicked = homePageStore.getState().onArticlesClicked;
 
 export function HomePage() {
-  const { data: user } = useQuery({
-    queryKey: sessionApi.CURRENT_USER_KEY,
-    queryFn: sessionApi.currentUserQuery,
-  });
+  const { data: user } = sessionQueries.useCurrentUserQuery();
 
   const activeTab = useStore(homePageStore, (state) => state.activeTab);
   const { tag } = useStore(filterByCategoryStore, (state) => state.filter);

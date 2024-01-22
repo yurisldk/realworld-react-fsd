@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { articleApi, articleContracts, articleTypes } from '~entities/article';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { pathKeys } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 
@@ -23,7 +23,7 @@ export function CreateArticeForm() {
         [...articleApi.ARTICLE_KEY, article.slug],
         article,
       );
-      navigate(PATH_PAGE.article.slug(article.slug));
+      navigate(pathKeys.article.bySlug(article.slug));
     },
   });
 

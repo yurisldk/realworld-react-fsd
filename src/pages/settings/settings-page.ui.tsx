@@ -1,46 +1,21 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
-import { useNavigate } from 'react-router-dom';
 import {
-  sessionApi,
   sessionContracts,
-  sessionModel,
+  sessionQueries,
   sessionTypes,
 } from '~entities/session';
-import { PATH_PAGE } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 
 export function SettingsPage() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { data: currentUser } = sessionQueries.useCurrentUserQuery();
 
-  const { data: currentUser } = useQuery({
-    queryKey: sessionApi.CURRENT_USER_KEY,
-    queryFn: sessionApi.currentUserQuery,
-  });
-
-  const { mutate, isPending, isError, error } = useMutation({
-    mutationKey: sessionApi.UPDATE_USER_KEY,
-    mutationFn: sessionApi.updateUserMutation,
-    onMutate: (updateUser) => {
-      const prevUser = queryClient.getQueryData(sessionApi.CURRENT_USER_KEY);
-      queryClient.setQueryData(sessionApi.CURRENT_USER_KEY, updateUser);
-      return prevUser as sessionTypes.User;
-    },
-    onError: (_error, _variables, prevUser) => {
-      if (!prevUser) return;
-      queryClient.setQueryData(sessionApi.CURRENT_USER_KEY, prevUser);
-    },
-    onSuccess: (user) => {
-      navigate(PATH_PAGE.profile.root(user.username));
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: sessionApi.CURRENT_USER_KEY,
-      });
-    },
-  });
+  const {
+    mutate: updateUser,
+    isPending,
+    isError,
+    error,
+  } = sessionQueries.useUpdateUserMutation();
 
   return (
     <div className="settings-page">
@@ -55,7 +30,7 @@ export function SettingsPage() {
               enableReinitialize
               initialValues={{ ...initialUser, ...currentUser }}
               validate={formikContract(sessionContracts.UpdateUserDtoSchema)}
-              onSubmit={({ form, ...updateUser }) => mutate(updateUser)}
+              onSubmit={({ form, ...user }) => updateUser(user)}
               initialTouched={{ form: true }}
             >
               <Form>
@@ -135,12 +110,10 @@ const initialUser: sessionTypes.UpdateUserDto & { form: string } = {
 };
 
 const LogoutButton = () => {
-  const queryClient = useQueryClient();
-  const updateToken = sessionModel.useUpdateToken();
+  const { mutate } = sessionQueries.useLogoutMutation();
 
   const handleClick = () => {
-    updateToken(null);
-    queryClient.removeQueries({ queryKey: sessionApi.CURRENT_USER_KEY });
+    mutate();
   };
 
   return (

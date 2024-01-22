@@ -6,17 +6,14 @@ import {
 } from '~shared/lib/json-query';
 import { UserDtoSchema } from './session.contracts';
 import { mapUser } from './session.lib';
-import { authorization } from './session.model';
+import { authorizationHeader } from './session.model';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './session.types';
 
-export const CURRENT_USER_KEY = ['session', 'currentUser'];
 export const currentUserQuery = createQuery({
   request: {
     url: baseUrl('/user'),
     method: 'GET',
-    headers: (headers) => {
-      headers.Authorization = authorization.accessToken;
-    },
+    headers: () => ({ ...authorizationHeader() }),
   },
   response: {
     contract: zodContract(UserDtoSchema),
@@ -24,7 +21,6 @@ export const currentUserQuery = createQuery({
   },
 });
 
-export const CREATE_USER_KEY = ['session', 'createUser'];
 export const createUserMutation = createQuery({
   params: declareParams<CreateUserDto>(),
   request: {
@@ -38,7 +34,6 @@ export const createUserMutation = createQuery({
   },
 });
 
-export const LOGIN_USER_KEY = ['session', 'loginUser'];
 export const loginUserMutation = createQuery({
   params: declareParams<LoginUserDto>(),
   request: {
@@ -52,15 +47,12 @@ export const loginUserMutation = createQuery({
   },
 });
 
-export const UPDATE_USER_KEY = ['session', 'updateUser'];
 export const updateUserMutation = createQuery({
   params: declareParams<UpdateUserDto>(),
   request: {
     url: baseUrl('/user'),
     method: 'PUT',
-    headers: (headers) => {
-      headers.Authorization = authorization.accessToken;
-    },
+    headers: () => ({ ...authorizationHeader() }),
     body: (user) => ({ user }),
   },
   response: {

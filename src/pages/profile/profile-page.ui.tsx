@@ -5,9 +5,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useStore } from 'zustand';
 import { profileApi, profileTypes } from '~entities/profile';
-import { sessionApi } from '~entities/session';
+import { sessionQueries } from '~entities/session';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { pathKeys } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
 import { ArticlesList } from '~widgets/articles-list';
 import {
@@ -32,10 +32,7 @@ export function ProfilePage() {
 
   const activeTab = useStore(profilePageStore, (state) => state.activeTab);
 
-  const { data: user } = useQuery({
-    queryKey: sessionApi.CURRENT_USER_KEY,
-    queryFn: sessionApi.currentUserQuery,
-  });
+  const { data: user } = sessionQueries.useCurrentUserQuery();
 
   const isAuthor = user?.username === username;
 
@@ -73,7 +70,7 @@ export function ProfilePage() {
                     color="secondary"
                     variant="outline"
                     className="action-btn"
-                    onClick={() => navigate(PATH_PAGE.settings)}
+                    onClick={() => navigate(pathKeys.settings())}
                   >
                     <IoSettingsSharp size={14} />
                     &nbsp; Edit Profile Settings

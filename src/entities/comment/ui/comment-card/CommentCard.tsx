@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { pathKeys } from '~shared/lib/react-router';
 import { Comment } from '../../comment.types';
 
 type CommentCardProps = {
@@ -22,7 +22,7 @@ export function CommentCard(props: CommentCardProps) {
       </div>
       <div className="card-footer">
         <Link
-          to={PATH_PAGE.profile.root(comment.author.username)}
+          to={pathKeys.profile.byUsername(comment.author.username)}
           className="comment-author"
         >
           <img
@@ -33,7 +33,7 @@ export function CommentCard(props: CommentCardProps) {
         </Link>
         &nbsp;
         <Link
-          to={PATH_PAGE.profile.root(comment.author.username)}
+          to={pathKeys.profile.byUsername(comment.author.username)}
           className="comment-author"
         >
           {comment.author.username}

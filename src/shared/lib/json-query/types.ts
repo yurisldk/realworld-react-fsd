@@ -13,6 +13,7 @@ type Json =
   | Array<Json>;
 
 type Query = Record<string, string | number | undefined>;
+type Headers = Record<string, string>;
 
 export interface QueryConfig<Params, Data, TransformedData> {
   params?: Params;
@@ -27,7 +28,7 @@ export interface QueryConfig<Params, Data, TransformedData> {
       | 'DELETE'
       | 'QUERY'
       | 'OPTIONS';
-    headers?: (headers: Record<string, string>) => void;
+    headers?: Headers | ((params: Params) => Headers);
     query?: Query | ((params: Params) => Query);
     body?: Json | ((params: Params) => Json);
   };

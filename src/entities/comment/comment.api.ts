@@ -19,9 +19,7 @@ export const commentsQuery = createQuery({
   request: {
     url: (slug) => baseUrl(`/articles/${slug}/comments`),
     method: 'GET',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
   },
   response: {
     contract: zodContract(CommentsDtoSchema),
@@ -35,9 +33,7 @@ export const createCommentMutation = createQuery({
   request: {
     url: ({ slug }) => baseUrl(`/articles/${slug}/comments`),
     method: 'POST',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
     body: ({ comment }) => ({ comment }),
   },
   response: {
@@ -52,9 +48,7 @@ export const deleteCommentMutation = createQuery({
   request: {
     url: ({ slug, id }) => baseUrl(`/articles/${slug}/comments/${id}`),
     method: 'DELETE',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
   },
   response: {
     contract: zodContract(EmptySchema),

@@ -1,36 +1,63 @@
-import { create } from 'zustand';
+import { StateCreator, StoreApi, createStore, useStore } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-type SessionState = {
-  token: string | null;
-  updateToken: (token: string | null) => void;
+type Token = string;
+
+type State = {
+  token: Token | null;
 };
 
-const useSessionStore = create<SessionState>()(
-  persist(
-    devtools(
-      (set) => ({
-        token: null,
-        updateToken: (token: string | null) => {
-          set({ token: token || null }, false, 'session/updateToken');
-        },
+type Actions = {
+  updateToken: (token: Token | null) => void;
+};
+
+type SessionState = State & Actions;
+
+const initialState: State = { token: null };
+
+const createSessionSlice: StateCreator<
+  SessionState,
+  [['zustand/devtools', never], ['zustand/persist', unknown]],
+  [],
+  SessionState
+> = (set) => ({
+  ...initialState,
+  updateToken: (token: Token | null) =>
+    set({ token: token || null }, false, 'session/updateToken'),
+});
+
+export type SessionStore = StoreApi<SessionState>;
+export const sessionStore = createStore<SessionState>()(
+  devtools(
+    persist(
+      (set, get, api) => ({
+        ...createSessionSlice(set, get, api),
       }),
-      { name: 'Session Store' },
+      {
+        name: 'session',
+        skipHydration: true,
+      },
     ),
-    { name: 'session' },
+    { name: 'Session Store' },
   ),
 );
 
-export const authorization: { accessToken: string } = { accessToken: '' };
+export const hasToken = () => Boolean(sessionStore.getState().token);
 
-useSessionStore.subscribe((state) => {
-  const accessToken = state.token ? `Bearer ${state.token}` : '';
-  authorization.accessToken = accessToken;
-});
+export function authorizationHeader() {
+  if (hasToken()) {
+    return { Authorization: `Bearer ${sessionStore.getState().token}` };
+  }
+  return;
+}
 
-useSessionStore.persist.rehydrate();
+sessionStore.persist.rehydrate();
 
-export const useAuth = () => useSessionStore((state) => !!state.token);
+function useSessionStore(): SessionState;
+function useSessionStore<T>(selector: (state: SessionState) => T): T;
+function useSessionStore<T>(selector?: (state: SessionState) => T) {
+  return useStore(sessionStore, selector!);
+}
 
 export const useUpdateToken = () =>
   useSessionStore((state) => state.updateToken);

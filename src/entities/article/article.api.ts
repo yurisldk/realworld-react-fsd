@@ -29,9 +29,7 @@ export const articlesQuery = createQuery({
   request: {
     url: baseUrl('/articles'),
     method: 'GET',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
     query: (query) => query,
   },
   response: {
@@ -46,9 +44,7 @@ export const articlesFeedQuery = createQuery({
   request: {
     url: baseUrl('/articles/feed'),
     method: 'GET',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
     query: (query) => query,
   },
   response: {
@@ -63,9 +59,7 @@ export const articleQuery = createQuery({
   request: {
     url: (slug) => baseUrl(`/articles/${slug}`),
     method: 'GET',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
   },
   response: {
     contract: zodContract(ArticleResponseSchema),
@@ -79,9 +73,7 @@ export const createArticleMutation = createQuery({
   request: {
     url: baseUrl(`/articles`),
     method: 'POST',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
     body: (article) => ({ article: mapCreateDtoArticle(article) }),
   },
   response: {
@@ -96,9 +88,7 @@ export const deleteArticleMutation = createQuery({
   request: {
     url: (slug) => baseUrl(`/articles/${slug}`),
     method: 'DELETE',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
   },
   response: {
     contract: zodContract(EmptySchema),
@@ -112,9 +102,7 @@ export const updateArticleMutation = createQuery({
   request: {
     url: ({ slug }) => baseUrl(`/articles/${slug}`),
     method: 'PUT',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
     body: ({ article }) => ({ article: mapUpdateDtoArticle(article) }),
   },
   response: {
@@ -129,9 +117,7 @@ export const favoriteArticleMutation = createQuery({
   request: {
     url: (slug) => baseUrl(`/articles/${slug}/favorite`),
     method: 'POST',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
   },
   response: {
     contract: zodContract(ArticleResponseSchema),
@@ -145,9 +131,7 @@ export const unfavoriteArticleMutation = createQuery({
   request: {
     url: (slug) => baseUrl(`/articles/${slug}/favorite`),
     method: 'DELETE',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
   },
   response: {
     contract: zodContract(ArticleResponseSchema),

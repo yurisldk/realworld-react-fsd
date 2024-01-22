@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { IoTrash } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { articleApi } from '~entities/article';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { pathKeys } from '~shared/lib/react-router';
 
 type DeleteArticleButtonProps = { slug: string };
 
@@ -19,7 +19,7 @@ export function DeleteArticleButton(props: DeleteArticleButtonProps) {
       queryClient.removeQueries({
         queryKey: [...articleApi.ARTICLE_KEY, slug],
       });
-      navigate(PATH_PAGE.root);
+      navigate(pathKeys.home());
     },
   });
 

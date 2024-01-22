@@ -10,7 +10,7 @@ import {
   FilterByPageStore,
   UnfavoriteArticleButton,
 } from '~features/article';
-import { PATH_PAGE } from '~shared/lib/react-router';
+import { pathKeys } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
 import { ErrorHandler } from '~shared/ui/error';
 import { Spinner } from '~shared/ui/spinner';
@@ -94,7 +94,7 @@ type ArticleMetaProps = { article: articleTypes.Article };
 const ArticleMeta = (props: ArticleMetaProps) => (
   <div className="article-preview">
     <div className="article-meta">
-      <Link to={PATH_PAGE.profile.root(props.article.author.username)}>
+      <Link to={pathKeys.profile.byUsername(props.article.author.username)}>
         <img
           src={props.article.author.image}
           alt={props.article.author.username}
@@ -103,7 +103,7 @@ const ArticleMeta = (props: ArticleMetaProps) => (
       <div className="info">
         <Link
           className="author"
-          to={PATH_PAGE.profile.root(props.article.author.username)}
+          to={pathKeys.profile.byUsername(props.article.author.username)}
         >
           {props.article.author.username}
         </Link>
@@ -115,7 +115,7 @@ const ArticleMeta = (props: ArticleMetaProps) => (
     </div>
     <Link
       className="preview-link"
-      to={PATH_PAGE.article.slug(props.article.slug)}
+      to={pathKeys.article.bySlug(props.article.slug)}
     >
       <h1>{props.article.title}</h1>
       <p>{props.article.description}</p>

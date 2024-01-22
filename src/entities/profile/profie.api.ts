@@ -14,9 +14,7 @@ export const profileQuery = createQuery({
   request: {
     url: (username) => baseUrl(`/profiles/${username}`),
     method: 'GET',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
   },
   response: {
     contract: zodContract(ProfileResponseSchema),
@@ -30,9 +28,7 @@ export const followProfileMutation = createQuery({
   request: {
     url: (username) => baseUrl(`/profiles/${username}/follow`),
     method: 'POST',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
   },
   response: {
     contract: zodContract(ProfileResponseSchema),
@@ -46,9 +42,7 @@ export const unfollowProfileMutation = createQuery({
   request: {
     url: (username) => baseUrl(`/profiles/${username}/follow`),
     method: 'DELETE',
-    headers: (headers) => {
-      headers.Authorization = sessionModel.authorization.accessToken;
-    },
+    headers: () => ({ ...sessionModel.authorizationHeader() }),
   },
   response: {
     contract: zodContract(ProfileResponseSchema),

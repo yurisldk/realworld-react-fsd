@@ -1,1 +1,1 @@
-export { MainLayout } from './main-layout/MainLayout';
+export { GuestLayout, NakedLayout, UserLayout } from './layout.ui';
