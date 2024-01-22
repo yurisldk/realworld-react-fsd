@@ -34,7 +34,7 @@ export async function createCommentMutation(params: {
 }) {
   return createJsonMutation({
     request: {
-      url: baseUrl(`/articless/${params.slug}/comments`),
+      url: baseUrl(`/articles/${params.slug}/comments`),
       method: 'POST',
       headers: { ...sessionModel.authorizationHeader() },
       body: JSON.stringify({ comment: params.comment }),
