@@ -21,6 +21,7 @@ const keys = {
   createUser: () => [...keys.root(), 'createUser'] as const,
   loginUser: () => [...keys.root(), 'loginUser'] as const,
   updateUser: () => [...keys.root(), 'updateUser'] as const,
+  deleteUser: () => [...keys.root(), 'deleteUser'] as const,
 };
 
 export const userService = {
@@ -121,12 +122,13 @@ export function useUpdateUserMutation() {
 export function useLogoutMutation() {
   const navigate = useNavigate();
 
-  return {
-    mutate: () => {
-      sessionStore.setState({ token: null });
+  return useMutation({
+    mutationKey: keys.deleteUser(),
+    onSettled: async () => {
+      sessionStore.getState().updateToken(null);
       userService.setCache(null);
+      await queryClient.invalidateQueries();
       navigate(pathKeys.home());
-      queryClient.invalidateQueries();
     },
-  };
+  });
 }

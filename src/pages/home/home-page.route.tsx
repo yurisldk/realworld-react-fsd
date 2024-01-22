@@ -4,7 +4,11 @@ import { articleQueries } from '~entities/article';
 import { sessionModel, sessionQueries } from '~entities/session';
 import { tagQueries } from '~entities/tag';
 import { pathKeys } from '~shared/lib/react-router';
-import { articleFilterStore, onArticlesFeed } from './home-page.model';
+import {
+  articleFilterStore,
+  onArticles,
+  onArticlesFeed,
+} from './home-page.model';
 import { HomePage } from './home-page.ui';
 
 export const homePageRoute: RouteObject = {
@@ -13,6 +17,8 @@ export const homePageRoute: RouteObject = {
   loader: async (args) => {
     if (sessionModel.hasToken()) {
       onArticlesFeed();
+    } else {
+      onArticles();
     }
 
     Promise.all([
