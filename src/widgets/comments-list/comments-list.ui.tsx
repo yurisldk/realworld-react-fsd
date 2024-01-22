@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQueries } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { withErrorBoundary } from 'react-error-boundary';
 import { Link, useParams } from 'react-router-dom';
 import { commentQueries, commentTypes } from '~entities/comment';
+import { sessionQueries } from '~entities/session';
 import { DeleteCommentIconButtton } from '~features/comment';
 import { withSuspense } from '~shared/lib/react';
 import { pathKeys, routerTypes } from '~shared/lib/react-router';
@@ -13,9 +14,12 @@ import { Loader } from '~shared/ui/loader';
 function List() {
   const { slug } = useParams() as routerTypes.SlugPageParams;
 
-  const { data: comments } = useSuspenseQuery(
-    commentQueries.commentsService.queryOptions(slug),
-  );
+  const [{ data: user }, { data: comments }] = useSuspenseQueries({
+    queries: [
+      sessionQueries.userService.queryOptions(),
+      commentQueries.commentsService.queryOptions(slug),
+    ],
+  });
 
   return (
     <div>
@@ -23,7 +27,11 @@ function List() {
         <CommentCard
           key={comment.id}
           comment={comment}
-          actions={<DeleteCommentIconButtton slug={slug} id={comment.id} />}
+          actions={
+            user?.username === comment.author.username && (
+              <DeleteCommentIconButtton slug={slug} id={comment.id} />
+            )
+          }
         />
       ))}
     </div>
