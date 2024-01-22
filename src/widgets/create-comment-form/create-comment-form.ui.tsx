@@ -1,9 +1,10 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import dayjs from 'dayjs';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import { Link } from 'react-router-dom';
-import { commentApi, commentContracts, commentTypes } from '~entities/comment';
-import { profileTypes } from '~entities/profile';
+import {
+  commentContracts,
+  commentQueries,
+  commentTypes,
+} from '~entities/comment';
 import { sessionQueries } from '~entities/session';
 import { pathKeys } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
@@ -12,46 +13,12 @@ type CreateCommentFormProps = { slug: string };
 
 export function CreateCommentForm(props: CreateCommentFormProps) {
   const { slug } = props;
-  const queryClient = useQueryClient();
-  const commentsKey = [...commentApi.COMMENTS_KEY, slug];
 
   // TODO: add loading, error, etc... states
   const { data: user } = sessionQueries.useCurrentUserQuery();
 
-  const { mutate: createComment, isPending } = useMutation({
-    mutationKey: [...commentApi.CREATE_COMMENT_KEY, slug],
-    mutationFn: commentApi.createCommentMutation,
-    onMutate: async ({ comment }) => {
-      await queryClient.cancelQueries({ queryKey: commentsKey });
-
-      const { token, ...other } = user!;
-      const author: profileTypes.Profile = { ...other, following: false };
-
-      const newComment: commentTypes.Comment = {
-        id: +Infinity,
-        createdAt: dayjs().toISOString(),
-        updatedAt: dayjs().toISOString(),
-        body: comment.body,
-        author,
-      };
-
-      const prevComments =
-        queryClient.getQueryData<commentTypes.Comments>(commentsKey) || [];
-
-      const newComments = [...prevComments, newComment];
-
-      queryClient.setQueryData<commentTypes.Comments>(commentsKey, newComments);
-
-      return prevComments;
-    },
-    onError: (_error, _variables, prevComments) => {
-      if (!prevComments) return;
-      queryClient.setQueryData(commentsKey, prevComments);
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: commentsKey });
-    },
-  });
+  const { mutate: createComment, isPending } =
+    commentQueries.useCreateCommentMutation(slug);
 
   if (!user)
     return (

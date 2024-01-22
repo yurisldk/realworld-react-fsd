@@ -1,5 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
-import { CommentCard, commentApi } from '~entities/comment';
+import { CommentCard, commentQueries } from '~entities/comment';
 import { DeleteCommentIconButtton } from '~features/comment';
 import { ErrorHandler } from '~shared/ui/error';
 import { Spinner } from '~shared/ui/spinner';
@@ -14,10 +13,7 @@ export function CommentsList(props: CommentsListProps) {
     isPending,
     isError,
     error,
-  } = useQuery({
-    queryKey: [...commentApi.COMMENTS_KEY, slug],
-    queryFn: () => commentApi.commentsQuery(slug),
-  });
+  } = commentQueries.useCommentsQuery(slug);
 
   if (isPending) {
     return (

@@ -1,7 +1,7 @@
 import { IoHeart } from 'react-icons/io5';
 import { articleTypes } from '~entities/article';
 import { Button } from '~shared/ui/button';
-import { useFavoriteArticleMutation } from './favorite.article.model';
+import { useFavoriteArticleMutation } from './favorite-article.model';
 
 type FavoriteArticleButtonProps = {
   article: articleTypes.Article;

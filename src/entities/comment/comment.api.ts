@@ -13,7 +13,6 @@ import {
 import { mapComment, mapComments } from './comment.lib';
 import { CreateCommentDto } from './comment.types';
 
-export const COMMENTS_KEY = ['comments', 'comments'];
 export const commentsQuery = createQuery({
   params: declareParams<string>(),
   request: {
@@ -27,7 +26,6 @@ export const commentsQuery = createQuery({
   },
 });
 
-export const CREATE_COMMENT_KEY = ['comment', 'createComment'];
 export const createCommentMutation = createQuery({
   params: declareParams<{ slug: string; comment: CreateCommentDto }>(),
   request: {
@@ -42,7 +40,6 @@ export const createCommentMutation = createQuery({
   },
 });
 
-export const DELETE_COMMENT_KEY = ['comment', 'deleteComment'];
 export const deleteCommentMutation = createQuery({
   params: declareParams<{ slug: string; id: string }>(),
   request: {
