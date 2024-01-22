@@ -16,7 +16,7 @@ export const editorPageRoute: RouteObject = {
       loader: async (args) => {
         await sessionQueries.prefetchCurrentUserQuery();
         const user = sessionQueries.getCurrentUserQueryData();
-        if (!user) return redirect(pathKeys.home());
+        if (!user) return redirect(pathKeys.login());
 
         return args;
       },
@@ -39,7 +39,7 @@ export const editorPageRoute: RouteObject = {
         ]);
 
         const user = sessionQueries.getCurrentUserQueryData();
-        if (!user) return redirect(pathKeys.home());
+        if (!user) return redirect(pathKeys.login());
 
         return args;
       },

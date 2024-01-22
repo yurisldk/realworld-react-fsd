@@ -4,12 +4,12 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { sessionQueries } from '~entities/session';
 import { pathKeys } from '~shared/lib/react-router';
 
-export function UserLayout() {
-  const user = false;
+export function GenericLayout() {
+  const { data } = useQuery(sessionQueries.currentUserQueryOptions());
 
   return (
     <>
-      {user ? <UserNavigation /> : <GuestNavigation />}
+      {data ? <UserNavigation /> : <GuestNavigation />}
       <Outlet />
       <Footer />
     </>

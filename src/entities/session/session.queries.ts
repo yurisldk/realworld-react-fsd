@@ -46,6 +46,7 @@ export function currentUserQueryOptions() {
   });
 }
 export async function prefetchCurrentUserQuery() {
+  if (!hasToken()) return;
   return queryClient.prefetchQuery(currentUserQueryOptions());
 }
 

@@ -1,5 +1,5 @@
 import { createStore } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { DevtoolsOptions, devtools } from 'zustand/middleware';
 import { articleModel } from '~entities/article';
 import { tabsModel } from '~shared/ui/tabs';
 
@@ -8,22 +8,30 @@ type Tab = 'articlesFeed' | 'articles' | 'tag';
 const initialTabState: tabsModel.State<Tab> = {
   tab: 'articles',
 };
+const tabStoreDevtoolsOptions: DevtoolsOptions = {
+  name: 'HomePage TabStore',
+};
 
 export const tabStore = createStore<tabsModel.TabState<Tab>>()(
-  devtools(tabsModel.createTabSlice<Tab>(initialTabState), {
-    name: 'HomePage TabStore',
-  }),
+  devtools(
+    tabsModel.createTabSlice<Tab>(initialTabState),
+    tabStoreDevtoolsOptions,
+  ),
 );
 
 const initialArticleFilterState: articleModel.State = {
   pageQuery: { limit: 10, offset: 0 },
   filterQuery: {},
 };
+const articleFilterStoreDevtoolsOptions: DevtoolsOptions = {
+  name: 'HomePage ArticleFilterStore',
+};
 
 export const articleFilterStore = createStore<articleModel.FilterState>()(
-  devtools(articleModel.createArticleFilterSlice(initialArticleFilterState), {
-    name: 'HomePage ArticleFilterStore',
-  }),
+  devtools(
+    articleModel.createArticleFilterSlice(initialArticleFilterState),
+    articleFilterStoreDevtoolsOptions,
+  ),
 );
 
 export const onArticlesFeed = () => {

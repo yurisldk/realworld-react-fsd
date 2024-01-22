@@ -1,5 +1,10 @@
-import { StateCreator, StoreApi, createStore, useStore } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { StateCreator, createStore } from 'zustand';
+import {
+  DevtoolsOptions,
+  PersistOptions,
+  devtools,
+  persist,
+} from 'zustand/middleware';
 
 type Token = string;
 
@@ -13,28 +18,22 @@ type Actions = {
 
 type SessionState = State & Actions;
 
-const initialState: State = { token: null };
-
 const createSessionSlice: StateCreator<
   SessionState,
   [['zustand/devtools', never], ['zustand/persist', unknown]],
   [],
   SessionState
 > = (set) => ({
-  ...initialState,
+  token: null,
   updateToken: (token: Token | null) =>
     set({ token: token || null }, false, 'updateToken'),
 });
 
-export type SessionStore = StoreApi<SessionState>;
+const persistOptions: PersistOptions<SessionState> = { name: 'session' };
+const devtoolsOptions: DevtoolsOptions = { name: 'SessionStore' };
+
 export const sessionStore = createStore<SessionState>()(
-  devtools(
-    persist(createSessionSlice, {
-      name: 'session',
-      skipHydration: true,
-    }),
-    { name: 'SessionStore' },
-  ),
+  devtools(persist(createSessionSlice, persistOptions), devtoolsOptions),
 );
 
 export const hasToken = () => Boolean(sessionStore.getState().token);
@@ -45,14 +44,3 @@ export function authorizationHeader() {
   }
   return;
 }
-
-sessionStore.persist.rehydrate();
-
-function useSessionStore(): SessionState;
-function useSessionStore<T>(selector: (state: SessionState) => T): T;
-function useSessionStore<T>(selector?: (state: SessionState) => T) {
-  return useStore(sessionStore, selector!);
-}
-
-export const useUpdateToken = () =>
-  useSessionStore((state) => state.updateToken);
