@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+import { withErrorBoundary } from 'react-error-boundary';
 import { Link } from 'react-router-dom';
 import { StoreApi } from 'zustand';
 import { articleModel, articleQueries, articleTypes } from '~entities/article';
@@ -8,27 +9,26 @@ import {
   FavoriteArticleButton,
   UnfavoriteArticleButton,
 } from '~features/article';
+import { withSuspense } from '~shared/lib/react';
 import { pathKeys } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
-import { ErrorHandler } from '~shared/ui/error';
 import { Spinner } from '~shared/ui/spinner';
 
 type ArticlesListProps = {
   filterStore: StoreApi<articleModel.State>;
 };
 
-export function ArticlesList(props: ArticlesListProps) {
+function Foo(props: ArticlesListProps) {
   const {
     data: articles,
     isPending,
     isFetching,
     isSuccess,
-    error,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery(
-    articleQueries.articlesInfinityQueryOptions(props.filterStore),
+  } = useSuspenseInfiniteQuery(
+    articleQueries.infinityArticlesService.queryOptions(props.filterStore),
   );
 
   const isBackgroundUpdating = isFetching && !isFetchingNextPage;
@@ -41,7 +41,6 @@ export function ArticlesList(props: ArticlesListProps) {
   return (
     <>
       <IsPendingState isPending={isPending} />
-      <IsErrorState error={error} />
       <IsEmptyState isEmpty={isEmpty} />
       <IsBackgroundUpdatingState isBackgroundUpdating={isBackgroundUpdating} />
 
@@ -138,14 +137,6 @@ type IsPendingStateProps = { isPending: boolean };
 const IsPendingState = ({ isPending }: IsPendingStateProps) =>
   isPending && <ArticlePreview>Loading articles...</ArticlePreview>;
 
-type IsErrorStateProps = { error: Error | null };
-const IsErrorState = ({ error }: IsErrorStateProps) =>
-  error && (
-    <ArticlePreview>
-      <ErrorHandler error={error} />
-    </ArticlePreview>
-  );
-
 type IsEmptyStateProps = { isEmpty: boolean };
 const IsEmptyState = ({ isEmpty }: IsEmptyStateProps) =>
   isEmpty && <ArticlePreview>No articles are here... yet.</ArticlePreview>;
@@ -159,3 +150,10 @@ const IsBackgroundUpdatingState = ({
       <Spinner />
     </div>
   );
+
+const SuspensedArticlesList = withSuspense(Foo, {
+  fallback: <div>article list loading..</div>,
+});
+export const ArticlesList = withErrorBoundary(SuspensedArticlesList, {
+  fallbackRender: ({ error }) => <div>{error.message}</div>,
+});

@@ -1,14 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
-  articleApi,
   articleContracts,
   articleLib,
   articleQueries,
   articleTypes,
 } from '~entities/article';
-import { pathKeys, routerTypes } from '~shared/lib/react-router';
+import { routerTypes } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
@@ -17,35 +16,19 @@ import { Spinner } from '~shared/ui/spinner';
 export function UpdateArticleForm() {
   const { slug } = useParams() as routerTypes.SlugPageParams;
 
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
   const {
     data: currentArticle,
     isPending: isArticlePending,
     isError: isArticleError,
     error: articleError,
-  } = useQuery(articleQueries.articleQueryOptions(slug));
+  } = useQuery(articleQueries.articleService.queryOptions(slug));
 
   const {
     mutate: updateArticle,
     isPending,
     isError,
     error,
-  } = useMutation({
-    mutationKey: [...articleApi.UPDATE_ARTICLE_KEY, slug],
-    mutationFn: articleApi.updateArticleMutation,
-    onSuccess: async (article) => {
-      queryClient.setQueryData(
-        [...articleApi.ARTICLE_KEY, article.slug],
-        article,
-      );
-      await queryClient.invalidateQueries({
-        queryKey: [...articleApi.ARTICLE_KEY, article.slug],
-      });
-      navigate(pathKeys.article.bySlug({ slug: article.slug }));
-    },
-  });
+  } = articleQueries.useUpdateArticleMutation(slug);
 
   if (isArticlePending)
     return (

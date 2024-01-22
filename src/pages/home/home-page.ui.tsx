@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import cn from 'classnames';
 import { useStore } from 'zustand';
 import { sessionQueries } from '~entities/session';
@@ -13,9 +13,12 @@ import {
 } from './home-page.model';
 
 export function HomePage() {
-  const { data: user } = useQuery(sessionQueries.currentUserQueryOptions());
+  const { data: user } = useSuspenseQuery(
+    sessionQueries.currentUserQueryOptions(),
+  );
 
   const activeTab = useStore(tabStore, (state) => state.tab);
+
   const { tag } =
     useStore(articleFilterStore, (state) => state.filterQuery) || {};
 

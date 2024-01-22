@@ -7,8 +7,9 @@ type UnfollowUserButtonProps = { profile: profileTypes.Profile };
 export function UnfollowUserButton(props: UnfollowUserButtonProps) {
   const { profile } = props;
 
-  const { mutate: unfollowProfile } =
-    profileQueries.useUnfollowProfileMutation(profile);
+  const { mutate: unfollowProfile } = profileQueries.useUnfollowProfileMutation(
+    profile.username,
+  );
 
   const handleClick = () => {
     unfollowProfile(profile.username);

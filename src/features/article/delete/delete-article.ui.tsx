@@ -1,27 +1,13 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { IoTrash } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
-import { articleApi } from '~entities/article';
-import { pathKeys } from '~shared/lib/react-router';
+import { articleQueries } from '~entities/article';
 
 type DeleteArticleButtonProps = { slug: string };
 
 export function DeleteArticleButton(props: DeleteArticleButtonProps) {
   const { slug } = props;
 
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const { mutate: deleteArticle } = useMutation({
-    mutationKey: [...articleApi.DELETE_ARTICLE_KEY, slug],
-    mutationFn: articleApi.deleteArticleMutation,
-    onSuccess: () => {
-      queryClient.removeQueries({
-        queryKey: [...articleApi.ARTICLE_KEY, slug],
-      });
-      navigate(pathKeys.home());
-    },
-  });
+  const { mutate: deleteArticle } =
+    articleQueries.useDeleteArticleMutation(slug);
 
   const handleClick = () => {
     deleteArticle(slug);

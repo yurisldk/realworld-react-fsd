@@ -23,7 +23,6 @@ import {
   UpdateArticle,
 } from './article.types';
 
-export const ARTICLES_KEY = ['article', 'articles'];
 export const articlesQuery = createQuery({
   params: declareParams<ArticlesQueryDto>(),
   request: {
@@ -38,7 +37,6 @@ export const articlesQuery = createQuery({
   },
 });
 
-export const ARTICLES_FEED_KEY = ['article', 'articlesFeed'];
 export const articlesFeedQuery = createQuery({
   params: declareParams<ArticlesFeedQueryDto>(),
   request: {
@@ -53,7 +51,6 @@ export const articlesFeedQuery = createQuery({
   },
 });
 
-export const ARTICLE_KEY = ['article', 'article'];
 export const articleQuery = createQuery({
   params: declareParams<string>(),
   request: {
@@ -67,7 +64,6 @@ export const articleQuery = createQuery({
   },
 });
 
-export const CREATE_ARTICLE_KEY = ['article', 'createArticle'];
 export const createArticleMutation = createQuery({
   params: declareParams<CreateArticle>(),
   request: {
@@ -82,7 +78,6 @@ export const createArticleMutation = createQuery({
   },
 });
 
-export const DELETE_ARTICLE_KEY = ['article', 'deleteArticle'];
 export const deleteArticleMutation = createQuery({
   params: declareParams<string>(),
   request: {
@@ -96,7 +91,6 @@ export const deleteArticleMutation = createQuery({
   },
 });
 
-export const UPDATE_ARTICLE_KEY = ['article', 'updateArticle'];
 export const updateArticleMutation = createQuery({
   params: declareParams<{ slug: string; article: UpdateArticle }>(),
   request: {
@@ -111,7 +105,6 @@ export const updateArticleMutation = createQuery({
   },
 });
 
-export const FAVORITE_ARTICLE_KEY = ['article', 'favorite'];
 export const favoriteArticleMutation = createQuery({
   params: declareParams<string>(),
   request: {
@@ -125,7 +118,6 @@ export const favoriteArticleMutation = createQuery({
   },
 });
 
-export const UNFAVORITE_ARTICLE_KEY = ['article', 'unfavorite'];
 export const unfavoriteArticleMutation = createQuery({
   params: declareParams<string>(),
   request: {

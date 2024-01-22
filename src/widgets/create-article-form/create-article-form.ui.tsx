@@ -1,31 +1,19 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
-import { useNavigate } from 'react-router-dom';
-import { articleApi, articleContracts, articleTypes } from '~entities/article';
-import { pathKeys } from '~shared/lib/react-router';
+import {
+  articleContracts,
+  articleQueries,
+  articleTypes,
+} from '~entities/article';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 
 export function CreateArticeForm() {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
   const {
     mutate: createArticle,
     isPending,
     isError,
     error,
-  } = useMutation({
-    mutationKey: articleApi.CREATE_ARTICLE_KEY,
-    mutationFn: articleApi.createArticleMutation,
-    onSuccess: (article) => {
-      queryClient.setQueryData(
-        [...articleApi.ARTICLE_KEY, article.slug],
-        article,
-      );
-      navigate(pathKeys.article.bySlug({ slug: article.slug }));
-    },
-  });
+  } = articleQueries.useCreateArticleMutation();
 
   return (
     <Formik

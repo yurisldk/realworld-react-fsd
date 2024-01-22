@@ -1,7 +1,6 @@
 import { IoHeart } from 'react-icons/io5';
-import { articleTypes } from '~entities/article';
+import { articleQueries, articleTypes } from '~entities/article';
 import { Button } from '~shared/ui/button';
-import { useUnfavoriteArticleMutation } from './unfavorite.article.model';
 
 type UnfavoriteArticleButtonProps = {
   article: articleTypes.Article;
@@ -11,7 +10,8 @@ type UnfavoriteArticleButtonProps = {
 export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
   const { article, short = false } = props;
 
-  const { mutate: unfavoriteArticle } = useUnfavoriteArticleMutation(article);
+  const { mutate: unfavoriteArticle } =
+    articleQueries.useUnfavoriteArticleMutation(article.slug);
 
   const handleFavorite = () => {
     unfavoriteArticle(article.slug);

@@ -27,9 +27,9 @@ export const articlePageRoute: RouteObject = {
           });
         }
 
-        await Promise.all([
+        Promise.all([
           sessionQueries.prefetchCurrentUserQuery(),
-          articleQueries.prefetchArticleQuery(args.params.slug),
+          articleQueries.articleService.prefetchQuery(args.params.slug),
           commentQueries.prefetchCommentsQuery(args.params.slug),
         ]);
 

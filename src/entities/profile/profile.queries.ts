@@ -1,8 +1,10 @@
 import {
-  queryOptions,
+  queryOptions as tsqQueryOptions,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
+// eslint-disable-next-line no-restricted-imports
+import { Article } from '~entities/article/@x/profile';
 import { queryClient } from '~shared/lib/react-query';
 import {
   followProfileMutation,
@@ -11,93 +13,171 @@ import {
 } from './profie.api';
 import { Profile } from './profie.types';
 
-export const profileKeys = {
-  root: ['profile'] as const,
+const keys = {
+  root: () => {
+    return ['profile'] as const;
+  },
   profile(username: string) {
-    return [...profileKeys.root, username] as const;
+    return [...keys.root(), 'byUsername', username] as const;
   },
   follow(username: string) {
-    return [...profileKeys.profile(username), 'follow'] as const;
+    return [...keys.root(), 'follow', username] as const;
   },
   unfollow(username: string) {
-    return [...profileKeys.profile(username), 'unfollow'] as const;
+    return [...keys.root(), 'unfollow', username] as const;
   },
 };
 
-export function getProfileQueryData(username: string) {
-  return queryClient.getQueryData<Profile>(profileKeys.profile(username));
-}
-export function profileQueryOptions(username: string) {
-  const profileKey = profileKeys.profile(username);
-  return queryOptions({
-    queryKey: profileKey,
-    queryFn: () => profileQuery(username),
-    initialData: () => getProfileQueryData(username)!,
-    initialDataUpdatedAt: () =>
-      queryClient.getQueryState(profileKey)?.dataUpdatedAt,
-  });
-}
-export async function prefetchProfileQuery(username: string) {
-  return queryClient.prefetchQuery(profileQueryOptions(username));
-}
+export const profileService = {
+  queryKey: (username: string) => keys.profile(username),
 
-export function useFollowProfileMutation(profile: Profile) {
+  getCache: (username: string) =>
+    queryClient.getQueryData<Profile>(profileService.queryKey(username)),
+
+  setCache: (profile: Profile) =>
+    queryClient.setQueryData(
+      profileService.queryKey(profile.username),
+      profile,
+    ),
+
+  removeCache: (username: string) =>
+    queryClient.removeQueries({ queryKey: keys.profile(username) }),
+
+  queryOptions: (username: string) => {
+    const profileKey = profileService.queryKey(username);
+    return tsqQueryOptions({
+      queryKey: profileKey,
+      queryFn: async () => profileQuery(username),
+      initialData: () => profileService.getCache(username)!,
+      initialDataUpdatedAt: () =>
+        queryClient.getQueryState(profileKey)?.dataUpdatedAt,
+    });
+  },
+
+  prefetchQuery: async (username: string) =>
+    queryClient.prefetchQuery(profileService.queryOptions(username)),
+};
+
+export function useFollowProfileMutation(username: string) {
   const queryClient = useQueryClient();
 
-  const mutationKey = profileKeys.follow(profile.username);
-  const profileKey = profileKeys.profile(profile.username);
+  const followKey = keys.follow(username);
+  const profileKey = keys.profile(username);
+  const articleKey = ['article', 'bySlug'];
 
   return useMutation({
-    mutationKey,
+    mutationKey: followKey,
     mutationFn: followProfileMutation,
-    onMutate: async () => {
+    onMutate: async (username) => {
       await queryClient.cancelQueries({ queryKey: profileKey });
-      const newProfile: Profile = {
-        ...profile,
-        following: !profile.following,
+      await queryClient.cancelQueries({ queryKey: articleKey });
+
+      const oldProfileData = profileService.getCache(username);
+
+      const newProfileData = oldProfileData && {
+        ...oldProfileData,
+        following: !oldProfileData.following,
       };
-      queryClient.setQueryData(profileKey, newProfile);
-      return profile;
+
+      if (newProfileData) {
+        profileService.setCache(newProfileData);
+      }
+
+      queryClient.setQueriesData<Article>(
+        { queryKey: articleKey },
+        (article) => {
+          if (!article) return;
+          if (!newProfileData) return;
+          if (article.author.username !== newProfileData.username) {
+            return article;
+          }
+          return { ...article, author: newProfileData };
+        },
+      );
+
+      return { oldProfileData };
     },
-    onError: (_error, _variables, prevProfile) => {
-      if (!prevProfile) return;
-      queryClient.setQueryData(profileKey, prevProfile);
+    onError: (_error, _variables, context) => {
+      if (!context || !context.oldProfileData) return;
+      profileService.setCache(context.oldProfileData);
+
+      queryClient.setQueriesData<Article>(
+        { queryKey: articleKey },
+        (article) => {
+          if (!article) return;
+          if (!context.oldProfileData) return;
+          if (article.author.username !== context.oldProfileData.username) {
+            return article;
+          }
+          return { ...article, author: context.oldProfileData };
+        },
+      );
     },
-    onSettled: async (_data, _error, _variables, prevProfile) => {
-      if (!prevProfile) return;
+    onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: profileKey });
+      await queryClient.invalidateQueries({ queryKey: articleKey });
     },
   });
 }
 
-export function useUnfollowProfileMutation(profile: Profile) {
+export function useUnfollowProfileMutation(username: string) {
   const queryClient = useQueryClient();
 
-  const mutationKey = profileKeys.follow(profile.username);
-  const profileKey = profileKeys.profile(profile.username);
+  const unfollowKey = keys.unfollow(username);
+  const profileKey = keys.profile(username);
+  const articleKey = ['article', 'bySlug'];
 
   return useMutation({
-    mutationKey,
+    mutationKey: unfollowKey,
     mutationFn: unfollowProfileMutation,
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: profileKey });
+      await queryClient.cancelQueries({ queryKey: articleKey });
 
-      const newProfile: Profile = {
-        ...profile,
-        following: !profile.following,
+      const oldProfileData = profileService.getCache(username);
+
+      const newProfileData = oldProfileData && {
+        ...oldProfileData,
+        following: !oldProfileData.following,
       };
 
-      queryClient.setQueryData(profileKey, newProfile);
+      if (newProfileData) {
+        profileService.setCache(newProfileData);
+      }
 
-      return profile;
+      queryClient.setQueriesData<Article>(
+        { queryKey: articleKey },
+        (article) => {
+          if (!article) return;
+          if (!newProfileData) return;
+          if (article.author.username !== newProfileData.username) {
+            return article;
+          }
+          return { ...article, author: newProfileData };
+        },
+      );
+
+      return { oldProfileData };
     },
-    onError: (_error, _variables, prevProfile) => {
-      if (!prevProfile) return;
-      queryClient.setQueryData(profileKey, prevProfile);
+    onError: (_error, _variables, context) => {
+      if (!context || !context.oldProfileData) return;
+      profileService.setCache(context.oldProfileData);
+
+      queryClient.setQueriesData<Article>(
+        { queryKey: articleKey },
+        (article) => {
+          if (!article) return;
+          if (!context.oldProfileData) return;
+          if (article.author.username !== context.oldProfileData.username) {
+            return article;
+          }
+          return { ...article, author: context.oldProfileData };
+        },
+      );
     },
-    onSettled: async (_data, _error, _variables, prevProfile) => {
-      if (!prevProfile) return;
+    onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: profileKey });
+      await queryClient.invalidateQueries({ queryKey: articleKey });
     },
   });
 }

@@ -4,7 +4,7 @@ import { QueryConfig } from './types';
 export function createQuery<Params, Data, TransformedData>(
   config: QueryConfig<Params, Data, TransformedData>,
 ) {
-  return async (params: Params) => {
+  return async (params: Params, signal?: AbortSignal) => {
     const { request: incomingRequest, response: incomingResponse } = config;
 
     const {
@@ -54,6 +54,7 @@ export function createQuery<Params, Data, TransformedData>(
       method,
       headers: responseHeaders,
       body: JSON.stringify(body),
+      signal,
     });
 
     try {

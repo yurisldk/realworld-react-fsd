@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { IoCreateOutline, IoSettingsSharp } from 'react-icons/io5';
 import { NavLink, Outlet } from 'react-router-dom';
 import { sessionQueries } from '~entities/session';
 import { pathKeys } from '~shared/lib/react-router';
 
 export function GenericLayout() {
-  const { data } = useQuery(sessionQueries.currentUserQueryOptions());
+  const { data } = useSuspenseQuery(sessionQueries.currentUserQueryOptions());
 
   return (
     <>
@@ -31,16 +31,9 @@ export function NakedLayout() {
 }
 
 const UserNavigation = () => {
-  const {
-    data: user,
-    isPending,
-    isError,
-    error,
-  } = useQuery(sessionQueries.currentUserQueryOptions());
-
-  if (isPending) return '...loading';
-
-  if (isError) return error.message;
+  const { data: user } = useSuspenseQuery(
+    sessionQueries.currentUserQueryOptions(),
+  );
 
   return (
     <nav className="navbar navbar-light">

@@ -1,4 +1,4 @@
-import { useQueries } from '@tanstack/react-query';
+import { useSuspenseQueries } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { IoPencil } from 'react-icons/io5';
 import { Link, useParams } from 'react-router-dom';
@@ -12,36 +12,18 @@ import {
 } from '~features/article';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
 import { pathKeys, routerTypes } from '~shared/lib/react-router';
-import { ErrorHandler } from '~shared/ui/error';
-import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
-import { Spinner } from '~shared/ui/spinner';
 import { CommentsList } from '~widgets/comments-list';
 import { CreateCommentForm } from '~widgets/create-comment-form';
 
 export function ArticlePage() {
   const { slug } = useParams() as routerTypes.SlugPageParams;
 
-  const [user, article] = useQueries({
+  const [user, article] = useSuspenseQueries({
     queries: [
       sessionQueries.currentUserQueryOptions(),
-      articleQueries.articleQueryOptions(slug),
+      articleQueries.articleService.queryOptions(slug),
     ],
   });
-
-  if (article.isPending)
-    return (
-      <FullPageWrapper>
-        <Spinner />
-      </FullPageWrapper>
-    );
-
-  if (article.isError) {
-    return (
-      <FullPageWrapper>
-        <ErrorHandler error={article.error} />
-      </FullPageWrapper>
-    );
-  }
 
   const isOwner = user.data.username === article.data.author.username;
 

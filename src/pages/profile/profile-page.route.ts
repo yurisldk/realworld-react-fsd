@@ -36,8 +36,10 @@ export const profilePageRoute: RouteObject = {
 
         await Promise.all([
           sessionQueries.prefetchCurrentUserQuery(),
-          profileQueries.prefetchProfileQuery(args.params.username),
-          articleQueries.prefetchArticlesInfinityQuery(articleFilterStore),
+          profileQueries.profileService.prefetchQuery(args.params.username),
+          articleQueries.infinityArticlesService.prefetchQuery(
+            articleFilterStore,
+          ),
         ]);
 
         return args;
@@ -59,8 +61,10 @@ export const profilePageRoute: RouteObject = {
 
         await Promise.all([
           sessionQueries.prefetchCurrentUserQuery(),
-          profileQueries.prefetchProfileQuery(args.params.username),
-          articleQueries.prefetchArticlesInfinityQuery(articleFilterStore),
+          profileQueries.profileService.prefetchQuery(args.params.username),
+          articleQueries.infinityArticlesService.prefetchQuery(
+            articleFilterStore,
+          ),
         ]);
 
         return args;

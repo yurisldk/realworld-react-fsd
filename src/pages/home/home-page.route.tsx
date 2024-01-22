@@ -17,8 +17,9 @@ export const homePageRoute: RouteObject = {
 
     if (user) onArticlesFeed();
 
-    await Promise.all([
-      articleQueries.prefetchArticlesInfinityQuery(articleFilterStore),
+    Promise.all([
+      sessionQueries.prefetchCurrentUserQuery(),
+      articleQueries.infinityArticlesService.prefetchQuery(articleFilterStore),
       tagQueries.prefetchTagsQuery(),
     ]);
 

@@ -26,7 +26,7 @@ export function ProfilePage() {
   const [user, profile] = useQueries({
     queries: [
       sessionQueries.currentUserQueryOptions(),
-      profileQueries.profileQueryOptions(username),
+      profileQueries.profileService.queryOptions(username),
     ],
   });
 

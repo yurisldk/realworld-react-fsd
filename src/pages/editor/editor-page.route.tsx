@@ -35,7 +35,7 @@ export const editorPageRoute: RouteObject = {
 
         await Promise.all([
           sessionQueries.prefetchCurrentUserQuery(),
-          articleQueries.prefetchArticleQuery(args.params.slug),
+          articleQueries.articleService.prefetchQuery(args.params.slug),
         ]);
 
         const user = sessionQueries.getCurrentUserQueryData();

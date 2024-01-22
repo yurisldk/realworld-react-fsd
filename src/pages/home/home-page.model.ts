@@ -1,6 +1,6 @@
 import { createStore } from 'zustand';
 import { DevtoolsOptions, devtools } from 'zustand/middleware';
-import { articleModel } from '~entities/article';
+import { articleModel, articleQueries } from '~entities/article';
 import { tabsModel } from '~shared/ui/tabs';
 
 type Tab = 'articlesFeed' | 'articles' | 'tag';
@@ -35,16 +35,25 @@ export const articleFilterStore = createStore<articleModel.FilterState>()(
 );
 
 export const onArticlesFeed = () => {
+  articleQueries.infinityArticlesService.cancelQuery(
+    articleFilterStore.getState().filterQuery,
+  );
   tabStore.getState().changeTab('articlesFeed');
   articleFilterStore.getState().changeFilter({ following: 'currentUser' });
 };
 
 export const onArticles = () => {
+  articleQueries.infinityArticlesService.cancelQuery(
+    articleFilterStore.getState().filterQuery,
+  );
   tabStore.getState().changeTab('articles');
   articleFilterStore.getState().reset();
 };
 
 export const onTag = (tag: string) => {
+  articleQueries.infinityArticlesService.cancelQuery(
+    articleFilterStore.getState().filterQuery,
+  );
   tabStore.getState().changeTab('tag');
   articleFilterStore.getState().changeFilter({ tag });
 };

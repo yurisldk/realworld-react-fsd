@@ -7,8 +7,9 @@ type FollowUserButtonProps = { profile: profileTypes.Profile };
 export function FollowUserButton(props: FollowUserButtonProps) {
   const { profile } = props;
 
-  const { mutate: followProfile } =
-    profileQueries.useFollowProfileMutation(profile);
+  const { mutate: followProfile } = profileQueries.useFollowProfileMutation(
+    profile.username,
+  );
 
   const handleClick = () => {
     followProfile(profile.username);
