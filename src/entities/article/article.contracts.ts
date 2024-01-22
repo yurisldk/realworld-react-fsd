@@ -20,13 +20,29 @@ export const ArticlesDtoSchema = z.object({
   articlesCount: z.number(),
 });
 
-export const ArticlesQueryDtoSchema = z.object({
-  tag: z.string().optional(),
-  author: z.string().optional(),
-  favorited: z.string().optional(),
+export const PageQueryDtoSchema = z.object({
   offset: z.number().min(0),
   limit: z.number().min(1),
 });
+
+export const FilterQueryDtoSchema = z.object({
+  tag: z.string().optional(),
+  author: z.string().optional(),
+  favorited: z.string().optional(),
+  // following: z.string().optional(),
+});
+
+export const FilterQuerySchema = z.object({
+  tag: z.string().optional(),
+  author: z.string().optional(),
+  favorited: z.string().optional(),
+  following: z.string().optional(),
+});
+
+export const ArticlesQueryDtoSchema = z.intersection(
+  PageQueryDtoSchema,
+  FilterQueryDtoSchema,
+);
 
 export const ArticlesFeedQueryDtoSchema = z.object({
   offset: z.number().min(0),

@@ -1,22 +1,23 @@
+import { useQuery } from '@tanstack/react-query';
 import cn from 'classnames';
 import { useStore } from 'zustand';
 import { sessionQueries } from '~entities/session';
 import { ArticlesList } from '~widgets/articles-list';
 import { PopularTags } from '~widgets/popular-tags';
 import {
-  filterByCategoryStore,
-  filterByPageStore,
-  homePageStore,
+  articleFilterStore,
+  onArticles,
+  onArticlesFeed,
+  onTag,
+  tabStore,
 } from './home-page.model';
 
-const onArticlesFeedClicked = homePageStore.getState().onArticlesFeedClicked;
-const onArticlesClicked = homePageStore.getState().onArticlesClicked;
-
 export function HomePage() {
-  const { data: user } = sessionQueries.useCurrentUserQuery();
+  const { data: user } = useQuery(sessionQueries.currentUserQueryOptions());
 
-  const activeTab = useStore(homePageStore, (state) => state.activeTab);
-  const { tag } = useStore(filterByCategoryStore, (state) => state.filter);
+  const activeTab = useStore(tabStore, (state) => state.tab);
+  const { tag } =
+    useStore(articleFilterStore, (state) => state.filterQuery) || {};
 
   return (
     <div className="home-page">
@@ -38,7 +39,7 @@ export function HomePage() {
                       active: activeTab === 'articlesFeed',
                     })}
                     type="button"
-                    onClick={() => onArticlesFeedClicked(user.username)}
+                    onClick={onArticlesFeed}
                   >
                     Your Feed
                   </button>
@@ -50,7 +51,7 @@ export function HomePage() {
                     active: activeTab === 'articles',
                   })}
                   type="button"
-                  onClick={onArticlesClicked}
+                  onClick={onArticles}
                 >
                   Global Feed
                 </button>
@@ -67,14 +68,11 @@ export function HomePage() {
               )}
             </ul>
 
-            <ArticlesList
-              filterByCategoryStore={filterByCategoryStore}
-              filterByPageStore={filterByPageStore}
-            />
+            <ArticlesList filterStore={articleFilterStore} />
           </div>
 
           <div className="col-md-3">
-            <PopularTags filterByCategoryStore={filterByCategoryStore} />
+            <PopularTags onTagClicked={onTag} />
           </div>
         </div>
       </div>

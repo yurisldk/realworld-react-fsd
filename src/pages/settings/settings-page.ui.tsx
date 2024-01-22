@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import {
   sessionContracts,
@@ -8,7 +9,9 @@ import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 
 export function SettingsPage() {
-  const { data: currentUser } = sessionQueries.useCurrentUserQuery();
+  const { data: currentUser } = useQuery(
+    sessionQueries.currentUserQueryOptions(),
+  );
 
   const {
     mutate: updateUser,

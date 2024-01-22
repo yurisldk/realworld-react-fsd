@@ -1,21 +1,19 @@
+import { useQuery } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   commentContracts,
   commentQueries,
   commentTypes,
 } from '~entities/comment';
 import { sessionQueries } from '~entities/session';
-import { pathKeys } from '~shared/lib/react-router';
+import { pathKeys, routerTypes } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 
-type CreateCommentFormProps = { slug: string };
+export function CreateCommentForm() {
+  const { slug } = useParams() as routerTypes.SlugPageParams;
 
-export function CreateCommentForm(props: CreateCommentFormProps) {
-  const { slug } = props;
-
-  // TODO: add loading, error, etc... states
-  const { data: user } = sessionQueries.useCurrentUserQuery();
+  const { data: user } = useQuery(sessionQueries.currentUserQueryOptions());
 
   const { mutate: createComment, isPending } =
     commentQueries.useCreateCommentMutation(slug);

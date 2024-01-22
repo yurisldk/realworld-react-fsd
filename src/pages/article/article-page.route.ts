@@ -1,29 +1,39 @@
 import { createElement } from 'react';
 import { RouteObject, redirect } from 'react-router-dom';
-import { pathKeys } from '~shared/lib/react-router';
-import { ArticlePage, ArticlePageParamsSchema } from './article-page.ui';
+import { articleQueries } from '~entities/article';
+import { commentQueries } from '~entities/comment';
+import { sessionQueries } from '~entities/session';
+import { invalidDataError } from '~shared/lib/error-handler';
+import { pathKeys, routerContracts } from '~shared/lib/react-router';
+import { zodContract } from '~shared/lib/zod';
+import { ArticlePage } from './article-page.ui';
 
 export const articlePageRoute: RouteObject = {
   path: 'article',
   children: [
     {
       index: true,
-      loader: async () => {
-        return redirect(pathKeys.page404());
-      },
+      loader: async () => redirect(pathKeys.page404()),
     },
     {
       path: ':slug',
       element: createElement(ArticlePage),
-      loader: async ({ params }) => {
-        const { success: isParamsValid } =
-          ArticlePageParamsSchema.safeParse(params);
+      loader: async (args) => {
+        const contract = zodContract(routerContracts.SlugPageParamsSchema);
 
-        if (!isParamsValid) {
-          throw new Error('Invalid params');
+        if (!contract.isData(args.params)) {
+          throw invalidDataError({
+            validationErrors: contract.getErrorMessages(args.params),
+          });
         }
 
-        return null;
+        await Promise.all([
+          sessionQueries.prefetchCurrentUserQuery(),
+          articleQueries.prefetchArticleQuery(args.params.slug),
+          commentQueries.prefetchCommentsQuery(args.params.slug),
+        ]);
+
+        return args;
       },
     },
   ],

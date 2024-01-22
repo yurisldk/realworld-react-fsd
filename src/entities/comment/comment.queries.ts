@@ -1,6 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { sessionTypes } from '~entities/session';
+import { queryClient } from '~shared/lib/react-query';
 import {
   commentsQuery,
   createCommentMutation,
@@ -10,8 +15,8 @@ import { Comment, Comments } from './comment.types';
 
 export const commentKeys = {
   root: ['comment'] as const,
-  comments() {
-    return [...commentKeys.root, 'comments'] as const;
+  comments(slug: string) {
+    return [...commentKeys.root, 'comments', slug] as const;
   },
   createComment(slug: string) {
     return [...commentKeys.root, 'createComment', slug] as const;
@@ -21,16 +26,26 @@ export const commentKeys = {
   },
 };
 
-export function useCommentsQuery(slug: string) {
-  return useQuery({
-    queryKey: commentKeys.comments(),
+export function getCommentsQueryData(slug: string) {
+  return queryClient.getQueryData<Comments>(commentKeys.comments(slug));
+}
+export function commentsQueryOptions(slug: string) {
+  const commentsKey = commentKeys.comments(slug);
+  return queryOptions({
+    queryKey: commentsKey,
     queryFn: () => commentsQuery(slug),
+    initialData: () => getCommentsQueryData(slug)!,
+    initialDataUpdatedAt: () =>
+      queryClient.getQueryState(commentsKey)?.dataUpdatedAt,
   });
+}
+export async function prefetchCommentsQuery(slug: string) {
+  return queryClient.prefetchQuery(commentsQueryOptions(slug));
 }
 
 export function useCreateCommentMutation(slug: string) {
   const queryClient = useQueryClient();
-  const commentsKey = commentKeys.comments();
+  const commentsKey = commentKeys.comments(slug);
 
   return useMutation({
     mutationKey: commentKeys.createComment(slug),
@@ -74,7 +89,7 @@ export function useCreateCommentMutation(slug: string) {
 
 export function useDeleteCommentMutation(slug: string) {
   const queryClient = useQueryClient();
-  const commentsKey = commentKeys.comments();
+  const commentsKey = commentKeys.comments(slug);
 
   return useMutation({
     mutationKey: commentKeys.deleteComment(slug),

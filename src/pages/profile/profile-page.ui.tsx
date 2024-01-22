@@ -1,78 +1,75 @@
+import { useQueries } from '@tanstack/react-query';
 import cn from 'classnames';
 import { IoSettingsSharp } from 'react-icons/io5';
 import { useNavigate, useParams } from 'react-router-dom';
-import { z } from 'zod';
 import { useStore } from 'zustand';
 import { profileQueries, profileTypes } from '~entities/profile';
 import { sessionQueries } from '~entities/session';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
-import { pathKeys } from '~shared/lib/react-router';
+import { pathKeys, routerTypes } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
+import { ErrorHandler } from '~shared/ui/error';
 import { ArticlesList } from '~widgets/articles-list';
 import {
-  filterByCategoryStore,
-  filterByPageStore,
-  profilePageStore,
+  articleFilterStore,
+  onAuthorArticles,
+  onAuthorFavoritedArticles,
+  tabStore,
 } from './profile-page.model';
 
-export const ProfilePageParamsSchema = z.object({ username: z.string() });
-export type ProfilePageParams = z.infer<typeof ProfilePageParamsSchema>;
-
-const onAuthorArticlesClicked =
-  profilePageStore.getState().onAuthorArticlesClicked;
-
-const onFavoritedArticlesClicked =
-  profilePageStore.getState().onFavoritedArticlesClicked;
-
 export function ProfilePage() {
-  const { username } = useParams() as ProfilePageParams;
+  const { username } = useParams() as routerTypes.UsernamePageParams;
   const navigate = useNavigate();
 
-  const activeTab = useStore(profilePageStore, (state) => state.activeTab);
+  const activeTab = useStore(tabStore, (state) => state.tab);
 
-  const { data: user } = sessionQueries.useCurrentUserQuery();
+  const [user, profile] = useQueries({
+    queries: [
+      sessionQueries.currentUserQueryOptions(),
+      profileQueries.profileQueryOptions(username),
+    ],
+  });
 
-  const isAuthor = user?.username === username;
+  if (profile.isLoading) {
+    return 'loading...';
+  }
 
-  // FIXME:
-  // if (isAuthor) {
-  //   queryClient.setQueryData([...profileApi.PROFILE_KEY, username], user);
-  // }
+  if (profile.isError) {
+    return <ErrorHandler error={profile.error} />;
+  }
 
-  const { data: profile, isSuccess } = profileQueries.useProfileQuery(username);
+  const isOwner = user.data.username === profile.data.username;
 
   return (
     <div className="profile-page">
       <div className="user-info">
         <div className="container">
           <div className="row">
-            {isSuccess && (
-              <div className="col-xs-12 col-md-10 offset-md-1">
-                <img
-                  src={profile.image}
-                  className="user-img"
-                  alt={profile.username}
-                />
-                <h4>{profile.username}</h4>
-                <p>{profile.bio}</p>
+            <div className="col-xs-12 col-md-10 offset-md-1">
+              <img
+                src={profile.data.image}
+                className="user-img"
+                alt={profile.data.username}
+              />
+              <h4>{profile.data.username}</h4>
+              <p>{profile.data.bio}</p>
 
-                {!isAuthor && (
-                  <FollowProfileActionButtons profile={profile || user} />
-                )}
+              {!isOwner && (
+                <FollowProfileActionButtons profile={profile.data} />
+              )}
 
-                {isAuthor && (
-                  <Button
-                    color="secondary"
-                    variant="outline"
-                    className="action-btn"
-                    onClick={() => navigate(pathKeys.settings())}
-                  >
-                    <IoSettingsSharp size={14} />
-                    &nbsp; Edit Profile Settings
-                  </Button>
-                )}
-              </div>
-            )}
+              {isOwner && (
+                <Button
+                  color="secondary"
+                  variant="outline"
+                  className="action-btn"
+                  onClick={() => navigate(pathKeys.settings())}
+                >
+                  <IoSettingsSharp size={14} />
+                  &nbsp; Edit Profile Settings
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -88,18 +85,20 @@ export function ProfilePage() {
                       active: activeTab === 'authorArticles',
                     })}
                     type="button"
-                    onClick={() => onAuthorArticlesClicked(username)}
+                    onClick={() => onAuthorArticles(profile.data.username)}
                   >
-                    {`${username}`}'s Articles
+                    {`${profile.data.username}`}'s Articles
                   </button>
                 </li>
                 <li className="nav-item">
                   <button
                     className={cn('nav-link', {
-                      active: activeTab === 'favoritedArticles',
+                      active: activeTab === 'authorFavoritedArticles',
                     })}
                     type="button"
-                    onClick={() => onFavoritedArticlesClicked(username)}
+                    onClick={() =>
+                      onAuthorFavoritedArticles(profile.data.username)
+                    }
                   >
                     Favorited Articles
                   </button>
@@ -107,10 +106,7 @@ export function ProfilePage() {
               </ul>
             </div>
 
-            <ArticlesList
-              filterByCategoryStore={filterByCategoryStore}
-              filterByPageStore={filterByPageStore}
-            />
+            <ArticlesList filterStore={articleFilterStore} />
           </div>
         </div>
       </div>

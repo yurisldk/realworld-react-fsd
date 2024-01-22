@@ -23,7 +23,7 @@ export function CreateArticeForm() {
         [...articleApi.ARTICLE_KEY, article.slug],
         article,
       );
-      navigate(pathKeys.article.bySlug(article.slug));
+      navigate(pathKeys.article.bySlug({ slug: article.slug }));
     },
   });
 

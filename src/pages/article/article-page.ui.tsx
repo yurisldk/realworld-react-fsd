@@ -1,9 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQueries } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { IoPencil } from 'react-icons/io5';
 import { Link, useParams } from 'react-router-dom';
-import { z } from 'zod';
-import { articleApi, articleTypes } from '~entities/article';
+import { articleQueries, articleTypes } from '~entities/article';
 import { profileTypes } from '~entities/profile';
 import { sessionQueries } from '~entities/session';
 import {
@@ -12,54 +11,46 @@ import {
   UnfavoriteArticleButton,
 } from '~features/article';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
-import { pathKeys } from '~shared/lib/react-router';
+import { pathKeys, routerTypes } from '~shared/lib/react-router';
 import { ErrorHandler } from '~shared/ui/error';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
 import { Spinner } from '~shared/ui/spinner';
 import { CommentsList } from '~widgets/comments-list';
 import { CreateCommentForm } from '~widgets/create-comment-form';
 
-export const ArticlePageParamsSchema = z.object({ slug: z.string() });
-export type ArticlePageParams = z.infer<typeof ArticlePageParamsSchema>;
-
 export function ArticlePage() {
-  const { slug } = useParams() as ArticlePageParams;
+  const { slug } = useParams() as routerTypes.SlugPageParams;
 
-  const { data: user } = sessionQueries.useCurrentUserQuery();
-
-  const {
-    data: article,
-    isPending,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: [...articleApi.ARTICLE_KEY, slug],
-    queryFn: () => articleApi.articleQuery(slug),
+  const [user, article] = useQueries({
+    queries: [
+      sessionQueries.currentUserQueryOptions(),
+      articleQueries.articleQueryOptions(slug),
+    ],
   });
 
-  if (isPending)
+  if (article.isPending)
     return (
       <FullPageWrapper>
         <Spinner />
       </FullPageWrapper>
     );
 
-  if (isError) {
+  if (article.isError) {
     return (
       <FullPageWrapper>
-        <ErrorHandler error={error} />
+        <ErrorHandler error={article.error} />
       </FullPageWrapper>
     );
   }
 
-  const isAuthor = user?.username === article.author.username;
+  const isOwner = user.data.username === article.data.author.username;
 
   return (
     <div className="article-page">
       <div className="banner">
         <div className="container">
-          <h1>{article.title}</h1>
-          <ArticleMeta article={article} isAuthor={isAuthor} />
+          <h1>{article.data.title}</h1>
+          <ArticleMeta article={article.data} isAuthor={isOwner} />
         </div>
       </div>
 
@@ -67,10 +58,10 @@ export function ArticlePage() {
         <div className="row article-content">
           <div className="col-md-12">
             <div>
-              <p>{article.body}</p>
+              <p>{article.data.body}</p>
             </div>
             <ul className="tag-list">
-              {article.tagList.map((tag) => (
+              {article.data.tagList.map((tag) => (
                 <li key={tag} className="tag-default tag-pill tag-outline">
                   {tag}
                 </li>
@@ -82,13 +73,13 @@ export function ArticlePage() {
         <hr />
 
         <div className="article-actions">
-          <ArticleMeta article={article} isAuthor={isAuthor} />
+          <ArticleMeta article={article.data} isAuthor={isOwner} />
         </div>
 
         <div className="row">
           <div className="col-xs-12 col-md-8 offset-md-2">
-            <CreateCommentForm slug={slug!} />
-            <CommentsList slug={slug!} />
+            <CreateCommentForm />
+            <CommentsList />
           </div>
         </div>
       </div>
@@ -99,7 +90,11 @@ export function ArticlePage() {
 type ArticleMetaProps = { article: articleTypes.Article; isAuthor: boolean };
 const ArticleMeta = (props: ArticleMetaProps) => (
   <div className="article-meta">
-    <Link to={pathKeys.profile.byUsername(props.article.author.username)}>
+    <Link
+      to={pathKeys.profile.byUsername({
+        username: props.article.author.username,
+      })}
+    >
       <img
         src={props.article.author.image}
         alt={props.article.author.username}
@@ -108,7 +103,9 @@ const ArticleMeta = (props: ArticleMetaProps) => (
     <div className="info">
       <Link
         className="author"
-        to={pathKeys.profile.byUsername(props.article.author.username)}
+        to={pathKeys.profile.byUsername({
+          username: props.article.author.username,
+        })}
       >
         {props.article.author.username}
       </Link>
@@ -142,7 +139,7 @@ const AuthorActions = (props: AuthorActionsProps) => (
   <>
     <Link
       className="btn btn-outline-secondary btn-sm"
-      to={pathKeys.editor.bySlug(props.slug)}
+      to={pathKeys.editor.bySlug({ slug: props.slug })}
     >
       <IoPencil size={16} />
       &nbsp;Edit Article

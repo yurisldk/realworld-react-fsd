@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { queryClient } from '~shared/lib/react-query';
 import {
   followProfileMutation,
   profileQuery,
@@ -19,11 +24,21 @@ export const profileKeys = {
   },
 };
 
-export function useProfileQuery(username: string) {
-  return useQuery({
-    queryKey: profileKeys.profile(username),
+export function getProfileQueryData(username: string) {
+  return queryClient.getQueryData<Profile>(profileKeys.profile(username));
+}
+export function profileQueryOptions(username: string) {
+  const profileKey = profileKeys.profile(username);
+  return queryOptions({
+    queryKey: profileKey,
     queryFn: () => profileQuery(username),
+    initialData: () => getProfileQueryData(username)!,
+    initialDataUpdatedAt: () =>
+      queryClient.getQueryState(profileKey)?.dataUpdatedAt,
   });
+}
+export async function prefetchProfileQuery(username: string) {
+  return queryClient.prefetchQuery(profileQueryOptions(username));
 }
 
 export function useFollowProfileMutation(profile: Profile) {

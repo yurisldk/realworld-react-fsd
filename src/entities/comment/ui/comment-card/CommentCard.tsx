@@ -22,7 +22,9 @@ export function CommentCard(props: CommentCardProps) {
       </div>
       <div className="card-footer">
         <Link
-          to={pathKeys.profile.byUsername(comment.author.username)}
+          to={pathKeys.profile.byUsername({
+            username: comment.author.username,
+          })}
           className="comment-author"
         >
           <img
@@ -33,7 +35,9 @@ export function CommentCard(props: CommentCardProps) {
         </Link>
         &nbsp;
         <Link
-          to={pathKeys.profile.byUsername(comment.author.username)}
+          to={pathKeys.profile.byUsername({
+            username: comment.author.username,
+          })}
           className="comment-author"
         >
           {comment.author.username}

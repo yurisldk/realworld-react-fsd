@@ -1,10 +1,11 @@
+import { useQuery } from '@tanstack/react-query';
 import { IoCreateOutline, IoSettingsSharp } from 'react-icons/io5';
-import { NavLink, Outlet, useLoaderData } from 'react-router-dom';
-import { sessionQueries, sessionTypes } from '~entities/session';
+import { NavLink, Outlet } from 'react-router-dom';
+import { sessionQueries } from '~entities/session';
 import { pathKeys } from '~shared/lib/react-router';
 
 export function UserLayout() {
-  const { user } = useLoaderData() as { user?: sessionTypes.User };
+  const user = false;
 
   return (
     <>
@@ -35,7 +36,7 @@ const UserNavigation = () => {
     isPending,
     isError,
     error,
-  } = sessionQueries.useCurrentUserQuery();
+  } = useQuery(sessionQueries.currentUserQueryOptions());
 
   if (isPending) return '...loading';
 
@@ -70,7 +71,7 @@ const UserNavigation = () => {
             <li className="nav-item">
               <NavLink
                 className="nav-link"
-                to={pathKeys.profile.byUsername(user.username)}
+                to={pathKeys.profile.byUsername({ username: user.username })}
               >
                 <img
                   className="user-pic"

@@ -10,7 +10,6 @@ import { registerPageRoute } from '~pages/register';
 import { settingsPageRoute } from '~pages/settings';
 import {
   BubbleError,
-  commonLoader,
   guestLoader,
   unknownLoader,
   userLoader,
@@ -26,7 +25,6 @@ const router = createBrowserRouter([
         children: [editorPageRoute, settingsPageRoute],
       },
       {
-        loader: commonLoader,
         element: <UserLayout />,
         children: [homePageRoute, articlePageRoute, profilePageRoute],
       },

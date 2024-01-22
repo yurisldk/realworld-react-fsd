@@ -1,50 +1,42 @@
 import { createStore } from 'zustand';
-import {
-  FilterByCategorySlice,
-  FilterByPageSlice,
-  createFilterByCategorySlice,
-  createFilterByPageSlice,
-} from '~features/article';
+import { devtools } from 'zustand/middleware';
+import { articleModel } from '~entities/article';
+import { tabsModel } from '~shared/ui/tabs';
 
-type TabType = 'articlesFeed' | 'articles' | 'tag';
+type Tab = 'articlesFeed' | 'articles' | 'tag';
 
-interface HomePageStore {
-  activeTab: TabType;
-  onArticlesFeedClicked: (following: string) => void;
-  onArticlesClicked: () => void;
-  onTagClicked: (tag: string) => void;
-}
+const initialTabState: tabsModel.State<Tab> = {
+  tab: 'articles',
+};
 
-export const homePageStore = createStore<HomePageStore>()((set) => ({
-  activeTab: 'articles',
-  onArticlesFeedClicked: (following: string) => {
-    filterByCategoryStore.getState().filterByFollowing(following);
-    filterByPageStore.getState().reset();
-    set(() => ({ activeTab: 'articlesFeed' }));
-  },
-  onArticlesClicked: () => {
-    filterByCategoryStore.getState().reset();
-    filterByPageStore.getState().reset();
-    set(() => ({ activeTab: 'articles' }));
-  },
-  onTagClicked: (tag: string) => {
-    filterByCategoryStore.getState().filterByTag(tag);
-    filterByPageStore.getState().reset();
-    set(() => ({ activeTab: 'tag' }));
-  },
-}));
-
-export const filterByCategoryStore = createStore<FilterByCategorySlice>()(
-  (set, get, api) => ({
-    ...createFilterByCategorySlice(set, get, api),
+export const tabStore = createStore<tabsModel.TabState<Tab>>()(
+  devtools(tabsModel.createTabSlice<Tab>(initialTabState), {
+    name: 'HomePage TabStore',
   }),
 );
 
-export const filterByPageStore = createStore<FilterByPageSlice>()(
-  (set, get, api) => ({
-    ...createFilterByPageSlice(set, get, api),
+const initialArticleFilterState: articleModel.State = {
+  pageQuery: { limit: 10, offset: 0 },
+  filterQuery: {},
+};
+
+export const articleFilterStore = createStore<articleModel.FilterState>()(
+  devtools(articleModel.createArticleFilterSlice(initialArticleFilterState), {
+    name: 'HomePage ArticleFilterStore',
   }),
 );
 
-filterByCategoryStore.subscribe((state) => console.log(state.filter));
-filterByPageStore.subscribe((state) => console.log(state.filter));
+export const onArticlesFeed = () => {
+  tabStore.getState().changeTab('articlesFeed');
+  articleFilterStore.getState().changeFilter({ following: 'currentUser' });
+};
+
+export const onArticles = () => {
+  tabStore.getState().changeTab('articles');
+  articleFilterStore.getState().reset();
+};
+
+export const onTag = (tag: string) => {
+  tabStore.getState().changeTab('tag');
+  articleFilterStore.getState().changeFilter({ tag });
+};

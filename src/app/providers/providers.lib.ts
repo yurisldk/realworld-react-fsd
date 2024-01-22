@@ -16,12 +16,6 @@ export async function userLoader(args: LoaderFunctionArgs) {
   return { ...args, user };
 }
 
-export async function commonLoader(args: LoaderFunctionArgs) {
-  if (!sessionModel.hasToken()) return { ...args };
-  const user = await currentUserQuery();
-  return { ...args, user };
-}
-
 export function guestLoader(args: LoaderFunctionArgs) {
   if (sessionModel.hasToken()) return redirect(pathKeys.home());
   return args;

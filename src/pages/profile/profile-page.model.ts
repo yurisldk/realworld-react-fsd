@@ -1,45 +1,37 @@
 import { createStore } from 'zustand';
-import {
-  FilterByCategorySlice,
-  FilterByPageSlice,
-  createFilterByCategorySlice,
-  createFilterByPageSlice,
-} from '~features/article';
+import { devtools } from 'zustand/middleware';
+import { articleModel } from '~entities/article';
+import { tabsModel } from '~shared/ui/tabs';
 
-type TabType = 'authorArticles' | 'favoritedArticles';
+type Tab = 'authorArticles' | 'authorFavoritedArticles';
 
-interface HomePageStore {
-  activeTab: TabType;
-  onAuthorArticlesClicked: (author: string) => void;
-  onFavoritedArticlesClicked: (author: string) => void;
-}
+const initialTabState: tabsModel.State<Tab> = {
+  tab: 'authorArticles',
+};
 
-export const profilePageStore = createStore<HomePageStore>()((set) => ({
-  activeTab: 'authorArticles',
-  onAuthorArticlesClicked: (author: string) => {
-    filterByCategoryStore.getState().filterByAuthor(author);
-    filterByPageStore.getState().reset();
-    set(() => ({ activeTab: 'authorArticles' }));
-  },
-
-  onFavoritedArticlesClicked: (author: string) => {
-    filterByCategoryStore.getState().filterByFavorited(author);
-    filterByPageStore.getState().reset();
-    set(() => ({ activeTab: 'favoritedArticles' }));
-  },
-}));
-
-export const filterByCategoryStore = createStore<FilterByCategorySlice>()(
-  (set, get, api) => ({
-    ...createFilterByCategorySlice(set, get, api),
+export const tabStore = createStore<tabsModel.TabState<Tab>>()(
+  devtools(tabsModel.createTabSlice<Tab>(initialTabState), {
+    name: 'ProfilePage TabStore',
   }),
 );
 
-export const filterByPageStore = createStore<FilterByPageSlice>()(
-  (set, get, api) => ({
-    ...createFilterByPageSlice(set, get, api),
+const initialArticleFilterState: articleModel.State = {
+  pageQuery: { limit: 10, offset: 0 },
+  filterQuery: {},
+};
+
+export const articleFilterStore = createStore<articleModel.FilterState>()(
+  devtools(articleModel.createArticleFilterSlice(initialArticleFilterState), {
+    name: 'ProfilePage ArticleFilterStore',
   }),
 );
 
-filterByCategoryStore.subscribe((state) => console.log(state.filter));
-filterByPageStore.subscribe((state) => console.log(state.filter));
+export const onAuthorArticles = (username: string) => {
+  tabStore.getState().changeTab('authorArticles');
+  articleFilterStore.getState().changeFilter({ author: username });
+};
+
+export const onAuthorFavoritedArticles = (username: string) => {
+  tabStore.getState().changeTab('authorFavoritedArticles');
+  articleFilterStore.getState().changeFilter({ favorited: username });
+};

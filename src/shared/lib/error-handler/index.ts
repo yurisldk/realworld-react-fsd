@@ -24,3 +24,7 @@ function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
 export function getErrorMessage(error: unknown) {
   return toErrorWithMessage(error).message;
 }
+
+export * from './error-handler.guards';
+export * from './error-handler';
+export * from './error-handler.types';

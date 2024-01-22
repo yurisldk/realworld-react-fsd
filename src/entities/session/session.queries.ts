@@ -1,5 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { queryClient } from '~shared/lib/react-query';
 import { pathKeys } from '~shared/lib/react-router';
 import {
   createUserMutation,
@@ -26,13 +31,22 @@ export const sessionKeys = {
   },
 };
 
-export function useCurrentUserQuery(options?: { initialData?: User }) {
-  return useQuery({
-    queryKey: sessionKeys.currentUser(),
+export function getCurrentUserQueryData() {
+  return queryClient.getQueryData<User>(sessionKeys.currentUser());
+}
+export function currentUserQueryOptions() {
+  const currentUserKey = sessionKeys.currentUser();
+  return queryOptions({
+    queryKey: currentUserKey,
     queryFn: currentUserQuery,
+    initialData: () => getCurrentUserQueryData()!,
+    initialDataUpdatedAt: () =>
+      queryClient.getQueryState(currentUserKey)?.dataUpdatedAt,
     enabled: hasToken(),
-    ...options,
   });
+}
+export async function prefetchCurrentUserQuery() {
+  return queryClient.prefetchQuery(currentUserQueryOptions());
 }
 
 export function useCreateUserMutation() {
@@ -45,7 +59,7 @@ export function useCreateUserMutation() {
     onSuccess: async (user) => {
       sessionStore.setState({ token: user.token });
       queryClient.setQueryData(sessionKeys.currentUser(), user);
-      navigate(pathKeys.profile.byUsername(user.username));
+      navigate(pathKeys.profile.byUsername({ username: user.username }));
     },
   });
 }
@@ -60,7 +74,7 @@ export function useLoginUserMutation() {
     onSuccess: async (user) => {
       sessionStore.setState({ token: user.token });
       queryClient.setQueryData(sessionKeys.currentUser(), user);
-      navigate(pathKeys.profile.byUsername(user.username));
+      navigate(pathKeys.profile.byUsername({ username: user.username }));
     },
   });
 }
@@ -83,7 +97,7 @@ export function useUpdateUserMutation() {
     },
     onSuccess: (user) => {
       queryClient.setQueryData(sessionKeys.currentUser(), user);
-      navigate(pathKeys.profile.byUsername(user.username));
+      navigate(pathKeys.profile.byUsername({ username: user.username }));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: currentUserKey });

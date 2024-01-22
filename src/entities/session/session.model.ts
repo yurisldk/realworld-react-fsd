@@ -23,22 +23,17 @@ const createSessionSlice: StateCreator<
 > = (set) => ({
   ...initialState,
   updateToken: (token: Token | null) =>
-    set({ token: token || null }, false, 'session/updateToken'),
+    set({ token: token || null }, false, 'updateToken'),
 });
 
 export type SessionStore = StoreApi<SessionState>;
 export const sessionStore = createStore<SessionState>()(
   devtools(
-    persist(
-      (set, get, api) => ({
-        ...createSessionSlice(set, get, api),
-      }),
-      {
-        name: 'session',
-        skipHydration: true,
-      },
-    ),
-    { name: 'Session Store' },
+    persist(createSessionSlice, {
+      name: 'session',
+      skipHydration: true,
+    }),
+    { name: 'SessionStore' },
   ),
 );
 

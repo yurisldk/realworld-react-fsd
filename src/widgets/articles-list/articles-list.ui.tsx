@@ -2,12 +2,10 @@ import { ReactNode } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
-import { useStore } from 'zustand';
-import { articleApi, articleTypes } from '~entities/article';
+import { StoreApi } from 'zustand';
+import { articleModel, articleQueries, articleTypes } from '~entities/article';
 import {
   FavoriteArticleButton,
-  FilterByCategoryStore,
-  FilterByPageStore,
   UnfavoriteArticleButton,
 } from '~features/article';
 import { pathKeys } from '~shared/lib/react-router';
@@ -16,22 +14,10 @@ import { ErrorHandler } from '~shared/ui/error';
 import { Spinner } from '~shared/ui/spinner';
 
 type ArticlesListProps = {
-  filterByCategoryStore: FilterByCategoryStore;
-  filterByPageStore: FilterByPageStore;
+  filterStore: StoreApi<articleModel.State>;
 };
 
 export function ArticlesList(props: ArticlesListProps) {
-  const { filterByCategoryStore, filterByPageStore } = props;
-
-  const filterByCategory = useStore(
-    filterByCategoryStore,
-    (state) => state.filter,
-  );
-
-  const filterByPage = useStore(filterByPageStore, (state) => state.filter);
-
-  const isUserFeed = Boolean(filterByCategory.following);
-
   const {
     data: articles,
     isPending,
@@ -41,17 +27,9 @@ export function ArticlesList(props: ArticlesListProps) {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: isUserFeed
-      ? [...articleApi.ARTICLES_FEED_KEY, filterByCategory]
-      : [...articleApi.ARTICLES_KEY, filterByCategory],
-    queryFn: ({ pageParam }) =>
-      isUserFeed
-        ? articleApi.articlesFeedQuery(pageParam)
-        : articleApi.articlesQuery({ ...pageParam, ...filterByCategory }),
-    initialPageParam: filterByPage,
-    getNextPageParam,
-  });
+  } = useInfiniteQuery(
+    articleQueries.articlesInfinityQueryOptions(props.filterStore),
+  );
 
   const isBackgroundUpdating = isFetching && !isFetchingNextPage;
   const isEmpty =
@@ -94,7 +72,11 @@ type ArticleMetaProps = { article: articleTypes.Article };
 const ArticleMeta = (props: ArticleMetaProps) => (
   <div className="article-preview">
     <div className="article-meta">
-      <Link to={pathKeys.profile.byUsername(props.article.author.username)}>
+      <Link
+        to={pathKeys.profile.byUsername({
+          username: props.article.author.username,
+        })}
+      >
         <img
           src={props.article.author.image}
           alt={props.article.author.username}
@@ -103,7 +85,9 @@ const ArticleMeta = (props: ArticleMetaProps) => (
       <div className="info">
         <Link
           className="author"
-          to={pathKeys.profile.byUsername(props.article.author.username)}
+          to={pathKeys.profile.byUsername({
+            username: props.article.author.username,
+          })}
         >
           {props.article.author.username}
         </Link>
@@ -115,7 +99,7 @@ const ArticleMeta = (props: ArticleMetaProps) => (
     </div>
     <Link
       className="preview-link"
-      to={pathKeys.article.bySlug(props.article.slug)}
+      to={pathKeys.article.bySlug({ slug: props.article.slug })}
     >
       <h1>{props.article.title}</h1>
       <p>{props.article.description}</p>
@@ -175,19 +159,3 @@ const IsBackgroundUpdatingState = ({
       <Spinner />
     </div>
   );
-
-type NextPageParams = { limit: number; offset: number };
-const getNextPageParam = <D, P extends NextPageParams>(
-  lastPage: D[],
-  allPages: D[][],
-  lastPageParam: P,
-) => {
-  if (lastPage.length < lastPageParam.limit || !lastPage.length) {
-    return null;
-  }
-
-  return {
-    limit: lastPageParam.limit,
-    offset: allPages.length * lastPageParam.limit,
-  };
-};

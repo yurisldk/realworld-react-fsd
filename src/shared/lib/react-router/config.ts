@@ -1,3 +1,5 @@
+import { SlugPageParams, UsernamePageParams } from './react-router.types';
+
 export const pathKeys = {
   root: '/',
   login() {
@@ -19,7 +21,7 @@ export const pathKeys = {
     root() {
       return pathKeys.root.concat('article/');
     },
-    bySlug(slug: string) {
+    bySlug({ slug }: SlugPageParams) {
       return pathKeys.article.root().concat(slug, '/');
     },
   },
@@ -27,18 +29,18 @@ export const pathKeys = {
     root() {
       return pathKeys.root.concat('profile/');
     },
-    byUsername(username: string) {
+    byUsername({ username }: UsernamePageParams) {
       return pathKeys.profile.root().concat(username, '/');
     },
-    byUsernameFavorites(username: string) {
-      return pathKeys.profile.byUsername(username).concat('favorites/');
+    byUsernameFavorites({ username }: UsernamePageParams) {
+      return pathKeys.profile.byUsername({ username }).concat('favorites/');
     },
   },
   editor: {
     root() {
       return pathKeys.root.concat('editor/');
     },
-    bySlug(slug: string) {
+    bySlug({ slug }: SlugPageParams) {
       return pathKeys.editor.root().concat(slug, '/');
     },
   },

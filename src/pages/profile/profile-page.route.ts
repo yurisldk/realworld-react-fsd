@@ -1,41 +1,69 @@
 import { createElement } from 'react';
 import { RouteObject, redirect } from 'react-router-dom';
-import { pathKeys } from '~shared/lib/react-router';
-import { ProfilePage, ProfilePageParamsSchema } from './profile-page.ui';
+import { articleQueries } from '~entities/article';
+import { profileQueries } from '~entities/profile';
+import { sessionQueries } from '~entities/session';
+import { invalidDataError } from '~shared/lib/error-handler';
+import { pathKeys, routerContracts } from '~shared/lib/react-router';
+import { zodContract } from '~shared/lib/zod';
+import {
+  articleFilterStore,
+  onAuthorArticles,
+  onAuthorFavoritedArticles,
+} from './profile-page.model';
+import { ProfilePage } from './profile-page.ui';
 
 export const profilePageRoute: RouteObject = {
   path: 'profile',
   children: [
     {
       index: true,
-      loader: async () => {
-        return redirect(pathKeys.page404());
-      },
+      loader: async () => redirect(pathKeys.page404()),
     },
     {
       path: ':username',
       element: createElement(ProfilePage),
-      loader: async ({ params }) => {
-        const parsed = ProfilePageParamsSchema.safeParse(params);
+      loader: async (args) => {
+        const contract = zodContract(routerContracts.UsernamePageParamsSchema);
 
-        if (!parsed.success) {
-          throw new Error('Invalid params');
+        if (!contract.isData(args.params)) {
+          throw invalidDataError({
+            validationErrors: contract.getErrorMessages(args.params),
+          });
         }
 
-        return null;
+        onAuthorArticles(args.params.username);
+
+        await Promise.all([
+          sessionQueries.prefetchCurrentUserQuery(),
+          profileQueries.prefetchProfileQuery(args.params.username),
+          articleQueries.prefetchArticlesInfinityQuery(articleFilterStore),
+        ]);
+
+        return args;
       },
     },
     {
       path: ':username/favorites',
       element: createElement(ProfilePage),
-      loader: async ({ params }) => {
-        const parsed = ProfilePageParamsSchema.safeParse(params);
+      loader: async (args) => {
+        const contract = zodContract(routerContracts.UsernamePageParamsSchema);
 
-        if (!parsed.success) {
-          throw new Error('Invalid params');
+        if (!contract.isData(args.params)) {
+          throw invalidDataError({
+            validationErrors: contract.getErrorMessages(args.params),
+          });
         }
 
-        return null;
+        onAuthorFavoritedArticles(args.params.username);
+
+        await Promise.all([
+          sessionQueries.prefetchCurrentUserQuery(),
+          profileQueries.prefetchProfileQuery(args.params.username),
+          articleQueries.prefetchArticlesInfinityQuery(articleFilterStore),
+        ]);
+
+        return args;
       },
     },
   ],

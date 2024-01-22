@@ -1,19 +1,20 @@
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 import { CommentCard, commentQueries } from '~entities/comment';
 import { DeleteCommentIconButtton } from '~features/comment';
+import { routerTypes } from '~shared/lib/react-router';
 import { ErrorHandler } from '~shared/ui/error';
 import { Spinner } from '~shared/ui/spinner';
 
-type CommentsListProps = { slug: string };
-
-export function CommentsList(props: CommentsListProps) {
-  const { slug } = props;
+export function CommentsList() {
+  const { slug } = useParams() as routerTypes.SlugPageParams;
 
   const {
     data: comments,
     isPending,
     isError,
     error,
-  } = commentQueries.useCommentsQuery(slug);
+  } = useQuery(commentQueries.commentsQueryOptions(slug));
 
   if (isPending) {
     return (
