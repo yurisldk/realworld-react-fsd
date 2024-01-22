@@ -8,7 +8,6 @@ import {
 import { ProfileResponseSchema } from './profie.contracts';
 import { mapProfile } from './profile.lib';
 
-export const PROFILE_KEY = ['profile', 'profile'];
 export const profileQuery = createQuery({
   params: declareParams<string>(),
   request: {
@@ -22,7 +21,6 @@ export const profileQuery = createQuery({
   },
 });
 
-export const FOLLOW_PROFILE_KEY = ['profile', 'follow'];
 export const followProfileMutation = createQuery({
   params: declareParams<string>(),
   request: {
@@ -36,7 +34,6 @@ export const followProfileMutation = createQuery({
   },
 });
 
-export const UNFOLLOW_PROFILE_KEY = ['profile', 'unfollow'];
 export const unfollowProfileMutation = createQuery({
   params: declareParams<string>(),
   request: {

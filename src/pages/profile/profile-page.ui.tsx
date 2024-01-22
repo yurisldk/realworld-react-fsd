@@ -1,10 +1,9 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import cn from 'classnames';
 import { IoSettingsSharp } from 'react-icons/io5';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useStore } from 'zustand';
-import { profileApi, profileTypes } from '~entities/profile';
+import { profileQueries, profileTypes } from '~entities/profile';
 import { sessionQueries } from '~entities/session';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
 import { pathKeys } from '~shared/lib/react-router';
@@ -28,7 +27,6 @@ const onFavoritedArticlesClicked =
 export function ProfilePage() {
   const { username } = useParams() as ProfilePageParams;
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const activeTab = useStore(profilePageStore, (state) => state.activeTab);
 
@@ -36,15 +34,12 @@ export function ProfilePage() {
 
   const isAuthor = user?.username === username;
 
-  if (isAuthor) {
-    queryClient.setQueryData([...profileApi.PROFILE_KEY, username], user);
-  }
+  // FIXME:
+  // if (isAuthor) {
+  //   queryClient.setQueryData([...profileApi.PROFILE_KEY, username], user);
+  // }
 
-  const { data: profile, isSuccess } = useQuery({
-    queryKey: [...profileApi.PROFILE_KEY, username],
-    queryFn: () => profileApi.profileQuery(username),
-    enabled: !isAuthor,
-  });
+  const { data: profile, isSuccess } = profileQueries.useProfileQuery(username);
 
   return (
     <div className="profile-page">
