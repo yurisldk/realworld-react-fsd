@@ -10,7 +10,7 @@ export function DeleteArticleButton(props: DeleteArticleButtonProps) {
     articleQueries.useDeleteArticleMutation(slug);
 
   const handleClick = () => {
-    deleteArticle(slug);
+    deleteArticle({ slug });
   };
 
   return (

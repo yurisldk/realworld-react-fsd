@@ -14,7 +14,7 @@ import {
 
 export function HomePage() {
   const { data: user } = useSuspenseQuery(
-    sessionQueries.currentUserQueryOptions(),
+    sessionQueries.userService.queryOptions(),
   );
 
   const activeTab = useStore(tabStore, (state) => state.tab);
@@ -42,7 +42,7 @@ export function HomePage() {
                       active: activeTab === 'articlesFeed',
                     })}
                     type="button"
-                    onClick={onArticlesFeed}
+                    onClick={() => onArticlesFeed()}
                   >
                     Your Feed
                   </button>

@@ -1,1 +1,1 @@
-export { CreateArticeForm } from './/create-article-form.ui';
+export { CreateArticleForm } from './create-article-form.ui';

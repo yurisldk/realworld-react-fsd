@@ -3,7 +3,7 @@ import { RouteObject, redirect } from 'react-router-dom';
 import { articleQueries } from '~entities/article';
 import { profileQueries } from '~entities/profile';
 import { sessionQueries } from '~entities/session';
-import { invalidDataError } from '~shared/lib/error-handler';
+import { invalidDataError } from '~shared/lib/fetch';
 import { pathKeys, routerContracts } from '~shared/lib/react-router';
 import { zodContract } from '~shared/lib/zod';
 import {
@@ -29,13 +29,14 @@ export const profilePageRoute: RouteObject = {
         if (!contract.isData(args.params)) {
           throw invalidDataError({
             validationErrors: contract.getErrorMessages(args.params),
+            response: {},
           });
         }
 
         onAuthorArticles(args.params.username);
 
-        await Promise.all([
-          sessionQueries.prefetchCurrentUserQuery(),
+        Promise.all([
+          sessionQueries.userService.prefetchQuery(),
           profileQueries.profileService.prefetchQuery(args.params.username),
           articleQueries.infinityArticlesService.prefetchQuery(
             articleFilterStore,
@@ -54,13 +55,14 @@ export const profilePageRoute: RouteObject = {
         if (!contract.isData(args.params)) {
           throw invalidDataError({
             validationErrors: contract.getErrorMessages(args.params),
+            response: {},
           });
         }
 
         onAuthorFavoritedArticles(args.params.username);
 
-        await Promise.all([
-          sessionQueries.prefetchCurrentUserQuery(),
+        Promise.all([
+          sessionQueries.userService.prefetchQuery(),
           profileQueries.profileService.prefetchQuery(args.params.username),
           articleQueries.infinityArticlesService.prefetchQuery(
             articleFilterStore,

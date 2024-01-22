@@ -1,4 +1,5 @@
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
+import { withErrorBoundary } from 'react-error-boundary';
 import { Link } from 'react-router-dom';
 import {
   sessionContracts,
@@ -9,7 +10,7 @@ import { pathKeys } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 
-export function LoginPage() {
+function Page() {
   const {
     mutate: loginUser,
     isPending,
@@ -32,7 +33,7 @@ export function LoginPage() {
             <Formik
               initialValues={initialUser}
               validate={formikContract(sessionContracts.LoginUserDtoSchema)}
-              onSubmit={(user) => loginUser(user)}
+              onSubmit={(user) => loginUser({ user })}
             >
               <Form>
                 <fieldset disabled={isPending}>
@@ -70,7 +71,7 @@ const initialUser: sessionTypes.LoginUserDto = {
   password: '',
 };
 
-const SubmitButton = () => {
+function SubmitButton() {
   const { isValidating, isValid } = useFormikContext();
 
   return (
@@ -82,4 +83,8 @@ const SubmitButton = () => {
       Sign in
     </button>
   );
-};
+}
+
+export const LoginPage = withErrorBoundary(Page, {
+  fallbackRender: ({ error }) => <ErrorHandler error={error} />,
+});

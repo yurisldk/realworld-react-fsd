@@ -1,62 +1,65 @@
 import { baseUrl } from '~shared/api/realworld';
-import {
-  createQuery,
-  declareParams,
-  zodContract,
-} from '~shared/lib/json-query';
+import { createJsonMutation, createJsonQuery } from '~shared/lib/fetch';
+import { zodContract } from '~shared/lib/zod';
 import { UserDtoSchema } from './session.contracts';
 import { mapUser } from './session.lib';
 import { authorizationHeader } from './session.model';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './session.types';
 
-export const currentUserQuery = createQuery({
-  request: {
-    url: baseUrl('/user'),
-    method: 'GET',
-    headers: () => ({ ...authorizationHeader() }),
-  },
-  response: {
-    contract: zodContract(UserDtoSchema),
-    mapData: ({ result }) => mapUser(result),
-  },
-});
+export async function currentUserQuery(signal?: AbortSignal) {
+  return createJsonQuery({
+    request: {
+      url: baseUrl('/user'),
+      method: 'GET',
+      headers: { ...authorizationHeader() },
+    },
+    response: {
+      contract: zodContract(UserDtoSchema),
+      mapData: mapUser,
+    },
+    abort: signal,
+  });
+}
 
-export const createUserMutation = createQuery({
-  params: declareParams<CreateUserDto>(),
-  request: {
-    url: baseUrl('/users'),
-    method: 'POST',
-    body: (user) => ({ user }),
-  },
-  response: {
-    contract: zodContract(UserDtoSchema),
-    mapData: ({ result }) => mapUser(result),
-  },
-});
+export async function createUserMutation(params: { user: CreateUserDto }) {
+  return createJsonMutation({
+    request: {
+      url: baseUrl('/users'),
+      method: 'POST',
+      body: JSON.stringify({ user: params.user }),
+    },
+    response: {
+      contract: zodContract(UserDtoSchema),
+      mapData: mapUser,
+    },
+  });
+}
 
-export const loginUserMutation = createQuery({
-  params: declareParams<LoginUserDto>(),
-  request: {
-    url: baseUrl('/users/login'),
-    method: 'POST',
-    body: (user) => ({ user }),
-  },
-  response: {
-    contract: zodContract(UserDtoSchema),
-    mapData: ({ result }) => mapUser(result),
-  },
-});
+export async function loginUserMutation(params: { user: LoginUserDto }) {
+  return createJsonMutation({
+    request: {
+      url: baseUrl('/users/login'),
+      method: 'POST',
+      body: JSON.stringify({ user: params.user }),
+    },
+    response: {
+      contract: zodContract(UserDtoSchema),
+      mapData: mapUser,
+    },
+  });
+}
 
-export const updateUserMutation = createQuery({
-  params: declareParams<UpdateUserDto>(),
-  request: {
-    url: baseUrl('/user'),
-    method: 'PUT',
-    headers: () => ({ ...authorizationHeader() }),
-    body: (user) => ({ user }),
-  },
-  response: {
-    contract: zodContract(UserDtoSchema),
-    mapData: ({ result }) => mapUser(result),
-  },
-});
+export async function updateUserMutation(params: { user: UpdateUserDto }) {
+  return createJsonMutation({
+    request: {
+      url: baseUrl('/user'),
+      method: 'PUT',
+      headers: { ...authorizationHeader() },
+      body: JSON.stringify({ user: params.user }),
+    },
+    response: {
+      contract: zodContract(UserDtoSchema),
+      mapData: mapUser,
+    },
+  });
+}

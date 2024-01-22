@@ -13,10 +13,11 @@ export function DeleteCommentIconButtton(props: DeleteCommentIconButttonProps) {
     commentQueries.useDeleteCommentMutation(slug);
 
   const handleClick = () => {
-    deleteComment({ slug, id: id + '' });
+    deleteComment({ slug, id: `${id}` });
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/control-has-associated-label
     <button
       style={{ border: 0, backgroundColor: 'transparent' }}
       className="mod-options"

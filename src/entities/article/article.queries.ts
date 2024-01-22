@@ -24,43 +24,20 @@ import {
 import { State } from './article.model';
 import { Article, Articles, FilterQuery } from './article.types';
 
-const wait = async (config: { ms: number; reject?: boolean }) =>
-  new Promise((res, rej) => {
-    const { ms, reject } = config;
-    return setTimeout(
-      () => (reject ? rej(new Error('wait error')) : res({})),
-      ms,
-    );
-  });
-
 const keys = {
-  root: () => {
-    return ['article'];
-  },
-  article: (slug: string) => {
-    return [...keys.root(), 'bySlug', slug];
-  },
-  infinityQuery: () => {
-    return [...keys.root(), 'infinityQuery'];
-  },
-  infinityQueryByFilter: (filter: FilterQuery) => {
-    return [...keys.infinityQuery(), 'byFilter', filter];
-  },
-  favoriteArticle: (slug: string) => {
-    return [...keys.root(), 'favorite', slug];
-  },
-  unfavoriteArticle: (slug: string) => {
-    return [...keys.root(), 'unfavorite', slug];
-  },
-  createArticle: () => {
-    return [...keys.root(), 'create'];
-  },
-  updateArticle: (slug: string) => {
-    return [...keys.root(), 'update', slug];
-  },
-  deleteArticle: (slug: string) => {
-    return [...keys.root(), 'delete', slug];
-  },
+  root: () => ['article'],
+  article: (slug: string) => [...keys.root(), 'bySlug', slug],
+  infinityQuery: () => [...keys.root(), 'infinityQuery'],
+  infinityQueryByFilter: (filter: FilterQuery) => [
+    ...keys.infinityQuery(),
+    'byFilter',
+    filter,
+  ],
+  favoriteArticle: (slug: string) => [...keys.root(), 'favorite', slug],
+  unfavoriteArticle: (slug: string) => [...keys.root(), 'unfavorite', slug],
+  createArticle: () => [...keys.root(), 'create'],
+  updateArticle: (slug: string) => [...keys.root(), 'update', slug],
+  deleteArticle: (slug: string) => [...keys.root(), 'delete', slug],
 };
 
 export const articleService = {
@@ -79,9 +56,9 @@ export const articleService = {
     const articleKey = articleService.queryKey(slug);
     return tsqQueryOptions({
       queryKey: articleKey,
-      queryFn: async () => {
-        const article = await articleQuery(slug);
-        profileService.setCache(article.author); // TODO:
+      queryFn: async ({ signal }) => {
+        const article = await articleQuery({ slug }, signal);
+        profileService.setCache(article.author);
         return article;
       },
       initialData: () => articleService.getCache(slug)!,
@@ -115,18 +92,20 @@ export const infinityArticlesService = {
       queryKey: infinityArticlesService.queryKey(filterQuery),
       queryFn: async ({ pageParam, signal }) => {
         const articles = isUserFeed
-          ? await articlesFeedQuery(pageParam, signal)
+          ? await articlesFeedQuery({ query: pageParam }, signal)
           : await articlesQuery(
               {
-                ...pageParam,
-                ...filterQueryDto,
+                query: {
+                  ...pageParam,
+                  ...filterQueryDto,
+                },
               },
               signal,
             );
 
         articles.forEach((article) => {
-          articleService.setCache(article); // TODO:
-          profileService.setCache(article.author); // TODO:
+          articleService.setCache(article);
+          profileService.setCache(article.author);
         });
 
         return articles;
@@ -141,11 +120,10 @@ export const infinityArticlesService = {
           offset: allPages.length * lastPageParam.limit,
         };
       },
-      initialData: () => infinityArticlesService.getCache(filterQueryDto)!,
+      initialData: () => infinityArticlesService.getCache(filterQuery)!,
       initialDataUpdatedAt: () =>
-        queryClient.getQueryState(
-          infinityArticlesService.queryKey(filterQueryDto),
-        )?.dataUpdatedAt,
+        queryClient.getQueryState(infinityArticlesService.queryKey(filterQuery))
+          ?.dataUpdatedAt,
     });
   },
 
@@ -170,7 +148,7 @@ export function useFavoriteArticleMutation(slug: string) {
   return useMutation({
     mutationKey: favoriteKey,
     mutationFn: favoriteArticleMutation,
-    onMutate: async (slug) => {
+    onMutate: async ({ slug }) => {
       await queryClient.cancelQueries({ queryKey: articleKey });
       await queryClient.cancelQueries({ queryKey: infinityQueriesKey });
 
@@ -226,7 +204,7 @@ export function useUnfavoriteArticleMutation(slug: string) {
   return useMutation({
     mutationKey: unfavoriteKey,
     mutationFn: unfavoriteArticleMutation,
-    onMutate: async (slug) => {
+    onMutate: async ({ slug }) => {
       await queryClient.cancelQueries({ queryKey: articleKey });
       await queryClient.cancelQueries({ queryKey: infinityQueriesKey });
 

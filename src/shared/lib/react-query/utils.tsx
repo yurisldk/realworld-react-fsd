@@ -30,7 +30,7 @@ export function renderWithClient(ui: React.ReactElement) {
 
 export function createWrapper() {
   const testQueryClient = createTestQueryClient();
-  return function ({ children }: { children: React.ReactNode }) {
+  return function wrapper({ children }: { children: React.ReactNode }) {
     return (
       <QueryClientProvider client={testQueryClient}>
         {children}

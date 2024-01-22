@@ -47,7 +47,7 @@ export const onArticles = () => {
     articleFilterStore.getState().filterQuery,
   );
   tabStore.getState().changeTab('articles');
-  articleFilterStore.getState().reset();
+  articleFilterStore.getState().changeFilter({});
 };
 
 export const onTag = (tag: string) => {

@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 // eslint-disable-next-line no-restricted-imports
-import { Article } from '~entities/article/@x/profile';
+import type { Article } from '~entities/article/@x/profile';
 import { queryClient } from '~shared/lib/react-query';
 import {
   followProfileMutation,
@@ -14,18 +14,12 @@ import {
 import { Profile } from './profie.types';
 
 const keys = {
-  root: () => {
-    return ['profile'] as const;
-  },
-  profile(username: string) {
-    return [...keys.root(), 'byUsername', username] as const;
-  },
-  follow(username: string) {
-    return [...keys.root(), 'follow', username] as const;
-  },
-  unfollow(username: string) {
-    return [...keys.root(), 'unfollow', username] as const;
-  },
+  root: () => ['profile'] as const,
+  profile: (username: string) =>
+    [...keys.root(), 'byUsername', username] as const,
+  follow: (username: string) => [...keys.root(), 'follow', username] as const,
+  unfollow: (username: string) =>
+    [...keys.root(), 'unfollow', username] as const,
 };
 
 export const profileService = {
@@ -47,7 +41,7 @@ export const profileService = {
     const profileKey = profileService.queryKey(username);
     return tsqQueryOptions({
       queryKey: profileKey,
-      queryFn: async () => profileQuery(username),
+      queryFn: async ({ signal }) => profileQuery({ username }, signal),
       initialData: () => profileService.getCache(username)!,
       initialDataUpdatedAt: () =>
         queryClient.getQueryState(profileKey)?.dataUpdatedAt,
@@ -63,12 +57,13 @@ export function useFollowProfileMutation(username: string) {
 
   const followKey = keys.follow(username);
   const profileKey = keys.profile(username);
+  // FIXME:
   const articleKey = ['article', 'bySlug'];
 
   return useMutation({
     mutationKey: followKey,
     mutationFn: followProfileMutation,
-    onMutate: async (username) => {
+    onMutate: async ({ username }) => {
       await queryClient.cancelQueries({ queryKey: profileKey });
       await queryClient.cancelQueries({ queryKey: articleKey });
 
@@ -87,7 +82,7 @@ export function useFollowProfileMutation(username: string) {
         { queryKey: articleKey },
         (article) => {
           if (!article) return;
-          if (!newProfileData) return;
+          if (!newProfileData) return article;
           if (article.author.username !== newProfileData.username) {
             return article;
           }
@@ -105,7 +100,7 @@ export function useFollowProfileMutation(username: string) {
         { queryKey: articleKey },
         (article) => {
           if (!article) return;
-          if (!context.oldProfileData) return;
+          if (!context.oldProfileData) return article;
           if (article.author.username !== context.oldProfileData.username) {
             return article;
           }
@@ -149,7 +144,7 @@ export function useUnfollowProfileMutation(username: string) {
         { queryKey: articleKey },
         (article) => {
           if (!article) return;
-          if (!newProfileData) return;
+          if (!newProfileData) return article;
           if (article.author.username !== newProfileData.username) {
             return article;
           }
@@ -167,7 +162,7 @@ export function useUnfollowProfileMutation(username: string) {
         { queryKey: articleKey },
         (article) => {
           if (!article) return;
-          if (!context.oldProfileData) return;
+          if (!context.oldProfileData) return article;
           if (article.author.username !== context.oldProfileData.username) {
             return article;
           }

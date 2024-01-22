@@ -29,7 +29,6 @@ export const FilterQueryDtoSchema = z.object({
   tag: z.string().optional(),
   author: z.string().optional(),
   favorited: z.string().optional(),
-  // following: z.string().optional(),
 });
 
 export const FilterQuerySchema = z.object({

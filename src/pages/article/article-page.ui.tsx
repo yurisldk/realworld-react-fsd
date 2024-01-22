@@ -1,5 +1,6 @@
 import { useSuspenseQueries } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+import { withErrorBoundary } from 'react-error-boundary';
 import { IoPencil } from 'react-icons/io5';
 import { Link, useParams } from 'react-router-dom';
 import { articleQueries, articleTypes } from '~entities/article';
@@ -11,28 +12,31 @@ import {
   UnfavoriteArticleButton,
 } from '~features/article';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
+import { withSuspense } from '~shared/lib/react';
 import { pathKeys, routerTypes } from '~shared/lib/react-router';
+import { ErrorHandler } from '~shared/ui/error';
+import { Loader } from '~shared/ui/loader';
 import { CommentsList } from '~widgets/comments-list';
 import { CreateCommentForm } from '~widgets/create-comment-form';
 
-export function ArticlePage() {
+function Page() {
   const { slug } = useParams() as routerTypes.SlugPageParams;
 
   const [user, article] = useSuspenseQueries({
     queries: [
-      sessionQueries.currentUserQueryOptions(),
+      sessionQueries.userService.queryOptions(),
       articleQueries.articleService.queryOptions(slug),
     ],
   });
 
-  const isOwner = user.data.username === article.data.author.username;
+  const isOwner = user.data?.username === article.data.author.username;
 
   return (
     <div className="article-page">
       <div className="banner">
         <div className="container">
           <h1>{article.data.title}</h1>
-          <ArticleMeta article={article.data} isAuthor={isOwner} />
+          <ArticleMeta article={article.data} isOwner={isOwner} />
         </div>
       </div>
 
@@ -55,7 +59,7 @@ export function ArticlePage() {
         <hr />
 
         <div className="article-actions">
-          <ArticleMeta article={article.data} isAuthor={isOwner} />
+          <ArticleMeta article={article.data} isOwner={isOwner} />
         </div>
 
         <div className="row">
@@ -69,81 +73,98 @@ export function ArticlePage() {
   );
 }
 
-type ArticleMetaProps = { article: articleTypes.Article; isAuthor: boolean };
-const ArticleMeta = (props: ArticleMetaProps) => (
-  <div className="article-meta">
-    <Link
-      to={pathKeys.profile.byUsername({
-        username: props.article.author.username,
-      })}
-    >
-      <img
-        src={props.article.author.image}
-        alt={props.article.author.username}
-      />
-    </Link>
-    <div className="info">
+type ArticleMetaProps = { article: articleTypes.Article; isOwner: boolean };
+function ArticleMeta(props: ArticleMetaProps) {
+  return (
+    <div className="article-meta">
       <Link
-        className="author"
         to={pathKeys.profile.byUsername({
           username: props.article.author.username,
         })}
       >
-        {props.article.author.username}
+        <img
+          src={props.article.author.image}
+          alt={props.article.author.username}
+        />
       </Link>
-      <span className="date">
-        {dayjs(props.article.updatedAt).format('MMMM D, YYYY')}
-      </span>
+      <div className="info">
+        <Link
+          className="author"
+          to={pathKeys.profile.byUsername({
+            username: props.article.author.username,
+          })}
+        >
+          {props.article.author.username}
+        </Link>
+        <span className="date">
+          {dayjs(props.article.updatedAt).format('MMMM D, YYYY')}
+        </span>
+      </div>
+      <ArticleActions article={props.article} isOwner={props.isOwner} />
     </div>
-    <ArticleActions article={props.article} isAuthor={props.isAuthor} />
-  </div>
-);
+  );
+}
 
-type ArticleActionsProps = { article: articleTypes.Article; isAuthor: boolean };
-const ArticleActions = (props: ArticleActionsProps) =>
-  props.isAuthor ? (
+type ArticleActionsProps = { article: articleTypes.Article; isOwner: boolean };
+function ArticleActions(props: ArticleActionsProps) {
+  return props.isOwner ? (
     <AuthorActions slug={props.article.slug} />
   ) : (
     <UserActions article={props.article} />
   );
+}
 
 type UserActionsProps = { article: articleTypes.Article };
-const UserActions = (props: UserActionsProps) => (
-  <>
-    <FollowProfileActionButtons profile={props.article.author} />
-    &nbsp;
-    <FavoriteArticleActionButtons article={props.article} />
-  </>
-);
+function UserActions(props: UserActionsProps) {
+  return (
+    <>
+      <FollowProfileActionButtons profile={props.article.author} />
+      &nbsp;
+      <FavoriteArticleActionButtons article={props.article} />
+    </>
+  );
+}
 
 type AuthorActionsProps = { slug: string };
-const AuthorActions = (props: AuthorActionsProps) => (
-  <>
-    <Link
-      className="btn btn-outline-secondary btn-sm"
-      to={pathKeys.editor.bySlug({ slug: props.slug })}
-    >
-      <IoPencil size={16} />
-      &nbsp;Edit Article
-    </Link>
-    <DeleteArticleButton slug={props.slug} />
-  </>
-);
+function AuthorActions(props: AuthorActionsProps) {
+  return (
+    <>
+      <Link
+        className="btn btn-outline-secondary btn-sm"
+        to={pathKeys.editor.bySlug({ slug: props.slug })}
+      >
+        <IoPencil size={16} />
+        Edit Article
+      </Link>
+      &nbsp;
+      <DeleteArticleButton slug={props.slug} />
+    </>
+  );
+}
 
 type FavoriteArticleActionButtonsProps = { article: articleTypes.Article };
-const FavoriteArticleActionButtons = (
+function FavoriteArticleActionButtons(
   props: FavoriteArticleActionButtonsProps,
-) =>
-  props.article.favorited ? (
+) {
+  return props.article.favorited ? (
     <UnfavoriteArticleButton article={props.article} />
   ) : (
     <FavoriteArticleButton article={props.article} />
   );
+}
 
 type FollowProfileActionButtonsProps = { profile: profileTypes.Profile };
-const FollowProfileActionButtons = (props: FollowProfileActionButtonsProps) =>
-  props.profile.following ? (
+function FollowProfileActionButtons(props: FollowProfileActionButtonsProps) {
+  return props.profile.following ? (
     <UnfollowUserButton profile={props.profile} />
   ) : (
     <FollowUserButton profile={props.profile} />
   );
+}
+
+const SuspensedPage = withSuspense(Page, {
+  fallback: <Loader />,
+});
+export const ArticlePage = withErrorBoundary(SuspensedPage, {
+  fallbackRender: ({ error }) => <ErrorHandler error={error} />,
+});

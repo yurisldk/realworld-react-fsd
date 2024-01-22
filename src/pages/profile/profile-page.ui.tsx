@@ -1,4 +1,4 @@
-import { useQueries } from '@tanstack/react-query';
+import { useSuspenseQueries } from '@tanstack/react-query';
 import cn from 'classnames';
 import { IoSettingsSharp } from 'react-icons/io5';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,7 +8,6 @@ import { sessionQueries } from '~entities/session';
 import { FollowUserButton, UnfollowUserButton } from '~features/profile';
 import { pathKeys, routerTypes } from '~shared/lib/react-router';
 import { Button } from '~shared/ui/button';
-import { ErrorHandler } from '~shared/ui/error';
 import { ArticlesList } from '~widgets/articles-list';
 import {
   articleFilterStore,
@@ -23,22 +22,14 @@ export function ProfilePage() {
 
   const activeTab = useStore(tabStore, (state) => state.tab);
 
-  const [user, profile] = useQueries({
+  const [user, profile] = useSuspenseQueries({
     queries: [
-      sessionQueries.currentUserQueryOptions(),
+      sessionQueries.userService.queryOptions(),
       profileQueries.profileService.queryOptions(username),
     ],
   });
 
-  if (profile.isLoading) {
-    return 'loading...';
-  }
-
-  if (profile.isError) {
-    return <ErrorHandler error={profile.error} />;
-  }
-
-  const isOwner = user.data.username === profile.data.username;
+  const isOwner = user.data?.username === profile.data.username;
 
   return (
     <div className="profile-page">
@@ -87,7 +78,7 @@ export function ProfilePage() {
                     type="button"
                     onClick={() => onAuthorArticles(profile.data.username)}
                   >
-                    {`${profile.data.username}`}'s Articles
+                    {`${profile.data.username}`}&apos;s Articles
                   </button>
                 </li>
                 <li className="nav-item">
@@ -115,9 +106,10 @@ export function ProfilePage() {
 }
 
 type FollowProfileActionButtonsProps = { profile: profileTypes.Profile };
-const FollowProfileActionButtons = (props: FollowProfileActionButtonsProps) =>
-  props.profile.following ? (
+function FollowProfileActionButtons(props: FollowProfileActionButtonsProps) {
+  return props.profile.following ? (
     <UnfollowUserButton profile={props.profile} />
   ) : (
     <FollowUserButton profile={props.profile} />
   );
+}

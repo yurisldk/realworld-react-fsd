@@ -1,85 +1,92 @@
 import {
-  queryOptions,
+  queryOptions as tsqQueryOptions,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { sessionTypes } from '~entities/session';
+// eslint-disable-next-line no-restricted-imports
+import { userService } from '~entities/session/@x/comment';
 import { queryClient } from '~shared/lib/react-query';
 import {
   commentsQuery,
   createCommentMutation,
   deleteCommentMutation,
 } from './comment.api';
-import { Comment, Comments } from './comment.types';
+import { Comments } from './comment.types';
 
-export const commentKeys = {
-  root: ['comment'] as const,
-  comments(slug: string) {
-    return [...commentKeys.root, 'comments', slug] as const;
-  },
-  createComment(slug: string) {
-    return [...commentKeys.root, 'createComment', slug] as const;
-  },
-  deleteComment(slug: string) {
-    return [...commentKeys.root, 'deleteComment', slug] as const;
-  },
+const keys = {
+  root: () => ['comment'],
+  comments: (slug: string) => [...keys.root(), 'comments', slug],
+  createComment: (slug: string) =>
+    [...keys.root(), 'createComment', slug] as const,
+  deleteComment: (slug: string) =>
+    [...keys.root(), 'deleteComment', slug] as const,
 };
 
-export function getCommentsQueryData(slug: string) {
-  return queryClient.getQueryData<Comments>(commentKeys.comments(slug));
-}
-export function commentsQueryOptions(slug: string) {
-  const commentsKey = commentKeys.comments(slug);
-  return queryOptions({
-    queryKey: commentsKey,
-    queryFn: () => commentsQuery(slug),
-    initialData: () => getCommentsQueryData(slug)!,
-    initialDataUpdatedAt: () =>
-      queryClient.getQueryState(commentsKey)?.dataUpdatedAt,
-  });
-}
-export async function prefetchCommentsQuery(slug: string) {
-  return queryClient.prefetchQuery(commentsQueryOptions(slug));
-}
+export const commentsService = {
+  queryKey: (slug: string) => keys.comments(slug),
+
+  getCache: (slug: string) =>
+    queryClient.getQueryData<Comments>(commentsService.queryKey(slug)),
+
+  setCache: (slug: string, comments: Comments) =>
+    queryClient.setQueryData(commentsService.queryKey(slug), comments),
+
+  removeCache: (slug: string) =>
+    queryClient.removeQueries({ queryKey: commentsService.queryKey(slug) }),
+
+  queryOptions: (slug: string) => {
+    const commentsKey = commentsService.queryKey(slug);
+    return tsqQueryOptions({
+      queryKey: commentsKey,
+      queryFn: async ({ signal }) => commentsQuery({ slug }, signal),
+      initialData: () => commentsService.getCache(slug)!,
+      initialDataUpdatedAt: () =>
+        queryClient.getQueryState(commentsKey)?.dataUpdatedAt,
+    });
+  },
+
+  prefetchQuery: async (slug: string) =>
+    queryClient.prefetchQuery(commentsService.queryOptions(slug)),
+
+  ensureQueryData: async (slug: string) =>
+    queryClient.ensureQueryData(commentsService.queryOptions(slug)),
+};
 
 export function useCreateCommentMutation(slug: string) {
   const queryClient = useQueryClient();
-  const commentsKey = commentKeys.comments(slug);
+  const commentsKey = commentsService.queryKey(slug);
 
   return useMutation({
-    mutationKey: commentKeys.createComment(slug),
+    mutationKey: keys.createComment(slug),
     mutationFn: createCommentMutation,
-    onMutate: async ({ comment }) => {
+    onMutate: async ({ comment, slug }) => {
       await queryClient.cancelQueries({ queryKey: commentsKey });
 
-      const author = queryClient.getQueryData<sessionTypes.User>([
-        'sessionKeys.user',
-      ]);
+      const author = userService.getCache();
 
-      const newComment: Comment = {
+      const newComment = author && {
         id: +Infinity,
         createdAt: dayjs().toISOString(),
         updatedAt: dayjs().toISOString(),
         body: comment.body,
         author: {
-          ...author!,
+          ...author,
           following: false,
         },
       };
 
-      const prevComments =
-        queryClient.getQueryData<Comments>(commentsKey) || [];
+      const prevComments = commentsService.getCache(slug) || [];
 
-      const newComments = [...prevComments, newComment];
-
-      queryClient.setQueryData<Comments>(commentsKey, newComments);
+      if (newComment) {
+        commentsService.setCache(slug, [...prevComments, newComment]);
+      }
 
       return { prevComments };
     },
-    onError: (_error, _variables, context) => {
+    onError: (_error, variables, context) => {
       if (!context) return;
-      queryClient.setQueryData(commentsKey, context.prevComments);
+      commentsService.setCache(variables.slug, context.prevComments);
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: commentsKey });
@@ -89,26 +96,25 @@ export function useCreateCommentMutation(slug: string) {
 
 export function useDeleteCommentMutation(slug: string) {
   const queryClient = useQueryClient();
-  const commentsKey = commentKeys.comments(slug);
+  const commentsKey = commentsService.queryKey(slug);
 
   return useMutation({
-    mutationKey: commentKeys.deleteComment(slug),
+    mutationKey: keys.deleteComment(slug),
     mutationFn: deleteCommentMutation,
-    onMutate: async ({ id }) => {
+    onMutate: async ({ id, slug }) => {
       await queryClient.cancelQueries({ queryKey: commentsKey });
 
-      const prevComments =
-        queryClient.getQueryData<Comments>(commentsKey) || [];
+      const prevComments = commentsService.getCache(slug) || [];
 
       const newComments = prevComments.filter((comment) => comment.id !== +id);
 
-      queryClient.setQueryData<Comments>(commentsKey, newComments);
+      commentsService.setCache(slug, newComments);
 
       return { prevComments };
     },
     onError: (_error, _variables, context) => {
       if (!context) return;
-      queryClient.setQueryData(commentsKey, context.prevComments);
+      commentsService.setCache(slug, context.prevComments);
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: commentsKey });

@@ -27,6 +27,9 @@ module.exports = {
         pathNot: [
           '(^|/)\\.[^/]+\\.(js|cjs|mjs|ts|json)$', // dot files
           '\\.d\\.ts$', // TypeScript declaration files
+          '\\.types\\.ts$',
+          '^src/shared/lib/',
+          '(^|/)@x',
           '(^|/)tsconfig\\.json$', // TypeScript config
           '(^|/)(babel|webpack)\\.config\\.(js|cjs|mjs|ts|json)$', // other configs
         ],
@@ -344,12 +347,6 @@ module.exports = {
           'src/(pages/[^/]+/)',
           'src/(features/[^/]+/[^/]+/)',
           'src/([^/]+/[^/]+)',
-          // 'src/(app/[^/]+/)',
-          // 'src/(pages/[^/]+/)',
-          // 'src/([^/].*/api)',
-          // 'src/([^/].*/model)',
-          // 'src/([^/].*/ui)',
-          // 'src/([^/].*/index.ts)',
         ],
 
         /* Options to tweak the appearance of your graph.See

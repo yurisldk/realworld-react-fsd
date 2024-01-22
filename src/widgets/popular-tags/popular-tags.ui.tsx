@@ -2,15 +2,19 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { withErrorBoundary } from 'react-error-boundary';
 import { tagQueries } from '~entities/tag';
 import { withSuspense } from '~shared/lib/react';
+import { ErrorHandler } from '~shared/ui/error';
+import { Loader } from '~shared/ui/loader';
 
 type PopularTagsProps = {
   onTagClicked: (tag: string) => void;
 };
 
-export function Foo(props: PopularTagsProps) {
+export function Tags(props: PopularTagsProps) {
   const { onTagClicked } = props;
 
-  const { data: tags } = useSuspenseQuery(tagQueries.tagsQueryOptions());
+  const { data: tags } = useSuspenseQuery(
+    tagQueries.tagsService.queryOptions(),
+  );
 
   return (
     <div className="sidebar">
@@ -33,9 +37,9 @@ export function Foo(props: PopularTagsProps) {
   );
 }
 
-const SuspensedPopularTags = withSuspense(Foo, {
-  fallback: <div>tags loading..</div>,
+const SuspensedPopularTags = withSuspense(Tags, {
+  fallback: <Loader />,
 });
 export const PopularTags = withErrorBoundary(SuspensedPopularTags, {
-  fallbackRender: ({ error }) => <div>{error.message}</div>,
+  fallbackRender: ({ error }) => <ErrorHandler error={error} />,
 });

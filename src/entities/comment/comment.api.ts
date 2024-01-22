@@ -1,10 +1,7 @@
 import { sessionModel } from '~entities/session';
 import { baseUrl } from '~shared/api/realworld';
-import {
-  createQuery,
-  declareParams,
-  zodContract,
-} from '~shared/lib/json-query';
+import { createJsonMutation, createJsonQuery } from '~shared/lib/fetch';
+import { zodContract } from '~shared/lib/zod';
 import {
   CommentResponseSchema,
   CommentsDtoSchema,
@@ -13,42 +10,55 @@ import {
 import { mapComment, mapComments } from './comment.lib';
 import { CreateCommentDto } from './comment.types';
 
-export const commentsQuery = createQuery({
-  params: declareParams<string>(),
-  request: {
-    url: (slug) => baseUrl(`/articles/${slug}/comments`),
-    method: 'GET',
-    headers: () => ({ ...sessionModel.authorizationHeader() }),
-  },
-  response: {
-    contract: zodContract(CommentsDtoSchema),
-    mapData: ({ result }) => mapComments(result),
-  },
-});
+export async function commentsQuery(
+  params: { slug: string },
+  signal?: AbortSignal,
+) {
+  return createJsonQuery({
+    request: {
+      url: baseUrl(`/articles/${params.slug}/comments`),
+      method: 'GET',
+      headers: { ...sessionModel.authorizationHeader() },
+    },
+    response: {
+      contract: zodContract(CommentsDtoSchema),
+      mapData: mapComments,
+    },
+    abort: signal,
+  });
+}
 
-export const createCommentMutation = createQuery({
-  params: declareParams<{ slug: string; comment: CreateCommentDto }>(),
-  request: {
-    url: ({ slug }) => baseUrl(`/articles/${slug}/comments`),
-    method: 'POST',
-    headers: () => ({ ...sessionModel.authorizationHeader() }),
-    body: ({ comment }) => ({ comment }),
-  },
-  response: {
-    contract: zodContract(CommentResponseSchema),
-    mapData: ({ result }) => mapComment(result.comment),
-  },
-});
+export async function createCommentMutation(params: {
+  slug: string;
+  comment: CreateCommentDto;
+}) {
+  return createJsonMutation({
+    request: {
+      url: baseUrl(`/articless/${params.slug}/comments`),
+      method: 'POST',
+      headers: { ...sessionModel.authorizationHeader() },
+      body: JSON.stringify({ comment: params.comment }),
+    },
+    response: {
+      contract: zodContract(CommentResponseSchema),
+      mapData: ({ comment }) => mapComment(comment),
+    },
+  });
+}
 
-export const deleteCommentMutation = createQuery({
-  params: declareParams<{ slug: string; id: string }>(),
-  request: {
-    url: ({ slug, id }) => baseUrl(`/articles/${slug}/comments/${id}`),
-    method: 'DELETE',
-    headers: () => ({ ...sessionModel.authorizationHeader() }),
-  },
-  response: {
-    contract: zodContract(EmptySchema),
-    mapData: () => ({}),
-  },
-});
+export async function deleteCommentMutation(params: {
+  slug: string;
+  id: string;
+}) {
+  return createJsonMutation({
+    request: {
+      url: baseUrl(`/articles/${params.slug}/comments/${params.id}`),
+      method: 'DELETE',
+      headers: { ...sessionModel.authorizationHeader() },
+    },
+    response: {
+      contract: zodContract(EmptySchema),
+      mapData: () => ({}),
+    },
+  });
+}

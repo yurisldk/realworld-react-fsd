@@ -5,7 +5,7 @@ import { sessionQueries } from '~entities/session';
 import { pathKeys } from '~shared/lib/react-router';
 
 export function GenericLayout() {
-  const { data } = useSuspenseQuery(sessionQueries.currentUserQueryOptions());
+  const { data } = useSuspenseQuery(sessionQueries.userService.queryOptions());
 
   return (
     <>
@@ -30,58 +30,56 @@ export function NakedLayout() {
   return <Outlet />;
 }
 
-const UserNavigation = () => {
+function UserNavigation() {
   const { data: user } = useSuspenseQuery(
-    sessionQueries.currentUserQueryOptions(),
+    sessionQueries.userService.queryOptions(),
   );
 
   return (
     <nav className="navbar navbar-light">
       <div className="container">
-        <>
-          <NavLink className="navbar-brand" to={pathKeys.home()}>
-            conduit
-          </NavLink>
+        <NavLink className="navbar-brand" to={pathKeys.home()}>
+          conduit
+        </NavLink>
 
-          <ul className="nav navbar-nav pull-xs-right">
-            <li className="nav-item">
-              <NavLink className="nav-link" to={pathKeys.home()}>
-                Home
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" to={pathKeys.editor.root()}>
-                <IoCreateOutline size={16} />
-                &nbsp;New Article
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className="nav-link" to={pathKeys.settings()}>
-                <IoSettingsSharp size={16} />
-                &nbsp;Settings
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink
-                className="nav-link"
-                to={pathKeys.profile.byUsername({ username: user.username })}
-              >
-                <img
-                  className="user-pic"
-                  src={user.image}
-                  alt={user.username}
-                />
-                {user.username}
-              </NavLink>
-            </li>
-          </ul>
-        </>
+        <ul className="nav navbar-nav pull-xs-right">
+          <li className="nav-item">
+            <NavLink className="nav-link" to={pathKeys.home()}>
+              Home
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink className="nav-link" to={pathKeys.editor.root()}>
+              <IoCreateOutline size={16} />
+              &nbsp;New Article
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink className="nav-link" to={pathKeys.settings()}>
+              <IoSettingsSharp size={16} />
+              &nbsp;Settings
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="nav-link"
+              to={pathKeys.profile.byUsername({ username: user!.username })}
+            >
+              <img
+                className="user-pic"
+                src={user!.image}
+                alt={user!.username}
+              />
+              {user!.username}
+            </NavLink>
+          </li>
+        </ul>
       </div>
     </nav>
   );
-};
+}
 
-const GuestNavigation = () => {
+function GuestNavigation() {
   return (
     <nav className="navbar navbar-light">
       <div className="container">
@@ -109,21 +107,23 @@ const GuestNavigation = () => {
       </div>
     </nav>
   );
-};
+}
 
-const Footer = () => (
-  <footer>
-    <div className="container">
-      <NavLink className="logo-font" to={pathKeys.home()}>
-        conduit
-      </NavLink>
-      <span className="attribution">
-        An interactive learning project from{' '}
-        <a href="https://thinkster.io" target="_blank" rel="noreferrer">
-          Thinkster
-        </a>
-        . Code &amp; design licensed under MIT.
-      </span>
-    </div>
-  </footer>
-);
+function Footer() {
+  return (
+    <footer>
+      <div className="container">
+        <NavLink className="logo-font" to={pathKeys.home()}>
+          conduit
+        </NavLink>
+        <span className="attribution">
+          An interactive learning project from{' '}
+          <a href="https://thinkster.io" target="_blank" rel="noreferrer">
+            Thinkster
+          </a>
+          . Code &amp; design licensed under MIT.
+        </span>
+      </div>
+    </footer>
+  );
+}

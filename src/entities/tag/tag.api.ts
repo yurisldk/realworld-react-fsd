@@ -1,16 +1,19 @@
 import { baseUrl } from '~shared/api/realworld';
-import { createQuery, zodContract } from '~shared/lib/json-query';
+import { createJsonQuery } from '~shared/lib/fetch';
+import { zodContract } from '~shared/lib/zod';
 import { TagsDtoSchema } from './tag.contracts';
 import { mapTags } from './tag.lib';
 
-export const TAGS_KEY = ['tags', 'tags'];
-export const tagsQuery = createQuery({
-  request: {
-    url: baseUrl('/tags'),
-    method: 'GET',
-  },
-  response: {
-    contract: zodContract(TagsDtoSchema),
-    mapData: ({ result }) => mapTags(result),
-  },
-});
+export async function tagsQuery(signal?: AbortSignal) {
+  return createJsonQuery({
+    request: {
+      url: baseUrl('/tags'),
+      method: 'GET',
+    },
+    response: {
+      contract: zodContract(TagsDtoSchema),
+      mapData: mapTags,
+    },
+    abort: signal,
+  });
+}

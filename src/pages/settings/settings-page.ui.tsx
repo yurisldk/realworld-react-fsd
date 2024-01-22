@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
+import { withErrorBoundary } from 'react-error-boundary';
 import {
   sessionContracts,
   sessionQueries,
@@ -8,8 +9,10 @@ import {
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 
-export function SettingsPage() {
-  const { data: user } = useQuery(sessionQueries.currentUserQueryOptions());
+function Page() {
+  const { data: user } = useSuspenseQuery(
+    sessionQueries.userService.queryOptions(),
+  );
 
   const {
     mutate: updateUser,
@@ -31,7 +34,9 @@ export function SettingsPage() {
               enableReinitialize
               initialValues={{ ...initialUser, ...user }}
               validate={formikContract(sessionContracts.UpdateUserDtoSchema)}
-              onSubmit={({ form, ...user }) => updateUser(user)}
+              onSubmit={({ form, ...updatedUser }) =>
+                updateUser({ user: updatedUser })
+              }
               initialTouched={{ form: true }}
             >
               <Form>
@@ -110,11 +115,11 @@ const initialUser: sessionTypes.UpdateUserDto & { form: string } = {
   password: '',
 };
 
-const LogoutButton = () => {
-  const { mutate } = sessionQueries.useLogoutMutation();
+function LogoutButton() {
+  const { mutate: logout } = sessionQueries.useLogoutMutation();
 
   const handleClick = () => {
-    mutate();
+    logout();
   };
 
   return (
@@ -126,9 +131,9 @@ const LogoutButton = () => {
       Or click here to logout.
     </button>
   );
-};
+}
 
-const SubmitButton = () => {
+function SubmitButton() {
   const { isValidating, isValid } = useFormikContext();
 
   return (
@@ -140,4 +145,8 @@ const SubmitButton = () => {
       Update Settings
     </button>
   );
-};
+}
+
+export const SettingsPage = withErrorBoundary(Page, {
+  fallbackRender: ({ error }) => <ErrorHandler error={error} />,
+});

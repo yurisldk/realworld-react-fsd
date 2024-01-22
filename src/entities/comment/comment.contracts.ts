@@ -19,7 +19,7 @@ export const CommentsDtoSchema = z.object({
 });
 
 export const CreateCommentDtoSchema = z.object({
-  body: z.string(),
+  body: z.string().min(1),
 });
 
 export const CommentSchema = z.object({

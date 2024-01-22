@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
+import { withErrorBoundary } from 'react-error-boundary';
 import { useParams } from 'react-router-dom';
 import {
   articleContracts,
@@ -7,21 +8,18 @@ import {
   articleQueries,
   articleTypes,
 } from '~entities/article';
+import { withSuspense } from '~shared/lib/react';
 import { routerTypes } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
-import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
-import { Spinner } from '~shared/ui/spinner';
+import { Loader } from '~shared/ui/loader';
 
-export function UpdateArticleForm() {
+function ArticleForm() {
   const { slug } = useParams() as routerTypes.SlugPageParams;
 
-  const {
-    data: currentArticle,
-    isPending: isArticlePending,
-    isError: isArticleError,
-    error: articleError,
-  } = useQuery(articleQueries.articleService.queryOptions(slug));
+  const { data: currentArticle } = useSuspenseQuery(
+    articleQueries.articleService.queryOptions(slug),
+  );
 
   const {
     mutate: updateArticle,
@@ -29,21 +27,6 @@ export function UpdateArticleForm() {
     isError,
     error,
   } = articleQueries.useUpdateArticleMutation(slug);
-
-  if (isArticlePending)
-    return (
-      <FullPageWrapper>
-        <Spinner />
-      </FullPageWrapper>
-    );
-
-  if (isArticleError) {
-    return (
-      <FullPageWrapper>
-        <ErrorHandler error={articleError} />
-      </FullPageWrapper>
-    );
-  }
 
   return (
     <Formik
@@ -53,11 +36,11 @@ export function UpdateArticleForm() {
         ...articleLib.mapUpdateArticle(currentArticle),
       }}
       validate={formikContract(articleContracts.UpdateArticleSchema)}
-      onSubmit={(article) => updateArticle({ slug, article: article })}
+      onSubmit={(article) => updateArticle({ slug, article })}
       initialTouched={{ form: true }}
     >
       <Form>
-        {isError && <ErrorHandler error={error} />}
+        {isError && <ErrorHandler error={error} size="small" />}
         <fieldset disabled={isPending}>
           <fieldset className="form-group">
             <Field
@@ -116,7 +99,7 @@ const initialArticle: articleTypes.UpdateArticle & { form: string } = {
   tagList: '',
 };
 
-const SubmitButton = () => {
+function SubmitButton() {
   const { isValidating, isValid } = useFormikContext();
 
   return (
@@ -128,4 +111,11 @@ const SubmitButton = () => {
       Update Article
     </button>
   );
-};
+}
+
+const SuspensedArticleForm = withSuspense(ArticleForm, {
+  fallback: <Loader />,
+});
+export const UpdateArticleForm = withErrorBoundary(SuspensedArticleForm, {
+  fallbackRender: ({ error }) => <ErrorHandler error={error} />,
+});

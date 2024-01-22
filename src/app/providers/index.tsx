@@ -1,26 +1,22 @@
-import { Suspense } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { FullPageError } from '~shared/ui/full-page-error';
-import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
-import { Spinner } from '~shared/ui/spinner';
-import { QueryClientProvider } from './QueryClientProvider';
 import '~shared/main.css';
+import { withErrorBoundary } from 'react-error-boundary';
+import { withSuspense } from '~shared/lib/react';
+import { FullPageError } from '~shared/ui/full-page-error';
+import { Loader } from '~shared/ui/loader';
+import { QueryClientProvider } from './QueryClientProvider';
 import { BrowserRouter } from './RouterProvider';
 
-export function Provider() {
+function Providers() {
   return (
-    <ErrorBoundary FallbackComponent={FullPageError}>
-      <Suspense
-        fallback={
-          <FullPageWrapper>
-            <Spinner />
-          </FullPageWrapper>
-        }
-      >
-        <QueryClientProvider>
-          <BrowserRouter />
-        </QueryClientProvider>
-      </Suspense>
-    </ErrorBoundary>
+    <QueryClientProvider>
+      <BrowserRouter />
+    </QueryClientProvider>
   );
 }
+
+const SuspensedProvider = withSuspense(Providers, {
+  fallback: <Loader size="full" />,
+});
+export const Provider = withErrorBoundary(SuspensedProvider, {
+  fallbackRender: ({ error }) => <FullPageError error={error} />,
+});

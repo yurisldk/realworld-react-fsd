@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { FilterQuery, PageQueryDto } from './article.types';
+import type { FilterQuery, PageQueryDto } from './article.types';
 
 export type State = {
   pageQuery: PageQueryDto;

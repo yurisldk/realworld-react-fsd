@@ -9,16 +9,16 @@ export type Actions<Literals> = {
 };
 
 export type TabState<Literals> = State<Literals> & Actions<Literals>;
-export const createTabSlice = <Literals>(
-  initialState: State<Literals>,
-): StateCreator<
-  TabState<Literals>,
-  [['zustand/devtools', never]],
-  [],
-  TabState<Literals>
-> => {
-  return (set) => ({
+export const createTabSlice =
+  <Literals>(
+    initialState: State<Literals>,
+  ): StateCreator<
+    TabState<Literals>,
+    [['zustand/devtools', never]],
+    [],
+    TabState<Literals>
+  > =>
+  (set) => ({
     ...initialState,
     changeTab: (tab: Literals) => set({ tab }, false, 'changeTab'),
   });
-};

@@ -1,13 +1,16 @@
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
+import { withErrorBoundary } from 'react-error-boundary';
 import {
   articleContracts,
   articleQueries,
   articleTypes,
 } from '~entities/article';
+import { withSuspense } from '~shared/lib/react';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
+import { Loader } from '~shared/ui/loader';
 
-export function CreateArticeForm() {
+function ArticleForm() {
   const {
     mutate: createArticle,
     isPending,
@@ -20,10 +23,12 @@ export function CreateArticeForm() {
       enableReinitialize
       initialValues={initialArticle}
       validate={formikContract(articleContracts.CreateArticleSchema)}
-      onSubmit={(createArticleDto) => createArticle(createArticleDto)}
+      onSubmit={(createArticleDto) =>
+        createArticle({ article: createArticleDto })
+      }
     >
       <Form>
-        {isError && <ErrorHandler error={error} />}
+        {isError && <ErrorHandler error={error} size="small" />}
         <fieldset disabled={isPending}>
           <fieldset className="form-group">
             <Field
@@ -77,7 +82,7 @@ const initialArticle: articleTypes.CreateArticle = {
   tagList: '',
 };
 
-const SubmitButton = () => {
+function SubmitButton() {
   const { isValidating, isValid } = useFormikContext();
 
   return (
@@ -89,4 +94,11 @@ const SubmitButton = () => {
       Publish Article
     </button>
   );
-};
+}
+
+const SuspensedArticleForm = withSuspense(ArticleForm, {
+  fallback: <Loader />,
+});
+export const CreateArticleForm = withErrorBoundary(SuspensedArticleForm, {
+  fallbackRender: ({ error }) => <ErrorHandler error={error} />,
+});

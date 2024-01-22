@@ -9,12 +9,19 @@ module.exports = {
     'plugin:eslint-plugin-import/recommended',
     'plugin:react-hooks/recommended',
     'eslint-config-prettier',
+    'eslint-config-airbnb',
+    'prettier',
   ],
-  env: { 
-    browser: true, 
-    es2020: true 
+  env: {
+    browser: true,
+    es2020: true,
   },
   rules: {
+    'react/react-in-jsx-scope': 'off',
+    'react/require-default-props': 'off',
+    'react/destructuring-assignment': 'off',
+    'react/jsx-props-no-spreading': 'off',
+    'consistent-return': 'off',
     'import/order': [
       'error',
       {
@@ -74,13 +81,14 @@ module.exports = {
       'error',
       { devDependencies: ['./vite.config.ts'] },
     ],
+    'import/prefer-default-export': 'off',
   },
   overrides: [
-    // typescript
     {
       files: ['./src/**/*.ts', './src/**/*.tsx'],
       extends: [
         'plugin:eslint-plugin-import/typescript',
+        'eslint-config-airbnb-typescript',
       ],
       parserOptions: {
         ecmaVersion: 'latest',
@@ -89,6 +97,10 @@ module.exports = {
       },
       plugins: ['@typescript-eslint/eslint-plugin'],
       rules: {
+        '@typescript-eslint/no-use-before-define': 'off',
+        '@typescript-eslint/no-throw-literal': 'off',
+        '@typescript-eslint/no-shadow': 'off',
+        'object-curly-newline': 'off',
         '@typescript-eslint/indent': 'off',
         'import/no-extraneous-dependencies': [
           'error',
@@ -101,10 +113,10 @@ module.exports = {
           },
         ],
       },
+
     },
-    // tests
     {
-      files: ['./src/**/*.test.ts', './src/**/*.test.tsx'],
+      files: ['**/__tests__/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
       extends: ['plugin:testing-library/react'],
       rules: {
         'testing-library/no-debugging-utils': 'warn',

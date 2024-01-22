@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import { mapProfile } from '~entities/profile/@x/article';
-import {
+import type {
   Article,
   ArticleDto,
   Articles,

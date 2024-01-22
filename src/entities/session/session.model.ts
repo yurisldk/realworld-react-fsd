@@ -42,5 +42,4 @@ export function authorizationHeader() {
   if (hasToken()) {
     return { Authorization: `Bearer ${sessionStore.getState().token}` };
   }
-  return;
 }

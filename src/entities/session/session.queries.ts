@@ -1,5 +1,5 @@
 import {
-  queryOptions,
+  queryOptions as tsqQueryOptions,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
@@ -13,68 +13,70 @@ import {
   updateUserMutation,
 } from './session.api';
 import { hasToken, sessionStore } from './session.model';
-import { UpdateUserDto, User } from './session.types';
+import { User } from './session.types';
 
-export const sessionKeys = {
-  root: ['session'] as const,
-  currentUser() {
-    return [...sessionKeys.root, 'currentUser'] as const;
-  },
-  createUser() {
-    return [...sessionKeys.root, 'createUser'] as const;
-  },
-  loginUser() {
-    return [...sessionKeys.root, 'loginUser'] as const;
-  },
-  updateUser() {
-    return [...sessionKeys.root, 'updateUser'] as const;
-  },
+const keys = {
+  root: () => ['session'],
+  currentUser: () => [...keys.root(), 'currentUser'] as const,
+  createUser: () => [...keys.root(), 'createUser'] as const,
+  loginUser: () => [...keys.root(), 'loginUser'] as const,
+  updateUser: () => [...keys.root(), 'updateUser'] as const,
 };
 
-export function getCurrentUserQueryData() {
-  return queryClient.getQueryData<User>(sessionKeys.currentUser());
-}
-export function currentUserQueryOptions() {
-  const currentUserKey = sessionKeys.currentUser();
-  return queryOptions({
-    queryKey: currentUserKey,
-    queryFn: currentUserQuery,
-    initialData: () => getCurrentUserQueryData()!,
-    initialDataUpdatedAt: () =>
-      queryClient.getQueryState(currentUserKey)?.dataUpdatedAt,
-    enabled: hasToken(),
-  });
-}
-export async function prefetchCurrentUserQuery() {
-  if (!hasToken()) return;
-  return queryClient.prefetchQuery(currentUserQueryOptions());
-}
+export const userService = {
+  queryKey: () => keys.currentUser(),
+
+  getCache: () => queryClient.getQueryData<User>(userService.queryKey()),
+
+  setCache: (user: User | null) =>
+    queryClient.setQueryData(userService.queryKey(), user),
+
+  removeCache: () =>
+    queryClient.removeQueries({ queryKey: userService.queryKey() }),
+
+  queryOptions: () => {
+    const userKey = userService.queryKey();
+    return tsqQueryOptions({
+      queryKey: userKey,
+      queryFn: async ({ signal }) =>
+        hasToken() ? currentUserQuery(signal) : null,
+      initialData: () => userService.getCache()!,
+      initialDataUpdatedAt: () =>
+        queryClient.getQueryState(userKey)?.dataUpdatedAt,
+    });
+  },
+
+  prefetchQuery: async () => {
+    queryClient.prefetchQuery(userService.queryOptions());
+  },
+
+  ensureQueryData: async () =>
+    queryClient.ensureQueryData(userService.queryOptions()),
+};
 
 export function useCreateUserMutation() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   return useMutation({
-    mutationKey: sessionKeys.createUser(),
+    mutationKey: keys.createUser(),
     mutationFn: createUserMutation,
     onSuccess: async (user) => {
       sessionStore.setState({ token: user.token });
-      queryClient.setQueryData(sessionKeys.currentUser(), user);
+      userService.setCache(user);
       navigate(pathKeys.profile.byUsername({ username: user.username }));
     },
   });
 }
 
 export function useLoginUserMutation() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   return useMutation({
-    mutationKey: sessionKeys.loginUser(),
+    mutationKey: keys.loginUser(),
     mutationFn: loginUserMutation,
     onSuccess: async (user) => {
       sessionStore.setState({ token: user.token });
-      queryClient.setQueryData(sessionKeys.currentUser(), user);
+      userService.setCache(user);
       navigate(pathKeys.profile.byUsername({ username: user.username }));
     },
   });
@@ -84,37 +86,47 @@ export function useUpdateUserMutation() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const currentUserKey = sessionKeys.currentUser();
-  const user = queryClient.getQueryData<User>(currentUserKey);
-
   return useMutation({
-    mutationKey: sessionKeys.updateUser(),
+    mutationKey: keys.updateUser(),
     mutationFn: updateUserMutation,
-    onMutate: (updateUser) => {
-      queryClient.setQueryData<UpdateUserDto>(currentUserKey, updateUser);
+    onMutate: ({ user }) => {
+      const prevUser = userService.getCache();
+
+      const newUser = prevUser && {
+        ...prevUser,
+        user,
+      };
+
+      if (newUser) {
+        userService.setCache(newUser);
+      }
+
+      return { prevUser };
     },
-    onError: () => {
-      queryClient.setQueryData(currentUserKey, user);
+    onError: (_error, _variables, context) => {
+      if (!context) return;
+      if (context.prevUser) {
+        userService.setCache(context.prevUser);
+      }
     },
     onSuccess: (user) => {
-      queryClient.setQueryData(sessionKeys.currentUser(), user);
       navigate(pathKeys.profile.byUsername({ username: user.username }));
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: currentUserKey });
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: userService.queryKey() });
     },
   });
 }
 
 export function useLogoutMutation() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   return {
     mutate: () => {
       sessionStore.setState({ token: null });
-      queryClient.removeQueries({ queryKey: sessionKeys.currentUser() });
+      userService.setCache(null);
       navigate(pathKeys.home());
+      queryClient.invalidateQueries();
     },
   };
 }

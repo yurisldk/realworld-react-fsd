@@ -17,7 +17,9 @@ export function infinityQueryDataUpdater<D, K extends keyof D>(config: {
       .flat()
       .findIndex((item) => item[id] === data[id]);
 
-    if (dataOrderIdx === -1) return infinityData;
+    if (dataOrderIdx === -1) {
+      return infinityData;
+    }
 
     const pageLength = infinityData.pages[0].length;
     const [pageIdx, dataIdx] = [
