@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import cn from 'classnames';
 import { IoSettingsSharp } from 'react-icons/io5';
 import { useNavigate, useParams } from 'react-router-dom';
+import { z } from 'zod';
 import { useStore } from 'zustand';
 import { profileApi, profileTypes } from '~entities/profile';
 import { sessionApi } from '~entities/session';
@@ -15,6 +16,9 @@ import {
   profilePageStore,
 } from './profile-page.model';
 
+export const ProfilePageParamsSchema = z.object({ username: z.string() });
+export type ProfilePageParams = z.infer<typeof ProfilePageParamsSchema>;
+
 const onAuthorArticlesClicked =
   profilePageStore.getState().onAuthorArticlesClicked;
 
@@ -22,8 +26,7 @@ const onFavoritedArticlesClicked =
   profilePageStore.getState().onFavoritedArticlesClicked;
 
 export function ProfilePage() {
-  // FIXME: validate via zod
-  const { username } = useParams() as { username: string };
+  const { username } = useParams() as ProfilePageParams;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 

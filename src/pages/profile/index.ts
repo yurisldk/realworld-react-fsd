@@ -1,3 +1,1 @@
-import { ProfilePage } from './profile-page.ui';
-
-export default ProfilePage;
+export { profilePageRoute } from './profile-page.route';

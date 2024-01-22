@@ -1,3 +1,1 @@
-import { HomePage } from './home-page.ui';
-
-export default HomePage;
+export { homePageRoute } from './home-page.route';

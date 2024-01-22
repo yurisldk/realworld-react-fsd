@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { IoPencil } from 'react-icons/io5';
 import { Link, useParams } from 'react-router-dom';
+import { z } from 'zod';
 import { articleApi, articleTypes } from '~entities/article';
 import { profileTypes } from '~entities/profile';
 import { sessionApi } from '~entities/session';
@@ -18,9 +19,11 @@ import { Spinner } from '~shared/ui/spinner';
 import { CommentsList } from '~widgets/comments-list';
 import { CreateCommentForm } from '~widgets/create-comment-form';
 
+export const ArticlePageParamsSchema = z.object({ slug: z.string() });
+export type ArticlePageParams = z.infer<typeof ArticlePageParamsSchema>;
+
 export function ArticlePage() {
-  // TODO: validate via zod
-  const { slug } = useParams() as { slug: string };
+  const { slug } = useParams() as ArticlePageParams;
 
   const { data: user } = useQuery({
     queryKey: sessionApi.CURRENT_USER_KEY,

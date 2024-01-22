@@ -1,3 +1,1 @@
-import { ArticlePage } from './article-page.ui';
-
-export default ArticlePage;
+export { articlePageRoute } from './article-page.route';

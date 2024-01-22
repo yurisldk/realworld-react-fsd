@@ -21,14 +21,11 @@ const useSessionStore = create<SessionState>()(
   ),
 );
 
-export const authorization: { accessToken: string } = {
-  accessToken: '',
-};
+export const authorization: { accessToken: string } = { accessToken: '' };
 
 useSessionStore.subscribe((state) => {
   const accessToken = state.token ? `Bearer ${state.token}` : '';
   authorization.accessToken = accessToken;
-  console.log(accessToken);
 });
 
 useSessionStore.persist.rehydrate();

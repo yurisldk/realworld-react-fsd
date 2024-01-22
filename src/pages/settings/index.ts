@@ -1,3 +1,1 @@
-import { SettingsPage } from './SettingsPage';
-
-export default SettingsPage;
+export { settingsPageRoute } from './settings-page.route';

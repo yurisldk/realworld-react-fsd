@@ -1,6 +1,10 @@
 import { useParams } from 'react-router-dom';
+import { z } from 'zod';
 import { CreateArticeForm } from '~widgets/create-article-form';
 import { UpdateArticleForm } from '~widgets/update-article-form';
+
+export const EditorPageParamsSchema = z.object({ slug: z.string() });
+export type EditorPageParams = z.infer<typeof EditorPageParamsSchema>;
 
 export function EditorPage() {
   const { slug } = useParams();

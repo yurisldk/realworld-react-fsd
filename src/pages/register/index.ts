@@ -1,3 +1,1 @@
-import { RegisterPage } from './RegisterPage';
-
-export default RegisterPage;
+export { registerPageRoute } from './register-page.route';

@@ -23,7 +23,7 @@ export function UpdateArticleForm(props: UpdateArticleFormProps) {
 
   const {
     data: currentArticle,
-    isLoading: isArticleLoading,
+    isPending: isArticlePending,
     isError: isArticleError,
     error: articleError,
   } = useQuery({
@@ -51,7 +51,7 @@ export function UpdateArticleForm(props: UpdateArticleFormProps) {
     },
   });
 
-  if (isArticleLoading)
+  if (isArticlePending)
     return (
       <FullPageWrapper>
         <Spinner />
@@ -71,14 +71,14 @@ export function UpdateArticleForm(props: UpdateArticleFormProps) {
       enableReinitialize
       initialValues={{
         ...initialArticle,
-        ...articleLib.mapUpdateArticle(currentArticle!),
+        ...articleLib.mapUpdateArticle(currentArticle),
       }}
       validate={formikContract(articleContracts.UpdateArticleSchema)}
       onSubmit={(article) => updateArticle({ slug, article: article })}
       initialTouched={{ form: true }}
     >
-      {isError && <ErrorHandler error={error} />}
       <Form>
+        {isError && <ErrorHandler error={error} />}
         <fieldset disabled={isPending}>
           <fieldset className="form-group">
             <Field

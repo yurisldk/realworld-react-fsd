@@ -34,8 +34,8 @@ export function CreateArticeForm() {
       validate={formikContract(articleContracts.CreateArticleSchema)}
       onSubmit={(createArticleDto) => createArticle(createArticleDto)}
     >
-      {isError && <ErrorHandler error={error} />}
       <Form>
+        {isError && <ErrorHandler error={error} />}
         <fieldset disabled={isPending}>
           <fieldset className="form-group">
             <Field
