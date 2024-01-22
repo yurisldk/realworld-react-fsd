@@ -84,12 +84,9 @@ export function ProfileCard(props: ProfileCardProps) {
 
               {isUser &&
                 (profile.following ? (
-                  <UnfollowUserButton
-                    profile={profile}
-                    className="action-btn"
-                  />
+                  <UnfollowUserButton profile={profile} />
                 ) : (
-                  <FollowUserButton profile={profile} className="action-btn" />
+                  <FollowUserButton profile={profile} />
                 ))}
 
               {isCurrentUser && (

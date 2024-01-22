@@ -1,30 +1,20 @@
-import { ReactNode } from 'react';
 import {
   InfiniteData,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { IoHeart } from 'react-icons/io5';
 import { articleApi, articleTypes } from '~entities/article';
-import { Button } from '~shared/ui/button';
 
-type UnfavoriteArticleButtonProps = {
-  article: articleTypes.Article;
-  className?: string;
-  children?: ReactNode;
-};
-
-export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
-  const { article, className, children } = props;
-
+export function useFavoriteArticleMutation(article: articleTypes.Article) {
   const queryClient = useQueryClient();
+
   const articlesQueryKey = articleApi.ARTICLES_KEY;
   const articlesFeedQueryKey = articleApi.ARTICLES_FEED_KEY;
   const articleQueryKey = [...articleApi.ARTICLE_KEY, article.slug];
 
-  const { mutate: unfavoriteArticle } = useMutation({
-    mutationKey: [...articleApi.UNFAVORITE_ARTICLE_KEY, article.slug],
-    mutationFn: articleApi.unfavoriteArticleMutation,
+  return useMutation({
+    mutationKey: [...articleApi.FAVORITE_ARTICLE_KEY, article.slug],
+    mutationFn: articleApi.favoriteArticleMutation,
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: articlesQueryKey });
       await queryClient.cancelQueries({ queryKey: articlesFeedQueryKey });
@@ -32,8 +22,8 @@ export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
 
       const newArticle: articleTypes.Article = {
         ...article,
-        favorited: false,
-        favoritesCount: article.favoritesCount - 1,
+        favorited: true,
+        favoritesCount: article.favoritesCount + 1,
       };
 
       queryClient.setQueriesData<InfiniteData<articleTypes.Articles>>(
@@ -92,17 +82,6 @@ export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
       await queryClient.invalidateQueries({ queryKey: articleQueryKey });
     },
   });
-
-  const handleUnfavorite = () => {
-    unfavoriteArticle(article.slug);
-  };
-
-  return (
-    <Button className={className} onClick={handleUnfavorite}>
-      <IoHeart size={16} />
-      {children}
-    </Button>
-  );
 }
 
 const updateInfinityData = (

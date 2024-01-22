@@ -1,19 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { IoAdd } from 'react-icons/io5';
 import { profileApi, profileTypes } from '~entities/profile';
-import { Button } from '~shared/ui/button';
 
-type FollowUserButtonProps = {
-  profile: profileTypes.Profile;
-  className?: string;
-};
-
-export function FollowUserButton(props: FollowUserButtonProps) {
-  const { profile, className } = props;
+export function useFollowProfileMutation(profile: profileTypes.Profile) {
   const queryClient = useQueryClient();
+
   const mutationKey = [...profileApi.FOLLOW_PROFILE_KEY, profile.username];
 
-  const { mutate: followProfile } = useMutation({
+  return useMutation({
     mutationKey: mutationKey,
     mutationFn: profileApi.followProfileMutation,
     onMutate: async () => {
@@ -34,20 +27,4 @@ export function FollowUserButton(props: FollowUserButtonProps) {
       await queryClient.invalidateQueries({ queryKey: mutationKey });
     },
   });
-
-  const handleClick = () => {
-    followProfile(profile.username);
-  };
-
-  return (
-    <Button
-      color="secondary"
-      variant="outline"
-      className={className}
-      onClick={handleClick}
-    >
-      <IoAdd size={16} />
-      &nbsp; Follow {profile.username}
-    </Button>
-  );
 }

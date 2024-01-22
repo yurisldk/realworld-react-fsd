@@ -1,3 +1,3 @@
-import { ArticlePage } from './ArticlePage';
+import { ArticlePage } from './article-page.ui';
 
 export default ArticlePage;

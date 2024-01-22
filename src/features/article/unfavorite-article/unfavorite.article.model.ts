@@ -1,30 +1,20 @@
-import { ReactNode } from 'react';
 import {
   InfiniteData,
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import { IoHeart } from 'react-icons/io5';
 import { articleApi, articleTypes } from '~entities/article';
-import { Button } from '~shared/ui/button';
 
-type FavoriteArticleButtonProps = {
-  article: articleTypes.Article;
-  className?: string;
-  children?: ReactNode;
-};
-
-export function FavoriteArticleButton(props: FavoriteArticleButtonProps) {
-  const { article, className, children } = props;
-
+export function useUnfavoriteArticleMutation(article: articleTypes.Article) {
   const queryClient = useQueryClient();
+
   const articlesQueryKey = articleApi.ARTICLES_KEY;
   const articlesFeedQueryKey = articleApi.ARTICLES_FEED_KEY;
   const articleQueryKey = [...articleApi.ARTICLE_KEY, article.slug];
 
-  const { mutate: favoriteArticle } = useMutation({
-    mutationKey: [...articleApi.FAVORITE_ARTICLE_KEY, article.slug],
-    mutationFn: articleApi.favoriteArticleMutation,
+  return useMutation({
+    mutationKey: [...articleApi.UNFAVORITE_ARTICLE_KEY, article.slug],
+    mutationFn: articleApi.unfavoriteArticleMutation,
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: articlesQueryKey });
       await queryClient.cancelQueries({ queryKey: articlesFeedQueryKey });
@@ -32,8 +22,8 @@ export function FavoriteArticleButton(props: FavoriteArticleButtonProps) {
 
       const newArticle: articleTypes.Article = {
         ...article,
-        favorited: true,
-        favoritesCount: article.favoritesCount + 1,
+        favorited: false,
+        favoritesCount: article.favoritesCount - 1,
       };
 
       queryClient.setQueriesData<InfiniteData<articleTypes.Articles>>(
@@ -92,22 +82,6 @@ export function FavoriteArticleButton(props: FavoriteArticleButtonProps) {
       await queryClient.invalidateQueries({ queryKey: articleQueryKey });
     },
   });
-
-  const handleFavorite = async () => {
-    favoriteArticle(article.slug);
-  };
-
-  return (
-    <Button
-      color="primary"
-      variant="outline"
-      className={className}
-      onClick={handleFavorite}
-    >
-      <IoHeart size={16} />
-      {children}
-    </Button>
-  );
 }
 
 const updateInfinityData = (

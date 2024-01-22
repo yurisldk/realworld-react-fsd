@@ -1,1 +1,1 @@
-export { FollowUserButton } from './ui/follow-user-button/FollowUserButton';
+export { FollowUserButton } from './follow-profile.ui';

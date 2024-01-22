@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Tabs } from '~shared/ui/tabs';
-import { GlobalArticlesList } from '~widgets/global-articles-list';
 import { ProfileCard } from '~widgets/profile-card';
 
 type ProfilePageProps = {
@@ -32,17 +31,17 @@ export function ProfilePage(props: ProfilePageProps) {
                 </Tabs.List>
               </div>
 
-              <Tabs.Panel value="authorfeed">
-                <GlobalArticlesList
+              {/* <Tabs.Panel value="authorfeed"> */}
+              {/* <GlobalArticlesList
                   query={{ limit: 10, offset: 0, author: username }}
-                />
-              </Tabs.Panel>
+                /> */}
+              {/* </Tabs.Panel> */}
 
-              <Tabs.Panel value="favoritedfeed">
-                <GlobalArticlesList
+              {/* <Tabs.Panel value="favoritedfeed"> */}
+              {/* <GlobalArticlesList
                   query={{ limit: 10, offset: 0, favorited: username }}
-                />
-              </Tabs.Panel>
+                /> */}
+              {/* </Tabs.Panel> */}
             </Tabs>
           </div>
         </div>

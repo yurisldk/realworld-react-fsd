@@ -64,22 +64,8 @@ export function ArticlesList(props: ArticlesListProps) {
             <articleUi.PreviewCard
               key={article.slug}
               article={article}
-              favoriteAction={
-                <UnfavoriteArticleButton
-                  className="pull-xs-right"
-                  article={article}
-                >
-                  {article.favoritesCount}
-                </UnfavoriteArticleButton>
-              }
-              unfavoriteAction={
-                <FavoriteArticleButton
-                  className="pull-xs-right"
-                  article={article}
-                >
-                  {article.favoritesCount}
-                </FavoriteArticleButton>
-              }
+              favoriteAction={<UnfavoriteArticleButton article={article} />}
+              unfavoriteAction={<FavoriteArticleButton article={article} />}
             />
           )),
         )}

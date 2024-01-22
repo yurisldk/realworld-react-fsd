@@ -1,19 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { IoRemove } from 'react-icons/io5';
 import { profileApi, profileTypes } from '~entities/profile';
-import { Button } from '~shared/ui/button';
 
-type UnfollowUserButtonProps = {
-  profile: profileTypes.Profile;
-  className?: string;
-};
-
-export function UnfollowUserButton(props: UnfollowUserButtonProps) {
-  const { profile, className } = props;
+export function useUnfollowProfileMutation(profile: profileTypes.Profile) {
   const queryClient = useQueryClient();
-  const mutationKey = [...profileApi.UNFOLLOW_PROFILE_KEY, profile.username];
 
-  const { mutate: unfollowProfile } = useMutation({
+  const mutationKey = [...profileApi.FOLLOW_PROFILE_KEY, profile.username];
+
+  return useMutation({
     mutationKey: mutationKey,
     mutationFn: profileApi.unfollowProfileMutation,
     onMutate: async () => {
@@ -34,15 +27,4 @@ export function UnfollowUserButton(props: UnfollowUserButtonProps) {
       await queryClient.invalidateQueries({ queryKey: mutationKey });
     },
   });
-
-  const handleClick = () => {
-    unfollowProfile(profile.username);
-  };
-
-  return (
-    <Button color="secondary" onClick={handleClick} className={className}>
-      <IoRemove size={16} />
-      &nbsp; Unfollow {profile.username}
-    </Button>
-  );
 }
