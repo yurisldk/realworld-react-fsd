@@ -1,25 +1,17 @@
-import { useLoaderData } from 'react-router-dom';
-import { z } from 'zod';
+import { useParams } from 'react-router-dom';
+import { routerTypes } from '~shared/lib/react-router';
 import { CreateArticeForm } from '~widgets/create-article-form';
 import { UpdateArticleForm } from '~widgets/update-article-form';
 
-export const EditorPageParamsSchema = z.object({ slug: z.string() });
-export type EditorPageParams = z.infer<typeof EditorPageParamsSchema>;
-
 export function EditorPage() {
-  const { params } = useLoaderData() as { params: EditorPageParams };
-  console.log(params);
+  const { slug } = useParams() as routerTypes.SlugPageParams;
 
   return (
     <div className="editor-page">
       <div className="container page">
         <div className="row">
           <div className="col-md-10 offset-md-1 col-xs-12">
-            {params.slug ? (
-              <UpdateArticleForm slug={params.slug} />
-            ) : (
-              <CreateArticeForm />
-            )}
+            {slug ? <UpdateArticleForm /> : <CreateArticeForm />}
           </div>
         </div>
       </div>

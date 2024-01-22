@@ -1,22 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   articleApi,
   articleContracts,
   articleLib,
+  articleQueries,
   articleTypes,
 } from '~entities/article';
-import { pathKeys } from '~shared/lib/react-router';
+import { pathKeys, routerTypes } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
 import { Spinner } from '~shared/ui/spinner';
 
-type UpdateArticleFormProps = { slug: string };
-
-export function UpdateArticleForm(props: UpdateArticleFormProps) {
-  const { slug } = props;
+export function UpdateArticleForm() {
+  const { slug } = useParams() as routerTypes.SlugPageParams;
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -26,10 +25,7 @@ export function UpdateArticleForm(props: UpdateArticleFormProps) {
     isPending: isArticlePending,
     isError: isArticleError,
     error: articleError,
-  } = useQuery({
-    queryKey: [...articleApi.ARTICLE_KEY, slug],
-    queryFn: () => articleApi.articleQuery(slug),
-  });
+  } = useQuery(articleQueries.articleQueryOptions(slug));
 
   const {
     mutate: updateArticle,

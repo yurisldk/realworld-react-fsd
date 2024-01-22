@@ -8,25 +8,21 @@ import { page404Route } from '~pages/page-404';
 import { profilePageRoute } from '~pages/profile';
 import { registerPageRoute } from '~pages/register';
 import { settingsPageRoute } from '~pages/settings';
-import {
-  BubbleError,
-  guestLoader,
-  unknownLoader,
-  userLoader,
-} from './providers.lib';
+import { BubbleError, guestLoader, unknownLoader } from './providers.lib';
 
 const router = createBrowserRouter([
   {
     errorElement: <BubbleError />,
     children: [
       {
-        loader: userLoader,
         element: <UserLayout />,
-        children: [editorPageRoute, settingsPageRoute],
-      },
-      {
-        element: <UserLayout />,
-        children: [homePageRoute, articlePageRoute, profilePageRoute],
+        children: [
+          editorPageRoute,
+          settingsPageRoute,
+          homePageRoute,
+          articlePageRoute,
+          profilePageRoute,
+        ],
       },
       {
         loader: guestLoader,

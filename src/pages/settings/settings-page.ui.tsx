@@ -9,9 +9,7 @@ import { formikContract } from '~shared/lib/zod';
 import { ErrorHandler } from '~shared/ui/error';
 
 export function SettingsPage() {
-  const { data: currentUser } = useQuery(
-    sessionQueries.currentUserQueryOptions(),
-  );
+  const { data: user } = useQuery(sessionQueries.currentUserQueryOptions());
 
   const {
     mutate: updateUser,
@@ -31,7 +29,7 @@ export function SettingsPage() {
 
             <Formik
               enableReinitialize
-              initialValues={{ ...initialUser, ...currentUser }}
+              initialValues={{ ...initialUser, ...user }}
               validate={formikContract(sessionContracts.UpdateUserDtoSchema)}
               onSubmit={({ form, ...user }) => updateUser(user)}
               initialTouched={{ form: true }}
