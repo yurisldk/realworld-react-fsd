@@ -1,19 +1,19 @@
 import { useParams } from 'react-router-dom';
-import { CurrentArticleEditor } from '~widgets/current-article-editor';
-import { NewArticleEditor } from '~widgets/new-article-editor';
+import { CreateArticeForm } from '~widgets/create-article-form';
+import { UpdateArticleForm } from '~widgets/update-article-form';
 
-type EditorPageProps = {
-  edit?: boolean;
-};
-
-export function EditorPage(props: EditorPageProps) {
-  const { edit } = props;
+export function EditorPage() {
   const { slug } = useParams();
 
   return (
-    <>
-      {edit && <CurrentArticleEditor slug={slug!} />}
-      {!edit && <NewArticleEditor />}
-    </>
+    <div className="editor-page">
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-10 offset-md-1 col-xs-12">
+            {slug ? <UpdateArticleForm slug={slug} /> : <CreateArticeForm />}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

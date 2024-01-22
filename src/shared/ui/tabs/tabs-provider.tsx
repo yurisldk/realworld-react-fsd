@@ -1,5 +1,5 @@
 import { ReactNode, useMemo } from 'react';
-import { TabsContext, TabsContextProps } from './Tabs.context';
+import { TabsContext, TabsContextProps } from './tabs.context';
 
 type TabsProviderProps = TabsContextProps & {
   children: ReactNode;

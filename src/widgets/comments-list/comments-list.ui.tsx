@@ -4,9 +4,7 @@ import { DeleteCommentIconButtton } from '~features/comment';
 import { ErrorHandler } from '~shared/ui/error';
 import { Spinner } from '~shared/ui/spinner';
 
-type CommentsListProps = {
-  slug: string;
-};
+type CommentsListProps = { slug: string };
 
 export function CommentsList(props: CommentsListProps) {
   const { slug } = props;

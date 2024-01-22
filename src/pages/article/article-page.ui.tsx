@@ -16,10 +16,11 @@ import { ErrorHandler } from '~shared/ui/error';
 import { FullPageWrapper } from '~shared/ui/full-page-wrapper';
 import { Spinner } from '~shared/ui/spinner';
 import { CommentsList } from '~widgets/comments-list';
-import { NewCommentEditor } from '~widgets/new-comment-editor';
+import { CreateCommentForm } from '~widgets/create-comment-form';
 
 export function ArticlePage() {
-  const { slug } = useParams()!;
+  // TODO: validate via zod
+  const { slug } = useParams() as { slug: string };
 
   const { data: user } = useQuery({
     queryKey: sessionApi.CURRENT_USER_KEY,
@@ -33,7 +34,7 @@ export function ArticlePage() {
     error,
   } = useQuery({
     queryKey: [...articleApi.ARTICLE_KEY, slug],
-    queryFn: () => articleApi.articleQuery(slug!),
+    queryFn: () => articleApi.articleQuery(slug),
   });
 
   if (isPending)
@@ -86,7 +87,7 @@ export function ArticlePage() {
 
         <div className="row">
           <div className="col-xs-12 col-md-8 offset-md-2">
-            <NewCommentEditor slug={slug!} />
+            <CreateCommentForm slug={slug!} />
             <CommentsList slug={slug!} />
           </div>
         </div>

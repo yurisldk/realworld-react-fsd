@@ -1,13 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
+import { useStore } from 'zustand';
 import { tagApi } from '~entities/tag';
+import { FilterByCategoryStore } from '~features/article';
 import { ErrorHandler } from '~shared/ui/error';
 
 type PopularTagsProps = {
-  onTagClick: (tag: string) => void;
+  filterByCategoryStore: FilterByCategoryStore;
 };
 
 export function PopularTags(props: PopularTagsProps) {
-  const { onTagClick } = props;
+  const { filterByCategoryStore } = props;
+
+  const filterByTag = useStore(
+    filterByCategoryStore,
+    (state) => state.filterByTag,
+  );
 
   const {
     data: tags,
@@ -34,9 +41,7 @@ export function PopularTags(props: PopularTagsProps) {
               key={tag}
               className="tag-pill tag-default"
               type="button"
-              onClick={() => {
-                onTagClick(tag);
-              }}
+              onClick={() => filterByTag(tag)}
             >
               {tag}
             </button>

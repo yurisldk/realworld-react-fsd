@@ -12,7 +12,6 @@ import {
 
 const onArticlesFeedClicked = homePageStore.getState().onArticlesFeedClicked;
 const onArticlesClicked = homePageStore.getState().onArticlesClicked;
-const onTagClicked = homePageStore.getState().onTagClicked;
 
 export function HomePage() {
   const { data: user } = useQuery({
@@ -79,7 +78,7 @@ export function HomePage() {
           </div>
 
           <div className="col-md-3">
-            <PopularTags onTagClick={onTagClicked} />
+            <PopularTags filterByCategoryStore={filterByCategoryStore} />
           </div>
         </div>
       </div>

@@ -8,9 +8,9 @@ import { sessionApi } from '~entities/session';
 import { PATH_PAGE } from '~shared/lib/react-router';
 import { formikContract } from '~shared/lib/zod';
 
-type NewCommentEditorProps = { slug: string };
+type CreateCommentFormProps = { slug: string };
 
-export function NewCommentEditor(props: NewCommentEditorProps) {
+export function CreateCommentForm(props: CreateCommentFormProps) {
   const { slug } = props;
   const queryClient = useQueryClient();
   const commentsKey = [...commentApi.COMMENTS_KEY, slug];
