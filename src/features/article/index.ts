@@ -1,4 +1,3 @@
-export * from './favorite';
 export * from './delete';
-export * from './create';
-export * from './update';
+export * from './favorite-article';
+export * from './unfavorite-article';

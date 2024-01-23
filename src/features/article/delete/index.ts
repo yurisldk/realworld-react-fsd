@@ -1,1 +1,1 @@
-export { DeleteArticleButton } from './ui/delete-article-button/DeleteArticleButton';
+export { DeleteArticleButton } from './delete-article.ui';

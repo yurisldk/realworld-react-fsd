@@ -1,1 +1,0 @@
-export { FullPageWrapper } from './FullPageWrapper';

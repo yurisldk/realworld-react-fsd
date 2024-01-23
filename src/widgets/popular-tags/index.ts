@@ -1,1 +1,1 @@
-export { PopularTags } from './ui/popular-tags/PopularTags';
+export { PopularTags } from './popular-tags.ui';

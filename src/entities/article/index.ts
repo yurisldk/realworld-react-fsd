@@ -1,6 +1,6 @@
-export * as articleApi from './api/articleApi';
-
-export { ArticleMeta } from './ui/article-meta/ArticleMeta';
-export { ArticlePreviewCard } from './ui/article-preview-card/ArticlePreviewCard';
-export { ArticlesList } from './ui/articles-list/ArticlesList';
-export { ArticleEditor } from './ui/article-editor/ArticleEditor';
+export * as articleApi from './article.api';
+export * as articleContracts from './article.contracts';
+export * as articleLib from './article.lib';
+export * as articleModel from './article.model';
+export * as articleQueries from './article.queries';
+export * as articleTypes from './article.types';

@@ -1,3 +1,1 @@
-import { LoginPage } from './LoginPage';
-
-export default LoginPage;
+export { loginPageRoute } from './login-page.route';

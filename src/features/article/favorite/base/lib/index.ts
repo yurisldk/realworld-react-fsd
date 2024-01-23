@@ -1,1 +1,0 @@
-export { updateInfinityData } from './updateInfinityData';

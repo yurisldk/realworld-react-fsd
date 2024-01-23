@@ -1,10 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import matchers from '@testing-library/jest-dom/matchers';
 import { act, cleanup } from '@testing-library/react';
-import { expect, afterEach, vi } from 'vitest';
+import { vi } from 'vitest';
 import { StateCreator } from 'zustand';
-import { realworldApi } from '~shared/api/realworld';
-import { server } from '../../api/msw';
 
 type ZustandModel = typeof import('zustand');
 
@@ -25,20 +22,8 @@ vi.mock('zustand', async (zustandOriginal: () => Promise<ZustandModel>) => {
   return { ...zustand, createStore };
 });
 
-expect.extend(matchers);
-
-beforeAll(() => server.listen());
-
-beforeEach(() => {
-  realworldApi.setSecurityData('jwt.token');
-  act(() => storeResetFns.forEach((resetFn) => resetFn()));
-});
-
 afterEach(() => {
   cleanup();
-  server.resetHandlers();
-  realworldApi.setSecurityData(null);
+  act(() => storeResetFns.forEach((resetFn) => resetFn()));
   vi.clearAllMocks();
 });
-
-afterAll(() => server.close());

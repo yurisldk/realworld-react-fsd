@@ -4,7 +4,7 @@
   <p>
     This codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the <a href="https://github.com/gothinkster/realworld">RealWorld</a> spec and API. Powered by <a href="https://feature-sliced.design">FSD (Feature-Sliced Design)</a> architectural methodology.
   </p>
-  <p>Feel free to take a look at Effector version in <a href="https://github.com/sldk-yuri/realworld-react-fsd/tree/effector">the effector branch</a></p>
+  <p>Feel free to take a look at <a href="https://effector.dev/">Effector</a> version in <a href="https://github.com/sldk-yuri/realworld-react-fsd/tree/effector">the effector branch</a></p>
 
   <a href="https://realworld-fsd.netlify.app">
     <img
