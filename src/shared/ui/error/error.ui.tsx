@@ -1,4 +1,4 @@
-import { UnexpectedErrorDto } from '~shared/api/realworld';
+import { apiTypes } from '~shared/api';
 import { GenericError, isHttpErrorCode } from '~shared/lib/fetch';
 import styles from './error.module.css';
 
@@ -12,7 +12,9 @@ export function ErrorHandler(props: ErrorHandlerProps) {
   const className = `${styles.wrapper} ${styles[`loader-${size}`]}`;
 
   if (isHttpErrorCode(422)(error)) {
-    const data = JSON.parse(error.response as string) as UnexpectedErrorDto;
+    const data = JSON.parse(
+      error.response as string,
+    ) as apiTypes.UnexpectedErrorDto;
     const errors: string[] = [];
 
     Object.entries(data.errors).forEach(([key, explanations]) => {
