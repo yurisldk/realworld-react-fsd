@@ -1,6 +1,5 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
-import { sessionService } from '../session';
 import { ArticleService, IArticleService } from './article';
 import { AuthService, IAuthService } from './auth';
 import { AuthHeaderService } from './auth-header.service';
@@ -10,20 +9,11 @@ import { IProfileService, ProfileService } from './profile';
 import { ITagService, TagService } from './tag';
 import { UrlService } from './url.service';
 
-const BASE_URL = 'https://api.realworld.io/';
+const BASE_URL = 'https://api.realworld.io/api';
 
 // TODO: remove exports
 export const authHeaderService = new AuthHeaderService();
 export const urlService = new UrlService(BASE_URL);
-
-const tokenSetEventHandler =
-  authHeaderService.tokenSetEventHandler.bind(authHeaderService);
-
-const tokenResetEventHandler =
-  authHeaderService.tokenResetEventHandler.bind(authHeaderService);
-
-sessionService.onTokenSet(tokenSetEventHandler);
-sessionService.onTokenReset(tokenResetEventHandler);
 
 interface IApiServiceFactory {
   createAuthService(): IAuthService;
