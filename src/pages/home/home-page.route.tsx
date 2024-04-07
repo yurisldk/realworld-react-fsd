@@ -1,9 +1,10 @@
 import { createElement } from 'react';
 import { RouteObject } from 'react-router-dom';
 import { articleQueries } from '~entities/article';
-import { sessionModel, sessionQueries } from '~entities/session';
+import { sessionQueries } from '~entities/session';
 import { tagQueries } from '~entities/tag';
 import { pathKeys } from '~shared/lib/react-router';
+import { sessionService } from '~shared/session';
 import {
   articleFilterStore,
   onArticles,
@@ -15,7 +16,7 @@ export const homePageRoute: RouteObject = {
   path: pathKeys.home(),
   element: createElement(HomePage),
   loader: async (args) => {
-    if (sessionModel.hasToken()) {
+    if (sessionService.hasToken()) {
       onArticlesFeed();
     } else {
       onArticles();

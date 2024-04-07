@@ -1,10 +1,11 @@
 import { createElement } from 'react';
 import { RouteObject, redirect } from 'react-router-dom';
 import { articleQueries } from '~entities/article';
-import { sessionModel, sessionQueries } from '~entities/session';
+import { sessionQueries } from '~entities/session';
 import { invalidDataError } from '~shared/lib/fetch';
 import { pathKeys, routerContracts } from '~shared/lib/react-router';
 import { zodContract } from '~shared/lib/zod';
+import { sessionService } from '~shared/session';
 import { EditorPage } from './editor-page.ui';
 
 export const editorPageRoute: RouteObject = {
@@ -14,7 +15,7 @@ export const editorPageRoute: RouteObject = {
       index: true,
       element: createElement(EditorPage),
       loader: async (args) => {
-        if (!sessionModel.hasToken()) {
+        if (!sessionService.hasToken()) {
           return redirect(pathKeys.login());
         }
 
@@ -26,7 +27,7 @@ export const editorPageRoute: RouteObject = {
       path: ':slug',
       element: createElement(EditorPage),
       loader: async (args) => {
-        if (!sessionModel.hasToken()) {
+        if (!sessionService.hasToken()) {
           return redirect(pathKeys.login());
         }
 
