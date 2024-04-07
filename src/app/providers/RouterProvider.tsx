@@ -22,36 +22,38 @@ function BubbleError() {
   return null;
 }
 
-const router = createBrowserRouter([
-  {
-    errorElement: <BubbleError />,
-    children: [
-      {
-        element: <GenericLayout />,
-        children: [
-          editorPageRoute,
-          settingsPageRoute,
-          homePageRoute,
-          articlePageRoute,
-          profilePageRoute,
-        ],
-      },
-      {
-        element: <GuestLayout />,
-        children: [loginPageRoute, registerPageRoute],
-      },
-      {
-        element: <NakedLayout />,
-        children: [page404Route],
-      },
-      {
-        loader: async () => redirect(pathKeys.page404()),
-        path: '*',
-      },
-    ],
-  },
-]);
-
 export function BrowserRouter() {
-  return <RouterProvider router={router} />;
+  return (
+    <RouterProvider
+      router={createBrowserRouter([
+        {
+          errorElement: <BubbleError />,
+          children: [
+            {
+              element: <GenericLayout />,
+              children: [
+                editorPageRoute,
+                settingsPageRoute,
+                homePageRoute,
+                articlePageRoute,
+                profilePageRoute,
+              ],
+            },
+            {
+              element: <GuestLayout />,
+              children: [loginPageRoute, registerPageRoute],
+            },
+            {
+              element: <NakedLayout />,
+              children: [page404Route],
+            },
+            {
+              loader: async () => redirect(pathKeys.page404()),
+              path: '*',
+            },
+          ],
+        },
+      ])}
+    />
+  );
 }
