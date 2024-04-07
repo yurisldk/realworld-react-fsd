@@ -1,8 +1,8 @@
 import { IoHeart } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { articleQueries, articleTypes } from '~entities/article';
-import { sessionModel } from '~entities/session';
 import { pathKeys } from '~shared/lib/react-router';
+import { sessionService } from '~shared/session';
 import { Button } from '~shared/ui/button';
 
 type UnfavoriteArticleButtonProps = {
@@ -19,7 +19,7 @@ export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
     articleQueries.useUnfavoriteArticleMutation(article.slug);
 
   const handleFavorite = () => {
-    if (sessionModel.hasToken()) {
+    if (sessionService.hasToken()) {
       unfavoriteArticle({ slug: article.slug });
       return;
     }

@@ -1,8 +1,8 @@
 import { IoRemove } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import { profileQueries, profileTypes } from '~entities/profile';
-import { sessionModel } from '~entities/session';
 import { pathKeys } from '~shared/lib/react-router';
+import { sessionService } from '~shared/session';
 import { Button } from '~shared/ui/button';
 
 type UnfollowUserButtonProps = { profile: profileTypes.Profile };
@@ -17,7 +17,7 @@ export function UnfollowUserButton(props: UnfollowUserButtonProps) {
   );
 
   const handleClick = () => {
-    if (sessionModel.hasToken()) {
+    if (sessionService.hasToken()) {
       unfollowProfile({ username: profile.username });
       return;
     }
