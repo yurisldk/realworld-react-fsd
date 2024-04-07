@@ -1,5 +1,4 @@
-import { sessionModel } from '~entities/session';
-import { baseUrl } from '~shared/api/realworld';
+import { authHeaderService, urlService } from '~shared/api';
 import { createJsonMutation, createJsonQuery } from '~shared/lib/fetch';
 import { zodContract } from '~shared/lib/zod';
 import {
@@ -26,9 +25,9 @@ export async function articlesQuery(
 ) {
   return createJsonQuery({
     request: {
-      url: baseUrl('/articles'),
+      url: urlService.getUrl('/articles'),
       method: 'GET',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
       query: params.query,
     },
     response: {
@@ -45,9 +44,9 @@ export async function articlesFeedQuery(
 ) {
   return createJsonQuery({
     request: {
-      url: baseUrl('/articles/feed'),
+      url: urlService.getUrl('/articles/feed'),
       method: 'GET',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
       query: params.query,
     },
     response: {
@@ -64,9 +63,9 @@ export async function articleQuery(
 ) {
   return createJsonQuery({
     request: {
-      url: baseUrl(`/articles/${params.slug}`),
+      url: urlService.getUrl(`/articles/${params.slug}`),
       method: 'GET',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(ArticleResponseSchema),
@@ -81,9 +80,9 @@ export async function createArticleMutation(params: {
 }) {
   return createJsonMutation({
     request: {
-      url: baseUrl('/articles'),
+      url: urlService.getUrl('/articles'),
       method: 'POST',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
       body: JSON.stringify({ article: mapCreateDtoArticle(params.article) }),
     },
     response: {
@@ -96,9 +95,9 @@ export async function createArticleMutation(params: {
 export async function deleteArticleMutation(params: { slug: string }) {
   return createJsonMutation({
     request: {
-      url: baseUrl(`/articles/${params.slug}`),
+      url: urlService.getUrl(`/articles/${params.slug}`),
       method: 'DELETE',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(EmptySchema),
@@ -112,9 +111,9 @@ export async function updateArticleMutation(params: {
 }) {
   return createJsonMutation({
     request: {
-      url: baseUrl(`/articles/${params.slug}`),
+      url: urlService.getUrl(`/articles/${params.slug}`),
       method: 'PUT',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
       body: JSON.stringify({ article: mapUpdateDtoArticle(params.article) }),
     },
     response: {
@@ -127,9 +126,9 @@ export async function updateArticleMutation(params: {
 export async function favoriteArticleMutation(params: { slug: string }) {
   return createJsonMutation({
     request: {
-      url: baseUrl(`/articles/${params.slug}/favorite`),
+      url: urlService.getUrl(`/articles/${params.slug}/favorite`),
       method: 'POST',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(ArticleResponseSchema),
@@ -141,9 +140,9 @@ export async function favoriteArticleMutation(params: { slug: string }) {
 export async function unfavoriteArticleMutation(params: { slug: string }) {
   return createJsonMutation({
     request: {
-      url: baseUrl(`/articles/${params.slug}/favorite`),
+      url: urlService.getUrl(`/articles/${params.slug}/favorite`),
       method: 'DELETE',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(ArticleResponseSchema),

@@ -1,17 +1,16 @@
-import { baseUrl } from '~shared/api/realworld';
+import { authHeaderService, urlService } from '~shared/api';
 import { createJsonMutation, createJsonQuery } from '~shared/lib/fetch';
 import { zodContract } from '~shared/lib/zod';
 import { UserDtoSchema } from './session.contracts';
 import { mapUser } from './session.lib';
-import { authorizationHeader } from './session.model';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './session.types';
 
 export async function currentUserQuery(signal?: AbortSignal) {
   return createJsonQuery({
     request: {
-      url: baseUrl('/user'),
+      url: urlService.getUrl('/user'),
       method: 'GET',
-      headers: { ...authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(UserDtoSchema),
@@ -24,7 +23,7 @@ export async function currentUserQuery(signal?: AbortSignal) {
 export async function createUserMutation(params: { user: CreateUserDto }) {
   return createJsonMutation({
     request: {
-      url: baseUrl('/users'),
+      url: urlService.getUrl('/users'),
       method: 'POST',
       body: JSON.stringify({ user: params.user }),
     },
@@ -38,7 +37,7 @@ export async function createUserMutation(params: { user: CreateUserDto }) {
 export async function loginUserMutation(params: { user: LoginUserDto }) {
   return createJsonMutation({
     request: {
-      url: baseUrl('/users/login'),
+      url: urlService.getUrl('/users/login'),
       method: 'POST',
       body: JSON.stringify({ user: params.user }),
     },
@@ -52,9 +51,9 @@ export async function loginUserMutation(params: { user: LoginUserDto }) {
 export async function updateUserMutation(params: { user: UpdateUserDto }) {
   return createJsonMutation({
     request: {
-      url: baseUrl('/user'),
+      url: urlService.getUrl('/user'),
       method: 'PUT',
-      headers: { ...authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
       body: JSON.stringify({ user: params.user }),
     },
     response: {

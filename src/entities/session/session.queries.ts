@@ -6,13 +6,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { queryClient } from '~shared/lib/react-query';
 import { pathKeys } from '~shared/lib/react-router';
+import { sessionService } from '~shared/session';
 import {
   createUserMutation,
   currentUserQuery,
   loginUserMutation,
   updateUserMutation,
 } from './session.api';
-import { hasToken, sessionStore } from './session.model';
 import { User } from './session.types';
 
 const keys = {
@@ -40,7 +40,7 @@ export const userService = {
     return tsqQueryOptions({
       queryKey: userKey,
       queryFn: async ({ signal }) =>
-        hasToken() ? currentUserQuery(signal) : null,
+        sessionService.hasToken() ? currentUserQuery(signal) : null,
       initialData: () => userService.getCache()!,
       initialDataUpdatedAt: () =>
         queryClient.getQueryState(userKey)?.dataUpdatedAt,
@@ -62,7 +62,7 @@ export function useCreateUserMutation() {
     mutationKey: keys.createUser(),
     mutationFn: createUserMutation,
     onSuccess: async (user) => {
-      sessionStore.setState({ token: user.token });
+      sessionService.setToken(user.token);
       userService.setCache(user);
       navigate(pathKeys.profile.byUsername({ username: user.username }));
     },
@@ -76,7 +76,7 @@ export function useLoginUserMutation() {
     mutationKey: keys.loginUser(),
     mutationFn: loginUserMutation,
     onSuccess: async (user) => {
-      sessionStore.setState({ token: user.token });
+      sessionService.setToken(user.token);
       userService.setCache(user);
       navigate(pathKeys.profile.byUsername({ username: user.username }));
     },
@@ -125,7 +125,7 @@ export function useLogoutMutation() {
   return useMutation({
     mutationKey: keys.deleteUser(),
     onSettled: async () => {
-      sessionStore.getState().updateToken(null);
+      sessionService.resetToken();
       userService.setCache(null);
       await queryClient.invalidateQueries();
       navigate(pathKeys.home());

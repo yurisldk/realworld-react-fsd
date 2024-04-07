@@ -1,5 +1,4 @@
-import { sessionModel } from '~entities/session';
-import { baseUrl } from '~shared/api/realworld';
+import { authHeaderService, urlService } from '~shared/api';
 import { createJsonMutation, createJsonQuery } from '~shared/lib/fetch';
 import { zodContract } from '~shared/lib/zod';
 import { ProfileResponseSchema } from './profie.contracts';
@@ -11,9 +10,9 @@ export async function profileQuery(
 ) {
   return createJsonQuery({
     request: {
-      url: baseUrl(`/profiles/${params.username}`),
+      url: urlService.getUrl(`/profiles/${params.username}`),
       method: 'GET',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(ProfileResponseSchema),
@@ -26,9 +25,9 @@ export async function profileQuery(
 export async function followProfileMutation(params: { username: string }) {
   return createJsonMutation({
     request: {
-      url: baseUrl(`/profiles/${params.username}/follow`),
+      url: urlService.getUrl(`/profiles/${params.username}/follow`),
       method: 'POST',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(ProfileResponseSchema),
@@ -40,9 +39,9 @@ export async function followProfileMutation(params: { username: string }) {
 export async function unfollowProfileMutation(params: { username: string }) {
   return createJsonMutation({
     request: {
-      url: baseUrl(`/profiles/${params.username}/follow`),
+      url: urlService.getUrl(`/profiles/${params.username}/follow`),
       method: 'DELETE',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(ProfileResponseSchema),

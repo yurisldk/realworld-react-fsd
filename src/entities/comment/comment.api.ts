@@ -1,5 +1,4 @@
-import { sessionModel } from '~entities/session';
-import { baseUrl } from '~shared/api/realworld';
+import { authHeaderService, urlService } from '~shared/api';
 import { createJsonMutation, createJsonQuery } from '~shared/lib/fetch';
 import { zodContract } from '~shared/lib/zod';
 import {
@@ -16,9 +15,9 @@ export async function commentsQuery(
 ) {
   return createJsonQuery({
     request: {
-      url: baseUrl(`/articles/${params.slug}/comments`),
+      url: urlService.getUrl(`/articles/${params.slug}/comments`),
       method: 'GET',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(CommentsDtoSchema),
@@ -34,9 +33,9 @@ export async function createCommentMutation(params: {
 }) {
   return createJsonMutation({
     request: {
-      url: baseUrl(`/articles/${params.slug}/comments`),
+      url: urlService.getUrl(`/articles/${params.slug}/comments`),
       method: 'POST',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
       body: JSON.stringify({ comment: params.comment }),
     },
     response: {
@@ -52,9 +51,9 @@ export async function deleteCommentMutation(params: {
 }) {
   return createJsonMutation({
     request: {
-      url: baseUrl(`/articles/${params.slug}/comments/${params.id}`),
+      url: urlService.getUrl(`/articles/${params.slug}/comments/${params.id}`),
       method: 'DELETE',
-      headers: { ...sessionModel.authorizationHeader() },
+      headers: { ...authHeaderService.getHeader() },
     },
     response: {
       contract: zodContract(EmptySchema),
