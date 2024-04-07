@@ -16,7 +16,8 @@ type State = {
 };
 
 type Actions = {
-  updateToken: (token: Token | null) => void;
+  setToken: (token: Token) => void;
+  resetToken: () => void;
 };
 
 type SessionState = State & Actions;
@@ -32,12 +33,15 @@ const createSessionSlice: StateCreator<
   SessionState
 > = (set) => ({
   token: null,
-  updateToken: (token: Token | null) =>
-    set({ token: token || null }, false, 'updateToken'),
+  setToken: (token: Token) => set({ token }, false, 'setToken'),
+  resetToken: () => set({ token: null }, false, 'resetToken'),
 });
 
-const persistOptions: PersistOptions<SessionState> = { name: 'session' };
-const devtoolsOptions: DevtoolsOptions = { name: 'SessionStore' };
+const persistOptions: PersistOptions<SessionState> = {
+  name: 'session',
+  skipHydration: true,
+};
+const devtoolsOptions: DevtoolsOptions = { name: 'Session Service' };
 
 const sessionStore = createStore<SessionState>()(
   devtools(
@@ -46,7 +50,21 @@ const sessionStore = createStore<SessionState>()(
   ),
 );
 
-export const hasToken = () => Boolean(sessionStore.getState().token);
+export function hasToken() {
+  return Boolean(sessionStore.getState().token);
+}
+
+export function setToken(token: Token) {
+  sessionStore.getState().setToken(token);
+}
+
+export function resetToken() {
+  sessionStore.getState().resetToken();
+}
+
+export async function init() {
+  return sessionStore.persist.rehydrate();
+}
 
 export function onTokenSet(
   tokenSetEventHandler: (token: Token) => void,
