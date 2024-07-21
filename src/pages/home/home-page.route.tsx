@@ -1,33 +1,22 @@
-import { createElement } from 'react';
-import { RouteObject } from 'react-router-dom';
-import { articleQueries } from '~entities/article';
-import { sessionQueries } from '~entities/session';
-import { tagQueries } from '~entities/tag';
-import { pathKeys } from '~shared/lib/react-router';
-import { sessionService } from '~shared/session';
-import {
-  articleFilterStore,
-  onArticles,
-  onArticlesFeed,
-} from './home-page.model';
-import { HomePage } from './home-page.ui';
+import { lazy, createElement } from 'react'
+import { LoaderFunctionArgs, RouteObject } from 'react-router-dom'
+import { compose, withSuspense } from '~shared/lib/react'
+import { pathKeys } from '~shared/lib/react-router'
+import { HomePageSkeleton } from './home-page.skeleton'
+
+const homePageLoader = (args: LoaderFunctionArgs) =>
+  import('./home-page.model').then((module) => module.HomeLoader.homePage(args))
+
+const HomePage = lazy(() =>
+  import('./home-page.ui').then((module) => ({ default: module.HomePage })),
+)
+
+const enhance = compose((component) =>
+  withSuspense(component, { FallbackComponent: HomePageSkeleton }),
+)
 
 export const homePageRoute: RouteObject = {
   path: pathKeys.home(),
-  element: createElement(HomePage),
-  loader: async (args) => {
-    if (sessionService.hasToken()) {
-      onArticlesFeed();
-    } else {
-      onArticles();
-    }
-
-    Promise.all([
-      sessionQueries.userService.prefetchQuery(),
-      articleQueries.infinityArticlesService.prefetchQuery(articleFilterStore),
-      tagQueries.tagsService.prefetchQuery(),
-    ]);
-
-    return args;
-  },
-};
+  element: createElement(enhance(HomePage)),
+  loader: homePageLoader,
+}

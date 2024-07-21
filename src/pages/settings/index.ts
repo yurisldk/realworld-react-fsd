@@ -1,1 +1,1 @@
-export { settingsPageRoute } from './settings-page.route';
+export { settingsPageRoute } from './settings-page.route'

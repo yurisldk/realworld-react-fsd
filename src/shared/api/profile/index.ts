@@ -1,3 +1,3 @@
-export * as profileContracts from './profile.contracts';
-export { ProfileService, type IProfileService } from './profile.service';
-export * as profileTypes from './profile.types';
+export * as profileContractsDto from './profile.contracts'
+export { ProfileService } from './profile.service'
+export * as profileTypesDto from './profile.types'

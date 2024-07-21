@@ -1,290 +1,152 @@
 import {
   InfiniteData,
   infiniteQueryOptions,
-  queryOptions as tsqQueryOptions,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
-import { StoreApi } from 'zustand';
-// eslint-disable-next-line no-restricted-imports
-import { profileService } from '~entities/profile/@x/article';
-import { queryClient, reactQueryLib } from '~shared/lib/react-query';
-import { pathKeys } from '~shared/lib/react-router';
+  queryOptions,
+} from '@tanstack/react-query'
+import { ArticleService } from '~shared/api/article'
+import { queryClient } from '~shared/lib/react-query'
 import {
-  articleQuery,
-  articlesFeedQuery,
-  articlesQuery,
-  createArticleMutation,
-  deleteArticleMutation,
-  favoriteArticleMutation,
-  unfavoriteArticleMutation,
-  updateArticleMutation,
-} from './article.api';
-import { State } from './article.model';
-import { Article, Articles, FilterQuery } from './article.types';
+  transformArticleDtoToArticle,
+  transformArticlesDtoToArticles,
+} from './article.lib'
+import { Article, Articles, FilterQuery } from './article.types'
 
-const keys = {
-  root: () => ['article'],
-  article: (slug: string) => [...keys.root(), 'bySlug', slug],
-  infinityQuery: () => [...keys.root(), 'infinityQuery'],
-  infinityQueryByFilter: (filter: FilterQuery) => [
-    ...keys.infinityQuery(),
-    'byFilter',
-    filter,
-  ],
-  favoriteArticle: (slug: string) => [...keys.root(), 'favorite', slug],
-  unfavoriteArticle: (slug: string) => [...keys.root(), 'unfavorite', slug],
-  createArticle: () => [...keys.root(), 'create'],
-  updateArticle: (slug: string) => [...keys.root(), 'update', slug],
-  deleteArticle: (slug: string) => [...keys.root(), 'delete', slug],
-};
+export class ArticleQueries {
+  static readonly keys = {
+    root: ['article'] as const,
+    rootBySlug: ['article', 'by-slug'] as const,
+    rootInfinity: ['article', 'infinite-articles'] as const,
+    generalInfinity: [
+      'article',
+      'infinite-articles',
+      'genearal-articles',
+      'by-filter',
+    ] as const,
+  }
 
-export const articleService = {
-  queryKey: (slug: string) => keys.article(slug),
-
-  getCache: (slug: string) =>
-    queryClient.getQueryData<Article>(articleService.queryKey(slug)),
-
-  setCache: (article: Article) =>
-    queryClient.setQueryData(articleService.queryKey(article.slug), article),
-
-  removeCache: (slug: string) =>
-    queryClient.removeQueries({ queryKey: articleService.queryKey(slug) }),
-
-  queryOptions: (slug: string) => {
-    const articleKey = articleService.queryKey(slug);
-    return tsqQueryOptions({
-      queryKey: articleKey,
+  static articleQuery(slug: string) {
+    return queryOptions({
+      queryKey: [...this.keys.rootBySlug, slug],
       queryFn: async ({ signal }) => {
-        const article = await articleQuery({ slug }, signal);
-        profileService.setCache(article.author);
-        return article;
+        const data = await ArticleService.articleQuery({ slug }, signal)
+        return transformArticleDtoToArticle(data)
       },
-      initialData: () => articleService.getCache(slug)!,
-      initialDataUpdatedAt: () =>
-        queryClient.getQueryState(articleKey)?.dataUpdatedAt,
-    });
-  },
+      // FIXME:
+      // @ts-expect-error
+      initialData: () => this.getInitialData<Article>(['article', slug]),
+      initialDataUpdatedAt: () => this.getQueryDataUpdateAt(['article', slug]),
+    })
+  }
 
-  prefetchQuery: async (slug: string) =>
-    queryClient.prefetchQuery(articleService.queryOptions(slug)),
+  static articlesInfiniteQuery(filter?: FilterQuery) {
+    const { limit = 10, offset = 0, author, favorited, tag } = filter || {}
 
-  ensureQueryData: async (slug: string) =>
-    queryClient.ensureQueryData(articleService.queryOptions(slug)),
-};
-
-export const infinityArticlesService = {
-  queryKey: (filterQuery: FilterQuery) =>
-    keys.infinityQueryByFilter(filterQuery),
-
-  getCache: (filterQuery: FilterQuery) =>
-    queryClient.getQueryData<InfiniteData<Articles>>(
-      infinityArticlesService.queryKey(filterQuery),
-    ),
-
-  queryOptions: (filterStore: StoreApi<State>) => {
-    const { pageQuery, filterQuery = {} } = filterStore.getState();
-    const { following, ...filterQueryDto } = filterQuery;
-    const isUserFeed = Boolean(following);
+    const queryKey = [
+      ...this.keys.rootInfinity,
+      'genearal-articles',
+      'by-filter',
+      { author },
+      { favorited },
+      { tag },
+    ].filter(Boolean) as string[]
 
     return infiniteQueryOptions({
-      queryKey: infinityArticlesService.queryKey(filterQuery),
+      queryKey,
       queryFn: async ({ pageParam, signal }) => {
-        const articles = isUserFeed
-          ? await articlesFeedQuery({ query: pageParam }, signal)
-          : await articlesQuery(
-              {
-                query: {
-                  ...pageParam,
-                  ...filterQueryDto,
-                },
-              },
-              signal,
-            );
+        const data = await ArticleService.articlesQuery(
+          {
+            query: {
+              limit,
+              offset: pageParam * limit,
+              ...(author && { author }),
+              ...(favorited && { favorited }),
+              ...(tag && { tag }),
+            },
+          },
+          signal,
+        )
 
-        articles.forEach((article) => {
-          articleService.setCache(article);
-          profileService.setCache(article.author);
-        });
+        const articles = transformArticlesDtoToArticles(data)
 
-        return articles;
+        this.setArticleData(articles)
+
+        return articles
       },
-      initialPageParam: pageQuery as any,
-      getNextPageParam: (lastPage, allPages, lastPageParam) => {
-        if (lastPage.length < lastPageParam.limit || !lastPage.length) {
-          return null;
-        }
-        return {
-          limit: lastPageParam.limit,
-          offset: allPages.length * lastPageParam.limit,
-        };
+      initialPageParam: this.getInitialPageParam({ limit, offset }),
+      getNextPageParam: this.getNextPageParam,
+      getPreviousPageParam: this.getPreviousPageParam,
+      // @ts-expect-error FIXME:
+      initialData: () =>
+        this.getInitialData<InfiniteData<Articles, number>>(queryKey),
+      initialDataUpdatedAt: () => this.getQueryDataUpdateAt(queryKey),
+    })
+  }
+
+  static articlesFeedInfinityQuery(filter?: FilterQuery) {
+    const { limit = 10, offset = 0 } = filter || {}
+
+    const queryKey = [...this.keys.rootInfinity, 'feed-articles']
+
+    return infiniteQueryOptions({
+      queryKey,
+      queryFn: async ({ pageParam, signal }) => {
+        const data = await ArticleService.articlesFeedQuery(
+          { query: { limit, offset: pageParam * limit } },
+          signal,
+        )
+
+        const articles = transformArticlesDtoToArticles(data)
+
+        this.setArticleData(articles)
+
+        return articles
       },
-      initialData: () => infinityArticlesService.getCache(filterQuery)!,
-      initialDataUpdatedAt: () =>
-        queryClient.getQueryState(infinityArticlesService.queryKey(filterQuery))
-          ?.dataUpdatedAt,
-    });
-  },
+      initialPageParam: this.getInitialPageParam({ limit, offset }),
+      getNextPageParam: this.getNextPageParam,
+      getPreviousPageParam: this.getPreviousPageParam,
+      // @ts-expect-error FIXME:
+      initialData: () =>
+        this.getInitialData<InfiniteData<Articles, number>>(queryKey),
+      initialDataUpdatedAt: () => this.getQueryDataUpdateAt(queryKey),
+    })
+  }
 
-  prefetchQuery: async (filterStore: StoreApi<State>) =>
-    queryClient.prefetchInfiniteQuery(
-      infinityArticlesService.queryOptions(filterStore),
-    ),
+  private static getInitialPageParam(filter: {
+    offset: number
+    limit: number
+  }) {
+    return filter.offset / filter.limit
+  }
 
-  cancelQuery: (filterQuery: FilterQuery) =>
-    queryClient.cancelQueries({
-      queryKey: infinityArticlesService.queryKey(filterQuery),
-    }),
-};
+  private static getInitialData<T>(queryKey: string[]) {
+    return queryClient.getQueryData<T>(queryKey)
+  }
 
-export function useFavoriteArticleMutation(slug: string) {
-  const queryClient = useQueryClient();
+  private static getQueryDataUpdateAt<T>(slug: string[]) {
+    return queryClient.getQueryState<T>(slug)?.dataUpdatedAt
+  }
 
-  const favoriteKey = keys.favoriteArticle(slug);
-  const articleKey = keys.article(slug);
-  const infinityQueriesKey = keys.infinityQuery();
+  private static getNextPageParam(
+    lastPage: Articles,
+    _allPages: Array<Articles>,
+    lastPageParam: number,
+  ) {
+    if (lastPage.size === 0) return
+    return lastPageParam + 1
+  }
 
-  return useMutation({
-    mutationKey: favoriteKey,
-    mutationFn: favoriteArticleMutation,
-    onMutate: async ({ slug }) => {
-      await queryClient.cancelQueries({ queryKey: articleKey });
-      await queryClient.cancelQueries({ queryKey: infinityQueriesKey });
+  private static getPreviousPageParam(
+    _firstPage: Articles,
+    _allPages: Array<Articles>,
+    firstPageParam: number,
+  ) {
+    if (firstPageParam <= 1) return
+    return firstPageParam - 1
+  }
 
-      const oldArticleData = articleService.getCache(slug);
-
-      const newArticleData = oldArticleData && {
-        ...oldArticleData,
-        favorited: true,
-        favoritesCount: oldArticleData.favoritesCount + 1,
-      };
-
-      if (newArticleData) {
-        articleService.setCache(newArticleData);
-      }
-
-      queryClient.setQueriesData<InfiniteData<Articles>>(
-        { queryKey: infinityQueriesKey },
-        reactQueryLib.infinityQueryDataUpdater({
-          id: 'slug',
-          data: newArticleData,
-        }),
-      );
-
-      return { oldArticleData };
-    },
-    onError: (_error, _variables, context) => {
-      if (!context || !context.oldArticleData) return;
-
-      articleService.setCache(context.oldArticleData);
-
-      queryClient.setQueriesData<InfiniteData<Articles>>(
-        { queryKey: infinityQueriesKey },
-        reactQueryLib.infinityQueryDataUpdater({
-          id: 'slug',
-          data: context.oldArticleData,
-        }),
-      );
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: articleKey });
-      await queryClient.invalidateQueries({ queryKey: infinityQueriesKey });
-    },
-  });
-}
-
-export function useUnfavoriteArticleMutation(slug: string) {
-  const queryClient = useQueryClient();
-
-  const unfavoriteKey = keys.unfavoriteArticle(slug);
-  const articleKey = keys.article(slug);
-  const infinityQueriesKey = keys.infinityQuery();
-
-  return useMutation({
-    mutationKey: unfavoriteKey,
-    mutationFn: unfavoriteArticleMutation,
-    onMutate: async ({ slug }) => {
-      await queryClient.cancelQueries({ queryKey: articleKey });
-      await queryClient.cancelQueries({ queryKey: infinityQueriesKey });
-
-      const oldArticleData = articleService.getCache(slug);
-
-      const newArticleData = oldArticleData && {
-        ...oldArticleData,
-        favorited: false,
-        favoritesCount: oldArticleData.favoritesCount - 1,
-      };
-
-      if (newArticleData) {
-        articleService.setCache(newArticleData);
-      }
-
-      queryClient.setQueriesData<InfiniteData<Articles>>(
-        { queryKey: infinityQueriesKey },
-        reactQueryLib.infinityQueryDataUpdater({
-          id: 'slug',
-          data: newArticleData,
-        }),
-      );
-
-      return { oldArticleData };
-    },
-    onError: (_error, _variables, context) => {
-      if (!context || !context.oldArticleData) return;
-
-      articleService.setCache(context.oldArticleData);
-
-      queryClient.setQueriesData<InfiniteData<Articles>>(
-        { queryKey: infinityQueriesKey },
-        reactQueryLib.infinityQueryDataUpdater({
-          id: 'slug',
-          data: context.oldArticleData,
-        }),
-      );
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: articleKey });
-      await queryClient.invalidateQueries({ queryKey: infinityQueriesKey });
-    },
-  });
-}
-
-export function useCreateArticleMutation() {
-  const navigate = useNavigate();
-
-  return useMutation({
-    mutationKey: keys.createArticle(),
-    mutationFn: createArticleMutation,
-    onSuccess: (article) => {
-      articleService.setCache(article);
-      navigate(pathKeys.article.bySlug({ slug: article.slug }));
-    },
-  });
-}
-
-export function useDeleteArticleMutation(slug: string) {
-  const navigate = useNavigate();
-
-  return useMutation({
-    mutationKey: keys.deleteArticle(slug),
-    mutationFn: deleteArticleMutation,
-    onSuccess: () => {
-      articleService.removeCache(slug);
-      navigate(pathKeys.home());
-    },
-  });
-}
-
-export function useUpdateArticleMutation(slug: string) {
-  const navigate = useNavigate();
-
-  return useMutation({
-    mutationKey: keys.updateArticle(slug),
-    mutationFn: updateArticleMutation,
-    onSuccess: async (article) => {
-      articleService.setCache(article);
-      navigate(pathKeys.article.bySlug({ slug: article.slug }));
-    },
-  });
+  private static setArticleData(articles: Articles) {
+    articles.forEach((article) => {
+      queryClient.setQueryData([...this.keys.root, article.slug], article)
+    })
+  }
 }

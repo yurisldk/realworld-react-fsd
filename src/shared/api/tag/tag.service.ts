@@ -1,24 +1,16 @@
-import { createJsonQuery } from '../../lib/fetch';
-import { zodContract } from '../../lib/zod';
-import { IUrlService } from '../url.service';
-import { TagsDtoSchema } from './tag.contracts';
-import { TagsDto } from './tag.types';
+import { createJsonQuery } from '../../lib/fetch'
+import { getUrl } from '../api.service'
+import { TagsDtoSchema } from './tag.contracts'
 
-export interface ITagService {
-  tagsQuery(signal?: AbortSignal): Promise<TagsDto>;
-}
-
-export class TagService implements ITagService {
-  constructor(private readonly urlService: IUrlService) {}
-
-  tagsQuery(signal?: AbortSignal) {
+export class TagService {
+  static tagsQuery(signal?: AbortSignal) {
     return createJsonQuery({
       request: {
-        url: this.urlService.getUrl('/tags'),
+        url: getUrl('/tags'),
         method: 'GET',
       },
-      response: { contract: zodContract(TagsDtoSchema) },
+      response: { contract: TagsDtoSchema },
       abort: signal,
-    });
+    })
   }
 }

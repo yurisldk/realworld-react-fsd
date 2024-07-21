@@ -1,8 +1,13 @@
-import { Profile, ProfileDto } from './profie.types';
+import { profileTypesDto } from '~shared/api/profile'
+import { Profile } from './profie.types'
 
-export function mapProfile(profileDto: ProfileDto): Profile {
+export function transformProfileDtoToProfile(
+  profileDto: profileTypesDto.ProfileDto,
+): Profile {
+  const { profile } = profileDto
+
   return {
-    ...profileDto,
-    bio: profileDto.bio || '',
-  };
+    ...profile,
+    bio: profile.bio || '',
+  }
 }

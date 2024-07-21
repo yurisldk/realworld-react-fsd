@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const ProfileDtoSchema = z.object({
   profile: z.object({
@@ -7,4 +7,4 @@ export const ProfileDtoSchema = z.object({
     image: z.string(),
     following: z.boolean(),
   }),
-});
+})

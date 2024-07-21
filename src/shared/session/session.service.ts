@@ -1,95 +1,145 @@
-import { StateCreator, createStore } from 'zustand';
+import { useSessionStore } from './session.model'
 import {
-  DevtoolsOptions,
-  PersistOptions,
-  devtools,
-  persist,
-  subscribeWithSelector,
-} from 'zustand/middleware';
+  SessionPermission,
+  Action,
+  ConditionalPermissionContext,
+  Context,
+  ArticleContext,
+  CommentContext,
+  ProfileContext,
+  Session,
+} from './session.types'
 
-type UnsubscribeFunction = () => void;
-
-type Token = string;
-
-type State = {
-  token: Token | null;
-};
-
-type Actions = {
-  setToken: (token: Token) => void;
-  resetToken: () => void;
-};
-
-type SessionState = State & Actions;
-
-const createSessionSlice: StateCreator<
-  SessionState,
-  [
-    ['zustand/devtools', never],
-    ['zustand/persist', unknown],
-    ['zustand/subscribeWithSelector', never],
-  ],
-  [],
-  SessionState
-> = (set) => ({
-  token: null,
-  setToken: (token: Token) => set({ token }, false, 'setToken'),
-  resetToken: () => set({ token: null }, false, 'resetToken'),
-});
-
-const persistOptions: PersistOptions<SessionState> = {
-  name: 'session',
-  skipHydration: true,
-};
-const devtoolsOptions: DevtoolsOptions = { name: 'Session Service' };
-
-const sessionStore = createStore<SessionState>()(
-  devtools(
-    persist(subscribeWithSelector(createSessionSlice), persistOptions),
-    devtoolsOptions,
-  ),
-);
-
-export function hasToken() {
-  return Boolean(sessionStore.getState().token);
-}
-
-export function setToken(token: Token) {
-  sessionStore.getState().setToken(token);
-}
-
-export function resetToken() {
-  sessionStore.getState().resetToken();
-}
-
-export async function init() {
-  return sessionStore.persist.rehydrate();
-}
-
-export function onTokenSet(
-  tokenSetEventHandler: (token: Token) => void,
-): UnsubscribeFunction {
-  const unsubscribe = sessionStore.subscribe(
-    (state) => state.token,
-    (token) => {
-      if (token) {
-        tokenSetEventHandler(token);
-      }
+const sessionPermission: SessionPermission = {
+  user: {
+    article: {
+      create: true,
+      read: true,
+      update: false,
+      delete: false,
+      like: true,
+      dislike: true,
     },
-  );
-  return unsubscribe;
+    profile: { follow: true, unfollow: true, update: false },
+    comment: { create: true, read: true, delete: false },
+  },
+  guest: {
+    article: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+      like: false,
+      dislike: false,
+    },
+    profile: { follow: false, unfollow: false, update: false },
+    comment: { create: false, read: false, delete: false },
+  },
+  author: {
+    article: {
+      create: true,
+      read: true,
+      update: true,
+      delete: true,
+      like: true,
+      dislike: true,
+    },
+    profile: { follow: true, unfollow: true, update: false },
+    comment: { create: true, read: true, delete: false },
+  },
+  commenter: {
+    article: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+      like: true,
+      dislike: true,
+    },
+    profile: { follow: true, unfollow: true, update: false },
+    comment: { create: true, read: true, delete: true },
+  },
+  owner: {
+    article: {
+      create: false,
+      read: true,
+      update: false,
+      delete: false,
+      like: true,
+      dislike: true,
+    },
+    profile: { follow: true, unfollow: true, update: true },
+    comment: { create: true, read: true, delete: false },
+  },
 }
 
-export function onTokenReset(
-  tokenResetEventHandler: VoidFunction,
-): UnsubscribeFunction {
-  const unsubscribe = sessionStore.subscribe(
-    (state) => state.token,
-    (token) => {
-      if (!token) {
-        tokenResetEventHandler();
-      }
-    },
-  );
-  return unsubscribe;
+type NestedKeysWithField<T, F extends keyof any> = {
+  [K in keyof T]: T[K] extends { [key in F]: any }
+    ? K
+    : T[K] extends object
+      ? NestedKeysWithField<T[K], F>
+      : never
+}[keyof T]
+
+export class PermissionService {
+  static useCanPerformAction<
+    T extends Action,
+    Resource extends NestedKeysWithField<SessionPermission, T>,
+    ConditionalContext extends ConditionalPermissionContext<T, Resource>,
+  >(action: T, resource: Resource, context?: ConditionalContext): boolean {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const session = useSessionStore.use.session()
+    const role = PermissionService.getRole({ context, session })
+
+    // @ts-expect-error
+    return !!sessionPermission[role][resource][action]
+  }
+
+  static canPerformAction<
+    T extends Action,
+    Resource extends NestedKeysWithField<SessionPermission, T>,
+    ConditionalContext extends ConditionalPermissionContext<T, Resource>,
+  >(action: T, resource: Resource, context?: ConditionalContext): boolean {
+    const role = this.getRole({ context })
+
+    // @ts-expect-error
+    return !!sessionPermission[role][resource][action]
+  }
+
+  private static getRole(config?: {
+    context?: Context
+    session?: Session | null
+  }): keyof SessionPermission {
+    const { context, session = useSessionStore.getState().session } =
+      config || {}
+
+    if (!session) return 'guest'
+    if (!context) return 'user'
+
+    if (this.isArticleContext(context)) {
+      if (context.articleAuthorId === session.username) return 'author'
+    }
+
+    if (this.isCommentContext(context)) {
+      if (context.commentAuthorId === session.username) return 'commenter'
+    }
+
+    if (this.isProfileContext(context)) {
+      if (context.profileOwnerId === session.username) return 'owner'
+    }
+
+    return 'user'
+  }
+
+  private static isArticleContext(context: Context): context is ArticleContext {
+    return (context as ArticleContext).articleAuthorId !== undefined
+  }
+
+  private static isCommentContext(context: Context): context is CommentContext {
+    return (context as CommentContext).commentAuthorId !== undefined
+  }
+
+  private static isProfileContext(context: Context): context is ProfileContext {
+    return (context as ProfileContext).profileOwnerId !== undefined
+  }
 }

@@ -1,4 +1,4 @@
-import { z } from 'zod';
-import { ProfileDtoSchema } from './profile.contracts';
+import { z } from 'zod'
+import { ProfileDtoSchema } from './profile.contracts'
 
-export type ProfileDto = z.infer<typeof ProfileDtoSchema>;
+export type ProfileDto = z.infer<typeof ProfileDtoSchema>

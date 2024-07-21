@@ -1,3 +1,3 @@
-export * as articleContracts from './article.contracts';
-export { ArticleService, type IArticleService } from './article.service';
-export * as articleTypes from './article.types';
+export * as articleContractsDto from './article.contracts'
+export { ArticleService } from './article.service'
+export * as articleTypesDto from './article.types'

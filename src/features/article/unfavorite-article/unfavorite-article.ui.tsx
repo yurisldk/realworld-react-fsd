@@ -1,42 +1,67 @@
-import { IoHeart } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
-import { articleQueries, articleTypes } from '~entities/article';
-import { pathKeys } from '~shared/lib/react-router';
-import { sessionService } from '~shared/session';
-import { Button } from '~shared/ui/button';
+import { IoHeart } from 'react-icons/io5'
+import { Button } from '~shared/ui/button'
+import { articleTypes } from '~entities/article'
+import { useUnfavoriteArticleMutation } from './unfavorite-article.mutation'
 
 type UnfavoriteArticleButtonProps = {
-  article: articleTypes.Article;
-  short?: boolean;
-};
+  article: articleTypes.Article
+}
 
-export function UnfavoriteArticleButton(props: UnfavoriteArticleButtonProps) {
-  const { article, short = false } = props;
+export function UnfavoriteArticleBriefButton(
+  props: UnfavoriteArticleButtonProps,
+) {
+  const { article } = props
 
-  const navigate = useNavigate();
+  const { mutate } = useUnfavoriteArticleMutation({
+    mutationKey: ['brief', article.slug],
+  })
 
-  const { mutate: unfavoriteArticle } =
-    articleQueries.useUnfavoriteArticleMutation(article.slug);
-
-  const handleFavorite = () => {
-    if (sessionService.hasToken()) {
-      unfavoriteArticle({ slug: article.slug });
-      return;
-    }
-    navigate(pathKeys.login());
-  };
+  const handleUnfavorite = () => {
+    const unfavoritedArticle = unfavorite(article)
+    mutate(unfavoritedArticle)
+  }
 
   return (
-    <Button color="primary" onClick={handleFavorite}>
+    <Button
+      color="primary"
+      onClick={handleUnfavorite}
+    >
       <IoHeart size={16} />
-      {short ? (
-        article.favoritesCount
-      ) : (
-        <>
-          &nbsp;Unfavorite Article&nbsp;
-          <span className="counter">({article.favoritesCount})</span>
-        </>
-      )}
+      {article.favoritesCount}
     </Button>
-  );
+  )
+}
+
+export function UnfavoriteArticleExtendedButton(
+  props: UnfavoriteArticleButtonProps,
+) {
+  const { article } = props
+
+  const { mutate } = useUnfavoriteArticleMutation({
+    mutationKey: ['extended', article.slug],
+  })
+
+  const handleUnfavorite = () => {
+    const unfavoritedArticle = unfavorite(article)
+    mutate(unfavoritedArticle)
+  }
+
+  return (
+    <Button
+      color="primary"
+      onClick={handleUnfavorite}
+    >
+      <IoHeart size={16} />
+      &nbsp;Unfavorite Article&nbsp;
+      <span className="counter">({article.favoritesCount})</span>
+    </Button>
+  )
+}
+
+function unfavorite(article: articleTypes.Article): articleTypes.Article {
+  return {
+    ...article,
+    favorited: false,
+    favoritesCount: article.favoritesCount - 1,
+  }
 }

@@ -1,1 +1,2 @@
-export * from './delete';
+export * from './create-comment'
+export * from './delete-comment'

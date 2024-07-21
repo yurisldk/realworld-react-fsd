@@ -1,35 +1,24 @@
-import { useSuspenseQueries } from '@tanstack/react-query';
-import cn from 'classnames';
-import { IoSettingsSharp } from 'react-icons/io5';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useStore } from 'zustand';
-import { profileQueries, profileTypes } from '~entities/profile';
-import { sessionQueries } from '~entities/session';
-import { FollowUserButton, UnfollowUserButton } from '~features/profile';
-import { pathKeys, routerTypes } from '~shared/lib/react-router';
-import { Button } from '~shared/ui/button';
-import { ArticlesList } from '~widgets/articles-list';
-import {
-  articleFilterStore,
-  onAuthorArticles,
-  onAuthorFavoritedArticles,
-  tabStore,
-} from './profile-page.model';
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { withErrorBoundary } from 'react-error-boundary'
+import { IoAdd, IoSettingsSharp } from 'react-icons/io5'
+import { useLoaderData, useNavigate } from 'react-router-dom'
+import { compose, withSuspense } from '~shared/lib/react'
+import { pathKeys, routerTypes } from '~shared/lib/react-router'
+import { PermissionService } from '~shared/session'
+import { Button } from '~shared/ui/button'
+import { ErrorHandler, logError } from '~shared/ui/error-handler'
+import { Skeleton } from '~shared/ui/skeleton'
+import { Stack } from '~shared/ui/stack'
+import { ArticleQueries } from '~entities/article'
+import { ProfileQueries, profileTypes } from '~entities/profile'
+import { ProfileFilter } from '~features/article'
+import { FollowUserButton, UnfollowUserButton } from '~features/profile'
+import { ArticlesFeed } from '~widgets/articles-feed'
+import { profileModel } from './profile-page.model'
 
 export function ProfilePage() {
-  const { username } = useParams() as routerTypes.UsernamePageParams;
-  const navigate = useNavigate();
-
-  const activeTab = useStore(tabStore, (state) => state.tab);
-
-  const [user, profile] = useSuspenseQueries({
-    queries: [
-      sessionQueries.userService.queryOptions(),
-      profileQueries.profileService.queryOptions(username),
-    ],
-  });
-
-  const isOwner = user.data?.username === profile.data.username;
+  const { params } = useLoaderData() as routerTypes.ProfilePageData
+  const { username } = params
 
   return (
     <div className="profile-page">
@@ -37,29 +26,7 @@ export function ProfilePage() {
         <div className="container">
           <div className="row">
             <div className="col-xs-12 col-md-10 offset-md-1">
-              <img
-                src={profile.data.image}
-                className="user-img"
-                alt={profile.data.username}
-              />
-              <h4>{profile.data.username}</h4>
-              <p>{profile.data.bio}</p>
-
-              {!isOwner && (
-                <FollowProfileActionButtons profile={profile.data} />
-              )}
-
-              {isOwner && (
-                <Button
-                  color="secondary"
-                  variant="outline"
-                  className="action-btn"
-                  onClick={() => navigate(pathKeys.settings())}
-                >
-                  <IoSettingsSharp size={14} />
-                  &nbsp; Edit Profile Settings
-                </Button>
-              )}
+              <ProfileInfo username={username} />
             </div>
           </div>
         </div>
@@ -68,48 +35,157 @@ export function ProfilePage() {
       <div className="container">
         <div className="row">
           <div className="col-xs-12 col-md-10 offset-md-1">
-            <div className="articles-toggle">
-              <ul className="nav nav-pills outline-active">
-                <li className="nav-item">
-                  <button
-                    className={cn('nav-link', {
-                      active: activeTab === 'authorArticles',
-                    })}
-                    type="button"
-                    onClick={() => onAuthorArticles(profile.data.username)}
-                  >
-                    {`${profile.data.username}`}&apos;s Articles
-                  </button>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className={cn('nav-link', {
-                      active: activeTab === 'authorFavoritedArticles',
-                    })}
-                    type="button"
-                    onClick={() =>
-                      onAuthorFavoritedArticles(profile.data.username)
-                    }
-                  >
-                    Favorited Articles
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            <ArticlesList filterStore={articleFilterStore} />
+            <ProfileFilter
+              username={username}
+              profileArticleFilter={profileModel}
+            />
+            <ArticlesFeed
+              useArticleFilterStore={profileModel.useProfileArticleFilterStore}
+              articlesInfiniteQueryOptions={boundArticlesInfiniteQuery}
+            />
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-type FollowProfileActionButtonsProps = { profile: profileTypes.Profile };
-function FollowProfileActionButtons(props: FollowProfileActionButtonsProps) {
-  return props.profile.following ? (
-    <UnfollowUserButton profile={props.profile} />
-  ) : (
-    <FollowUserButton profile={props.profile} />
-  );
+type ProfileInfoProps = { username: string }
+
+const enhance = compose<ProfileInfoProps>(
+  (component) =>
+    withErrorBoundary(component, {
+      FallbackComponent: ErrorHandler,
+      onError: logError,
+    }),
+  (component) =>
+    withSuspense(component, { FallbackComponent: ProfileInfoSkeleton }),
+)
+
+const ProfileInfo = enhance((props: ProfileInfoProps) => {
+  const { username } = props
+
+  const { data: profile } = useSuspenseQuery(
+    ProfileQueries.profileQuery(username),
+  )
+
+  return (
+    <>
+      <img
+        src={profile.image}
+        className="user-img"
+        alt={profile.username}
+      />
+      <h4>{profile.username}</h4>
+      <p>{profile.bio}</p>
+
+      <ToggleFollowProfile profile={profile} />
+    </>
+  )
+})
+
+function ToggleFollowProfile(props: { profile: profileTypes.Profile }) {
+  const { profile } = props
+  const { username, following } = profile
+
+  const canUpdateProfile = PermissionService.useCanPerformAction(
+    'update',
+    'profile',
+    { profileOwnerId: username },
+  )
+  const canFollow = PermissionService.useCanPerformAction('follow', 'profile')
+  const canUnfollow = PermissionService.useCanPerformAction(
+    'unfollow',
+    'profile',
+  )
+  const canFollowProfile = !canUpdateProfile && canFollow && !following
+  const canUnfollowProfile = !canUpdateProfile && canUnfollow && following
+  const cannotFollowAndUnfollowProfile = !canFollow && !canUnfollow
+
+  return (
+    <>
+      {canFollowProfile && <FollowUserButton profile={profile} />}
+      {canUnfollowProfile && <UnfollowUserButton profile={profile} />}
+      {canUpdateProfile && <NavigateToSettingsButton />}
+      {cannotFollowAndUnfollowProfile && (
+        <NavigateToLoginButton username={profile.username} />
+      )}
+    </>
+  )
 }
+
+function NavigateToSettingsButton() {
+  const navigate = useNavigate()
+
+  return (
+    <Button
+      color="secondary"
+      variant="outline"
+      className="action-btn"
+      onClick={() => navigate(pathKeys.settings())}
+    >
+      <IoSettingsSharp size={14} />
+      &nbsp; Edit Profile Settings
+    </Button>
+  )
+}
+
+function NavigateToLoginButton(props: { username: string }) {
+  const { username } = props
+
+  const navigate = useNavigate()
+
+  const onClick = () => navigate(pathKeys.login())
+
+  return (
+    <Button
+      color="secondary"
+      variant="outline"
+      className="action-btn "
+      onClick={onClick}
+    >
+      <IoAdd size={16} />
+      &nbsp; Follow {username}
+    </Button>
+  )
+}
+
+export function ProfileInfoSkeleton() {
+  return (
+    <Stack
+      direction="column"
+      alignItems="center"
+      spacing={16}
+    >
+      <Skeleton
+        variant="circular"
+        width={100}
+        height={100}
+      />
+      <Stack
+        direction="column"
+        alignItems="center"
+        spacing={8}
+        style={{ width: '100%' }}
+      >
+        <Skeleton
+          width={200}
+          height={26}
+        />
+        <Skeleton
+          width={320}
+          height={24}
+        />
+        <Skeleton
+          variant="text"
+          width={150}
+          height={28}
+          style={{ alignSelf: 'flex-end' }}
+        />
+      </Stack>
+    </Stack>
+  )
+}
+
+const boundArticlesInfiniteQuery =
+  ArticleQueries.articlesInfiniteQuery.bind(ArticleQueries)

@@ -1,41 +1,32 @@
+/* eslint-disable strict */
 /** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {
   forbidden: [
     /* rules from the 'recommended' preset: */
-    {
-      name: 'no-circular',
-      severity: 'warn',
-      comment:
-        'This dependency is part of a circular relationship. You might want to revise ' +
-        'your solution (i.e. use dependency inversion, make sure the modules have a single responsibility) ',
-      from: {},
-      to: {
-        circular: true,
-      },
-    },
-    {
-      name: 'no-orphans',
-      comment:
-        "This is an orphan module - it's likely not used (anymore?). Either use it or " +
-        "remove it. If it's logical this module is an orphan (i.e. it's a config file), " +
-        'add an exception for it in your dependency-cruiser configuration. By default ' +
-        'this rule does not scrutinize dot-files (e.g. .eslintrc.js), TypeScript declaration ' +
-        'files (.d.ts), tsconfig.json and some of the babel and webpack configs.',
-      severity: 'warn',
-      from: {
-        orphan: true,
-        pathNot: [
-          '(^|/)\\.[^/]+\\.(js|cjs|mjs|ts|json)$', // dot files
-          '\\.d\\.ts$', // TypeScript declaration files
-          '\\.types\\.ts$',
-          '^src/shared/lib/',
-          '(^|/)@x',
-          '(^|/)tsconfig\\.json$', // TypeScript config
-          '(^|/)(babel|webpack)\\.config\\.(js|cjs|mjs|ts|json)$', // other configs
-        ],
-      },
-      to: {},
-    },
+    // {
+    //   name: 'no-circular',
+    //   severity: 'warn',
+    //   comment:
+    //     'This dependency is part of a circular relationship. You might want to revise ' +
+    //     'your solution (i.e. use dependency inversion, make sure the modules have a single responsibility) ',
+    //   from: {},
+    //   to: {
+    //     circular: true,
+    //   },
+    // },
+    // {
+    //   name: 'no-orphans',
+    //   severity: 'info',
+    //   comment:
+    //     "This is an orphan module - it's likely not used (anymore?). Either use it or remove it. If it's " +
+    //     "logical this module is an orphan (i.e. it's a config file), add an exception for it in your " +
+    //     'dependency-cruiser configuration.',
+    //   from: {
+    //     orphan: true,
+    //     pathNot: '\\.d\\.ts$',
+    //   },
+    //   to: {},
+    // },
     {
       name: 'no-deprecated-core',
       comment:
@@ -60,6 +51,7 @@ module.exports = {
           '^(node-inspect/lib/internal/inspect_client)$',
           '^(node-inspect/lib/internal/inspect_repl)$',
           '^(async_hooks)$',
+          '^(assert)$',
           '^(punycode)$',
           '^(domain)$',
           '^(constants)$',
@@ -91,6 +83,7 @@ module.exports = {
       from: {},
       to: {
         dependencyTypes: ['npm-no-pkg', 'npm-unknown'],
+        pathNot: 'packages/.+',
       },
     },
     {
@@ -104,24 +97,22 @@ module.exports = {
         couldNotResolve: true,
       },
     },
-    {
-      name: 'no-duplicate-dep-types',
-      comment:
-        "Likely this module depends on an external ('npm') package that occurs more than once " +
-        'in your package.json i.e. bot as a devDependencies and in dependencies. This will cause ' +
-        'maintenance problems later on.',
-      severity: 'warn',
-      from: {},
-      to: {
-        moreThanOneDependencyType: true,
-        // as it's pretty common to have a type import be a type only import
-        // _and_ (e.g.) a devDependency - don't consider type-only dependency
-        // types for this rule
-        dependencyTypesNot: ['type-only'],
-      },
-    },
 
     /* rules you might want to tweak for your specific situation: */
+    {
+      name: 'not-to-test',
+      comment:
+        "This module depends on code within a folder that should only contain tests. As tests don't " +
+        "implement functionality this is odd. Either you're writing a test outside the test folder " +
+        "or there's something in the test folder that isn't a test.",
+      severity: 'error',
+      from: {
+        pathNot: '^(test|spec)',
+      },
+      to: {
+        path: '^(test|spec)',
+      },
+    },
     {
       name: 'not-to-spec',
       comment:
@@ -131,7 +122,7 @@ module.exports = {
       severity: 'error',
       from: {},
       to: {
-        path: '\\.(spec|test)\\.(js|mjs|cjs|ts|ls|coffee|litcoffee|coffee\\.md)$',
+        path: '\\.spec\\.(js|ts|ls|coffee|litcoffee|coffee\\.md)$',
       },
     },
     {
@@ -144,12 +135,8 @@ module.exports = {
         'section of your package.json. If this module is development only - add it to the ' +
         'from.pathNot re of the not-to-dev-dep rule in the dependency-cruiser configuration',
       from: {
-        path: '^(src)',
-        pathNot: [
-          '\\.(spec|test)\\.(js|jst|mjs|cjs|ts|tsx|ls|coffee|litcoffee|coffee\\.md)$',
-          'src/([^/].*/msw)',
-          'src/shared/lib/.*',
-        ],
+        path: '^(src|app|lib)',
+        pathNot: '\\.spec\\.(js|ts|ls|coffee|litcoffee|coffee\\.md)$',
       },
       to: {
         dependencyTypes: ['npm-dev'],
@@ -162,23 +149,10 @@ module.exports = {
         'This module depends on an npm package that is declared as an optional dependency ' +
         "in your package.json. As this makes sense in limited situations only, it's flagged here. " +
         "If you're using an optional dependency here by design - add an exception to your" +
-        'dependency-cruiser configuration.',
+        'depdency-cruiser configuration.',
       from: {},
       to: {
         dependencyTypes: ['npm-optional'],
-      },
-    },
-    {
-      name: 'peer-deps-used',
-      comment:
-        'This module depends on an npm package that is declared as a peer dependency ' +
-        'in your package.json. This makes sense if your package is e.g. a plugin, but in ' +
-        'other cases - maybe not so much. If the use of a peer dependency is intentional ' +
-        'add an exception to your dependency-cruiser configuration.',
-      severity: 'warn',
-      from: {},
-      to: {
-        dependencyTypes: ['npm-peer'],
       },
     },
   ],
@@ -189,7 +163,15 @@ module.exports = {
        for a complete list
     */
     doNotFollow: {
-      path: 'node_modules',
+      // path: 'node_modules',
+      dependencyTypes: [
+        'npm',
+        'npm-dev',
+        'npm-optional',
+        'npm-peer',
+        'npm-bundled',
+        'npm-no-pkg',
+      ],
     },
 
     /* conditions specifying which dependencies to exclude
@@ -197,54 +179,38 @@ module.exports = {
        - dynamic: a boolean indicating whether to ignore dynamic (true) or static (false) dependencies.
           leave out if you want to exclude neither (recommended!)
     */
-    // exclude : {
-    //   path: '',
-    //   dynamic: true
-    // },
+    // , exclude : {
+    //   path: ''
+    //   , dynamic: true
+    // }
 
     /* pattern specifying which files to include (regular expression)
        dependency-cruiser will skip everything not matching this pattern
     */
-    // includeOnly : '',
-
-    /* dependency-cruiser will include modules matching against the focus
-       regular expression in its output, as well as their neighbours (direct
-       dependencies and dependents)
-    */
-    // focus : '',
+    includeOnly: '^packages',
 
     /* list of module systems to cruise */
-    // moduleSystems: ['amd', 'cjs', 'es6', 'tsd'],
+    // , moduleSystems: ['amd', 'cjs', 'es6', 'tsd']
 
-    /* prefix for links in html and svg output (e.g. 'https://github.com/you/yourrepo/blob/develop/'
-       to open it on your online repo or `vscode://file/${process.cwd()}/` to
-       open it in visual studio code),
-     */
-    // prefix: '',
+    /* prefix for links in html and svg output (e.g. https://github.com/you/yourrepo/blob/develop/) */
+    prefix: 'https://github.com/facebook/react/blob/master/',
 
     /* false (the default): ignore dependencies that only exist before typescript-to-javascript compilation
        true: also detect dependencies that only exist before typescript-to-javascript compilation
        "specify": for each dependency identify whether it only exists before compilation or also after
      */
-    // tsPreCompilationDeps: false,
-
-    /*
-       list of extensions to scan that aren't javascript or compile-to-javascript.
-       Empty by default. Only put extensions in here that you want to take into
-       account that are _not_ parsable.
-    */
-    // extraExtensionsToScan: [".json", ".jpg", ".png", ".svg", ".webp"],
+    // , tsPreCompilationDeps: false
 
     /* if true combines the package.jsons found from the module up to the base
        folder the cruise is initiated from. Useful for how (some) mono-repos
        manage dependencies & dependency definitions.
      */
-    // combinedDependencies: false,
+    combinedDependencies: true,
 
     /* if true leave symlinks untouched, otherwise use the realpath */
-    // preserveSymlinks: false,
+    // , preserveSymlinks: false
 
-    /* TypeScript project file ('tsconfig.json') to use for
+    /* Typescript project file ('tsconfig.json') to use for
        (1) compilation and
        (2) resolution (e.g. with the paths property)
 
@@ -252,9 +218,9 @@ module.exports = {
        dependency-cruiser's current working directory). When not provided
        defaults to './tsconfig.json'.
      */
-    tsConfig: {
-      fileName: 'tsconfig.json',
-    },
+    // , tsConfig: {
+    //  fileName: './tsconfig.json'
+    // }
 
     /* Webpack configuration to use to get resolve options from.
 
@@ -266,74 +232,31 @@ module.exports = {
        your webpack config is a function and takes them (see webpack documentation
        for details)
      */
-    // webpackConfig: {
-    //  fileName: './webpack.config.js',
-    //  env: {},
-    //  arguments: {},
-    // },
+    // , webpackConfig: {
+    //  fileName: './webpack.config.js'
+    //  , env: {}
+    //  , arguments: {}
+    // }
 
-    /* Babel config ('.babelrc', '.babelrc.json', '.babelrc.json5', ...) to use
-      for compilation (and whatever other naughty things babel plugins do to
-      source code). This feature is well tested and usable, but might change
-      behavior a bit over time (e.g. more precise results for used module
-      systems) without dependency-cruiser getting a major version bump.
-     */
-    // babelConfig: {
-    //   fileName: './.babelrc'
-    // },
-
+    /* How to resolve external modules - use "yarn-pnp" if you're using yarn's Plug'n'Play.
+       otherwise leave it out (or set to the default, which is 'node_modules')
+    */
+    // , externalModuleResolutionStrategy: 'node_modules'
     /* List of strings you have in use in addition to cjs/ es6 requires
        & imports to declare module dependencies. Use this e.g. if you've
-       re-declared require, use a require-wrapper or use window.require as
+       redeclared require, use a require-wrapper or use window.require as
        a hack.
     */
-    // exoticRequireStrings: [],
-    /* options to pass on to enhanced-resolve, the package dependency-cruiser
-       uses to resolve module references to disk. You can set most of these
-       options in a webpack.conf.js - this section is here for those
-       projects that don't have a separate webpack config file.
-
-       Note: settings in webpack.conf.js override the ones specified here.
-     */
+    // , exoticRequireStrings: []
+    // theoretically there's more extensions than just .js (a quick scan learns
+    // the packages folder contains .ts, .d.ts, .ls(!) and .coffee). However,
+    // likely they either just exist in node_modules, or are of no consequence
+    // as when we provide these extensions as well the number of files & dependencies
+    // scanned does not go up.
     enhancedResolveOptions: {
-      /* List of strings to consider as 'exports' fields in package.json. Use
-         ['exports'] when you use packages that use such a field and your environment
-         supports it (e.g. node ^12.19 || >=14.7 or recent versions of webpack).
-
-         If you have an `exportsFields` attribute in your webpack config, that one
-         will have precedence over the one specified here.
-      */
-      exportsFields: ['exports'],
-      /* List of conditions to check for in the exports field. e.g. use ['imports']
-         if you're only interested in exposed es6 modules, ['require'] for commonjs,
-         or all conditions at once `(['import', 'require', 'node', 'default']`)
-         if anything goes for you. Only works when the 'exportsFields' array is
-         non-empty.
-
-        If you have a 'conditionNames' attribute in your webpack config, that one will
-        have precedence over the one specified here.
-      */
-      conditionNames: ['import', 'require', 'node', 'default'],
-      /*
-         The extensions, by default are the same as the ones dependency-cruiser
-         can access (run `npx depcruise --info` to see which ones that are in
-         _your_ environment. If that list is larger than what you need (e.g.
-         it contains .js, .jsx, .ts, .tsx, .cts, .mts - but you don't use
-         TypeScript you can pass just the extensions you actually use (e.g.
-         [".js", ".jsx"]). This can speed up the most expensive step in
-         dependency cruising (module resolution) quite a bit.
-       */
-      // extensions: [".js", ".jsx", ".ts", ".tsx", ".d.ts"],
-      /*
-         If your TypeScript project makes use of types specified in 'types'
-         fields in package.jsons of external dependencies, specify "types"
-         in addition to "main" in here, so enhanced-resolve (the resolver
-         dependency-cruiser uses) knows to also look there. You can also do
-         this if you're not sure, but still use TypeScript. In a future version
-         of dependency-cruiser this will likely become the default.
-       */
-      mainFields: ['main', 'types'],
+      extensions: ['.js'],
     },
+    progress: { type: 'performance-log' },
     reporterOptions: {
       dot: {
         /* pattern of modules that can be consolidated in the detailed
@@ -341,89 +264,7 @@ module.exports = {
            collapses everything in node_modules to one folder deep so you see
            the external modules, but not the innards your app depends upon.
          */
-        collapsePattern: [
-          'node_modules/(@[^/]+/[^/]+|[^/]+)',
-          'src/(app/[^/]+/)',
-          'src/(pages/[^/]+/)',
-          'src/(features/[^/]+/[^/]+/)',
-          'src/([^/]+/[^/]+)',
-        ],
-
-        /* Options to tweak the appearance of your graph.See
-           https://github.com/sverweij/dependency-cruiser/blob/main/doc/options-reference.md#reporteroptions
-           for details and some examples. If you don't specify a theme
-           don't worry - dependency-cruiser will fall back to the default one.
-        */
-        theme: {
-          graph: { rankdir: 'TD' },
-        },
-        // theme: {
-        //   graph: {
-        //     /* use splines: "ortho" for straight lines. Be aware though
-        //       graphviz might take a long time calculating ortho(gonal)
-        //       routings.
-        //    */
-        //     splines: "true"
-        //   },
-        //   modules: [
-        //     {
-        //       criteria: { matchesFocus: true },
-        //       attributes: {
-        //         fillcolor: "lime",
-        //         penwidth: 2,
-        //       },
-        //     },
-        //     {
-        //       criteria: { matchesFocus: false },
-        //       attributes: {
-        //         fillcolor: "lightgrey",
-        //       },
-        //     },
-        //     {
-        //       criteria: { matchesReaches: true },
-        //       attributes: {
-        //         fillcolor: "lime",
-        //         penwidth: 2,
-        //       },
-        //     },
-        //     {
-        //       criteria: { matchesReaches: false },
-        //       attributes: {
-        //         fillcolor: "lightgrey",
-        //       },
-        //     },
-        //     {
-        //       criteria: { source: "^src/model" },
-        //       attributes: { fillcolor: "#ccccff" }
-        //     },
-        //     {
-        //       criteria: { source: "^src/view" },
-        //       attributes: { fillcolor: "#ccffcc" }
-        //     },
-        //   ],
-        //   dependencies: [
-        //     {
-        //       criteria: { "rules[0].severity": "error" },
-        //       attributes: { fontcolor: "red", color: "red" }
-        //     },
-        //     {
-        //       criteria: { "rules[0].severity": "warn" },
-        //       attributes: { fontcolor: "orange", color: "orange" }
-        //     },
-        //     {
-        //       criteria: { "rules[0].severity": "info" },
-        //       attributes: { fontcolor: "blue", color: "blue" }
-        //     },
-        //     {
-        //       criteria: { resolved: "^src/model" },
-        //       attributes: { color: "#0000ff77" }
-        //     },
-        //     {
-        //       criteria: { resolved: "^src/view" },
-        //       attributes: { color: "#00770077" }
-        //     }
-        //   ]
-        // }
+        collapsePattern: 'node_modules/[^/]+',
       },
       archi: {
         /* pattern of modules that can be consolidated in the high level
@@ -431,8 +272,7 @@ module.exports = {
           dependency graph reporter (`archi`) you probably want to tweak
           this collapsePattern to your situation.
         */
-        collapsePattern:
-          '^(packages|src|lib|app|bin|test(s?)|spec(s?))/[^/]+|node_modules/(@[^/]+/[^/]+|[^/]+)',
+        collapsePattern: '^(node_modules|packages|src|lib|app|test|spec)/[^/]+',
 
         /* Options to tweak the appearance of your graph.See
            https://github.com/sverweij/dependency-cruiser/blob/main/doc/options-reference.md#reporteroptions
@@ -440,13 +280,63 @@ module.exports = {
            for 'archi' dependency-cruiser will use the one specified in the
            dot section (see above), if any, and otherwise use the default one.
          */
-        // theme: {
-        // },
-      },
-      text: {
-        highlightFocused: true,
+        theme: {
+          graph: {
+            /* use splines: 'ortho' for straight lines. Be aware though
+              graphviz might take a long time calculating ortho(gonal)
+              routings.
+           */
+            splines: 'ortho',
+            rankdir: 'TD',
+          },
+          modules: [
+            {
+              criteria: { source: 'tools' },
+              attributes: { fillcolor: '#ccffcc' },
+            },
+            {
+              criteria: { source: 'packages/react-' },
+              attributes: { fillcolor: '#ffcccc' },
+            },
+            {
+              criteria: { source: 'packages/react$' },
+              attributes: { fillcolor: '#ccccff' },
+            },
+            { criteria: {}, attributes: { fillcolor: '#ffffcc' } },
+          ],
+          dependencies: [
+            {
+              criteria: { 'rules[0].severity': 'error' },
+              attributes: { fontcolor: 'red', color: 'red' },
+            },
+            {
+              criteria: { 'rules[0].severity': 'warn' },
+              attributes: { fontcolor: 'orange', color: 'orange' },
+            },
+            {
+              criteria: { 'rules[0].severity': 'info' },
+              attributes: { fontcolor: 'blue', color: 'blue' },
+            },
+            {
+              criteria: { resolved: 'tools' },
+              attributes: { color: '#00770077' },
+            },
+            {
+              criteria: { resolved: 'packages/react-' },
+              attributes: { color: '#77000077' },
+            },
+            {
+              criteria: { resolved: 'packages/react$' },
+              attributes: { color: '#0000ff77' },
+            },
+            {
+              criteria: {},
+              attributes: { style: 'solid' },
+            },
+          ],
+        },
       },
     },
   },
-};
-// generated: dependency-cruiser@13.0.5 on 2023-07-04T16:27:52.867Z
+}
+// generated: dependency-cruiser@7.3.0-beta-5 on 2020-02-29T13:39:42.828Z

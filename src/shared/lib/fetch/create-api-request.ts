@@ -1,18 +1,23 @@
-import { httpError, networkError, preparationError } from './fetch.errors';
-import { formatUrl, formatHeaders } from './fetch.lib';
-import { HttpMethod, RequestBody, FetchApiRecord } from './fetch.types';
+import {
+  HttpError,
+  createHttpIssue,
+  createNetworkIssue,
+  createPreparationIssue,
+} from '../error'
+import { formatUrl, formatHeaders } from './fetch.lib'
+import { HttpMethod, RequestBody, FetchApiRecord } from './fetch.types'
 
 interface ApiRequest {
-  method: HttpMethod;
-  body?: RequestBody;
-  headers?: FetchApiRecord;
-  query?: FetchApiRecord;
-  url: string;
+  method: HttpMethod
+  body?: RequestBody
+  headers?: FetchApiRecord
+  query?: FetchApiRecord
+  url: string
 }
 
 interface ApiConfig {
-  request: ApiRequest;
-  abort?: AbortSignal;
+  request: ApiRequest
+  abort?: AbortSignal
 }
 
 export async function createApiRequest(config: ApiConfig) {
@@ -25,30 +30,32 @@ export async function createApiRequest(config: ApiConfig) {
       signal: config?.abort,
     },
   ).catch((error) => {
-    throw networkError({
-      reason: error?.message ?? null,
-      cause: error,
-    });
-  });
+    throw createNetworkIssue({ cause: error })
+  })
 
   if (!response.ok) {
-    throw httpError({
+    throw createHttpIssue({
       status: response.status,
       statusText: response.statusText,
-      response: (await response.text().catch(() => null)) ?? null,
-    });
+      cause: new HttpError(),
+      context: (await response.text().catch(() => null)) ?? null,
+    })
   }
 
-  const clonedResponse = response.clone();
+  if (response.status === 204) {
+    return null
+  }
+
+  const clonedResponse = response.clone()
 
   const data = !response.body
     ? null
     : await response.json().catch(async (error) => {
-        throw preparationError({
-          response: await clonedResponse.text(),
-          reason: error?.message ?? null,
-        });
-      });
+        throw createPreparationIssue({
+          context: await clonedResponse.text(),
+          cause: error,
+        })
+      })
 
-  return data;
+  return data
 }

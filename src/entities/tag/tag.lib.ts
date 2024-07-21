@@ -1,9 +1,6 @@
-import { Tag, TagDto, Tags, TagsDto } from './tag.types';
+import { tagTypesDto } from '~shared/api/tag'
+import { Tags } from './tag.types'
 
-export function mapTag(tagDto: TagDto): Tag {
-  return tagDto;
-}
-
-export function mapTags(tagsDto: TagsDto): Tags {
-  return tagsDto.tags;
+export function transformTagsDtoToTags(tagsDto: tagTypesDto.TagsDto): Tags {
+  return tagsDto.tags
 }

@@ -1,10 +1,10 @@
 /// <reference types="vitest" />
-import path from 'path';
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import unfonts from 'unplugin-fonts/vite';
-import checker from 'vite-plugin-checker';
-import eslint from 'vite-plugin-eslint';
+import path from 'path'
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import unfonts from 'unplugin-fonts/vite'
+import checker from 'vite-plugin-checker'
+import eslint from 'vite-plugin-eslint'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -30,10 +30,8 @@ export default defineConfig(({ mode }) => ({
     ],
   }),
   test: {
-    globals: true,
     environment: 'jsdom',
     setupFiles: 'src/shared/lib/test/setup.ts',
-    include: ['**/__tests__/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     coverage: {
       provider: 'v8',
       exclude: ['src/shared/api/realworld/**'],
@@ -51,4 +49,4 @@ export default defineConfig(({ mode }) => ({
       '~widgets': path.resolve('src/widgets'),
     },
   },
-}));
+}))

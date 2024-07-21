@@ -1,78 +1,49 @@
-/* eslint-disable class-methods-use-this */
-/* eslint-disable max-classes-per-file */
-import { ArticleService, IArticleService } from './article';
-import { AuthService, IAuthService } from './auth';
-import { AuthHeaderService } from './auth-header.service';
-import { CommentService, ICommentService } from './comment';
-import { FavoriteService, IFavoriteService } from './favorite';
-import { IProfileService, ProfileService } from './profile';
-import { ITagService, TagService } from './tag';
-import { UrlService } from './url.service';
+const BASE_URL = 'https://api.realworld.io/api'
 
-const BASE_URL = 'https://api.realworld.io/api';
-
-// TODO: remove exports
-export const authHeaderService = new AuthHeaderService();
-export const urlService = new UrlService(BASE_URL);
-
-interface IApiServiceFactory {
-  createAuthService(): IAuthService;
-  createArticleService(): IArticleService;
-  createProfileService(): IProfileService;
-  createCommentService(): ICommentService;
-  createTagService(): ITagService;
-  createFavoriteService(): IFavoriteService;
+export function getUrl(path?: string) {
+  return BASE_URL.concat(path || '')
 }
 
-class ApiServiceFactory implements IApiServiceFactory {
-  createArticleService() {
-    return new ArticleService(urlService, authHeaderService);
+class AuthHeaderService {
+  private header = new Headers()
+
+  constructor() {
+    this.init()
   }
 
-  createAuthService() {
-    return new AuthService(urlService, authHeaderService);
+  getHeader() {
+    return Object.fromEntries(this.header)
   }
 
-  createCommentService() {
-    return new CommentService(urlService, authHeaderService);
+  setHeader(value: string) {
+    this.header.set('Authorization', `Bearer ${value}`)
   }
 
-  createFavoriteService() {
-    return new FavoriteService(urlService, authHeaderService);
+  resetHeader() {
+    this.header.delete('Authorization')
   }
 
-  createProfileService() {
-    return new ProfileService(urlService, authHeaderService);
+  private init() {
+    const token = this.getTokenFromLocalStorage()
+    if (token) {
+      this.setHeader(token)
+    }
   }
 
-  createTagService() {
-    return new TagService(urlService);
+  private getTokenFromLocalStorage(): string | null {
+    const sessionData = localStorage.getItem('session')
+
+    if (!sessionData) return null
+
+    try {
+      const sessionObject = JSON.parse(sessionData) as {
+        state: { session: { token: string } }
+      }
+      return sessionObject.state.session.token
+    } catch (error) {
+      return null
+    }
   }
 }
 
-class ApiService {
-  article: IArticleService;
-
-  auth: IAuthService;
-
-  comment: ICommentService;
-
-  favorite: IFavoriteService;
-
-  profile: IProfileService;
-
-  tag: ITagService;
-
-  constructor(apiServiceFactory: ApiServiceFactory) {
-    this.article = apiServiceFactory.createArticleService();
-    this.auth = apiServiceFactory.createAuthService();
-    this.comment = apiServiceFactory.createCommentService();
-    this.favorite = apiServiceFactory.createFavoriteService();
-    this.profile = apiServiceFactory.createProfileService();
-    this.tag = apiServiceFactory.createTagService();
-  }
-}
-
-const apiServiceFactory = new ApiServiceFactory();
-
-export const apiService = new ApiService(apiServiceFactory);
+export const authHeaderService = new AuthHeaderService()

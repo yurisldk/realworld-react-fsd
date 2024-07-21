@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 const FavoriteArticleDto = z.object({
   slug: z.string(),
@@ -6,8 +6,8 @@ const FavoriteArticleDto = z.object({
   description: z.string(),
   body: z.string(),
   tagList: z.string().array(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
   favorited: z.boolean(),
   favoritesCount: z.number(),
   author: z.object({
@@ -16,8 +16,8 @@ const FavoriteArticleDto = z.object({
     image: z.string(),
     following: z.boolean(),
   }),
-});
+})
 
 export const FavoriteArticleDtoSchema = z.object({
   article: FavoriteArticleDto,
-});
+})

@@ -1,1 +1,1 @@
-export { editorPageRoute } from './editor-page.route';
+export { editorPageRoute } from './editor-page.route'

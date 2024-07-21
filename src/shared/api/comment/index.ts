@@ -1,3 +1,3 @@
-export * as commentContracts from './comment.contracts';
-export { CommentService, type ICommentService } from './comment.service';
-export * as commentTypes from './comment.types';
+export * as commentContractsDto from './comment.contracts'
+export { CommentService } from './comment.service'
+export * as commentTypesDto from './comment.types'

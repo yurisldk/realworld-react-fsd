@@ -1,52 +1,46 @@
-import { createElement } from 'react';
-import { RouteObject, redirect } from 'react-router-dom';
-import { articleQueries } from '~entities/article';
-import { sessionQueries } from '~entities/session';
-import { invalidDataError } from '~shared/lib/fetch';
-import { pathKeys, routerContracts } from '~shared/lib/react-router';
-import { zodContract } from '~shared/lib/zod';
-import { sessionService } from '~shared/session';
-import { EditorPage } from './editor-page.ui';
+import { createElement, lazy } from 'react'
+import { LoaderFunctionArgs, RouteObject } from 'react-router-dom'
+import { compose, withSuspense } from '~shared/lib/react'
+import { EditorPageSkeleton } from './editor-page.skeleton'
+
+const editorCreatePageLoader = (args: LoaderFunctionArgs) =>
+  import('./editor-page.model').then((module) =>
+    module.EditorLoader.editorCreatePage(args),
+  )
+
+const editorUpdatePageLoader = (args: LoaderFunctionArgs) =>
+  import('./editor-page.model').then((module) =>
+    module.EditorLoader.editorUpdatePage(args),
+  )
+
+const CreateEditorPage = lazy(() =>
+  import('./editor-page.ui').then((module) => ({
+    default: module.CreateEditorPage,
+  })),
+)
+
+const UpdateEditorPage = lazy(() =>
+  import('./editor-page.ui').then((module) => ({
+    default: module.UpdateEditorPage,
+  })),
+)
+
+const enhance = compose((component) =>
+  withSuspense(component, { FallbackComponent: EditorPageSkeleton }),
+)
 
 export const editorPageRoute: RouteObject = {
   path: 'editor',
   children: [
     {
       index: true,
-      element: createElement(EditorPage),
-      loader: async (args) => {
-        if (!sessionService.hasToken()) {
-          return redirect(pathKeys.login());
-        }
-
-        sessionQueries.userService.prefetchQuery();
-        return args;
-      },
+      element: createElement(enhance(CreateEditorPage)),
+      loader: editorCreatePageLoader,
     },
     {
       path: ':slug',
-      element: createElement(EditorPage),
-      loader: async (args) => {
-        if (!sessionService.hasToken()) {
-          return redirect(pathKeys.login());
-        }
-
-        const contract = zodContract(routerContracts.SlugPageParamsSchema);
-
-        if (!contract.isData(args.params)) {
-          throw invalidDataError({
-            validationErrors: contract.getErrorMessages(args.params),
-            response: {},
-          });
-        }
-
-        Promise.all([
-          sessionQueries.userService.prefetchQuery(),
-          articleQueries.articleService.prefetchQuery(args.params.slug),
-        ]);
-
-        return args;
-      },
+      element: createElement(enhance(UpdateEditorPage)),
+      loader: editorUpdatePageLoader,
     },
   ],
-};
+}

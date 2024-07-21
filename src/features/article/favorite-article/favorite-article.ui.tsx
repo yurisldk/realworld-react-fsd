@@ -1,43 +1,67 @@
-import { IoHeart } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
-import { articleQueries, articleTypes } from '~entities/article';
-import { pathKeys } from '~shared/lib/react-router';
-import { sessionService } from '~shared/session';
-import { Button } from '~shared/ui/button';
+import { IoHeart } from 'react-icons/io5'
+import { Button } from '~shared/ui/button'
+import { articleTypes } from '~entities/article'
+import { useFavoriteArticleMutation } from './favorite-article.mutation'
 
 type FavoriteArticleButtonProps = {
-  article: articleTypes.Article;
-  short?: boolean;
-};
+  article: articleTypes.Article
+}
 
-export function FavoriteArticleButton(props: FavoriteArticleButtonProps) {
-  const { article, short = false } = props;
+export function FavoriteArticleBriefButton(props: FavoriteArticleButtonProps) {
+  const { article } = props
 
-  const navigate = useNavigate();
-
-  const { mutate: favoriteArticle } = articleQueries.useFavoriteArticleMutation(
-    article.slug,
-  );
+  const { mutate } = useFavoriteArticleMutation({
+    mutationKey: ['brief', article.slug],
+  })
 
   const handleFavorite = () => {
-    if (sessionService.hasToken()) {
-      favoriteArticle({ slug: article.slug });
-      return;
-    }
-    navigate(pathKeys.login());
-  };
+    const favoritedArticle = favorite(article)
+    mutate(favoritedArticle)
+  }
 
   return (
-    <Button color="primary" variant="outline" onClick={handleFavorite}>
+    <Button
+      color="primary"
+      variant="outline"
+      onClick={handleFavorite}
+    >
       <IoHeart size={16} />
-      {short ? (
-        article.favoritesCount
-      ) : (
-        <>
-          &nbsp;Favorite Article&nbsp;
-          <span className="counter">({article.favoritesCount})</span>
-        </>
-      )}
+      {article.favoritesCount}
     </Button>
-  );
+  )
+}
+
+export function FavoriteArticleExtendedButton(
+  props: FavoriteArticleButtonProps,
+) {
+  const { article } = props
+
+  const { mutate } = useFavoriteArticleMutation({
+    mutationKey: ['extended', article.slug],
+  })
+
+  const handleFavorite = () => {
+    const favoritedArticle = favorite(article)
+    mutate(favoritedArticle)
+  }
+
+  return (
+    <Button
+      color="primary"
+      variant="outline"
+      onClick={handleFavorite}
+    >
+      <IoHeart size={16} />
+      &nbsp;Favorite Article&nbsp;
+      <span className="counter">({article.favoritesCount})</span>
+    </Button>
+  )
+}
+
+function favorite(article: articleTypes.Article): articleTypes.Article {
+  return {
+    ...article,
+    favorited: true,
+    favoritesCount: article.favoritesCount + 1,
+  }
 }

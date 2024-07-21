@@ -1,3 +1,3 @@
-export * as favoriteContracts from './favorite.contracts';
-export { FavoriteService, type IFavoriteService } from './favorite.service';
-export * as favoriteTypes from './favorite.types';
+export * as favoriteContractsDto from './favorite.contracts'
+export { FavoriteService } from './favorite.service'
+export * as favoriteTypesDto from './favorite.types'

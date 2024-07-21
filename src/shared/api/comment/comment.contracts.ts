@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 const CommentDto = z.object({
   id: z.number(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
   body: z.string(),
   author: z.object({
     username: z.string(),
@@ -11,18 +11,20 @@ const CommentDto = z.object({
     image: z.string(),
     following: z.boolean(),
   }),
-});
+})
 
 export const CommentDtoSchema = z.object({
   comment: CommentDto,
-});
+})
 
 export const CommentsDtoSchema = z.object({
   comments: z.array(CommentDto),
-});
+})
 
 export const CreateCommentDtoSchema = z.object({
-  body: z.string().min(1),
-});
+  body: z.string().min(1, {
+    message: 'The comment body must contain at least 1 character.',
+  }),
+})
 
-export const EmptySchema = z.object({});
+export const EmptySchema = z.object({})

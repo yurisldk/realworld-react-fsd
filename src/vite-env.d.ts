@@ -1,10 +1,12 @@
 /// <reference types="vite/client" />
+/// <reference types="vitest" />
+/// <reference types="@testing-library/react" />
 
-import '@tanstack/react-query';
-import { GenericError } from '~shared/lib/fetch';
+import '@tanstack/react-query'
+import { GenericIssue } from '~shared/lib/error'
 
 declare module '@tanstack/react-query' {
   interface Register {
-    defaultError: GenericError<any>;
+    defaultError: GenericIssue<any>
   }
 }

@@ -1,24 +1,48 @@
-import { StateCreator } from 'zustand';
+import { StateCreator, create } from 'zustand'
+import { DevtoolsOptions, devtools } from 'zustand/middleware'
+import { createSelectors } from '~shared/lib/zustand'
 
-export type State<Literals> = {
-  tab: Literals;
-};
+export type TabsStore = ReturnType<typeof createTabsStore>
+export function createTabsStore(config: {
+  initialState: TabsState
+  devtoolsOptions: DevtoolsOptions
+}) {
+  const { initialState, devtoolsOptions } = config
 
-export type Actions<Literals> = {
-  changeTab: (tab: Literals) => void;
-};
+  const slice = createTabsSlice(initialState)
+  const withDevtools = devtools(slice, devtoolsOptions)
+  const store = create(withDevtools)
+  const useTabsStore = createSelectors(store)
 
-export type TabState<Literals> = State<Literals> & Actions<Literals>;
-export const createTabSlice =
-  <Literals>(
-    initialState: State<Literals>,
-  ): StateCreator<
-    TabState<Literals>,
+  return useTabsStore
+}
+
+function createTabsSlice(initialState: TabsState) {
+  const tabsSlice: StateCreator<
+    TabsState & Actions,
     [['zustand/devtools', never]],
     [],
-    TabState<Literals>
-  > =>
-  (set) => ({
+    TabsState & Actions
+  > = (set) => ({
     ...initialState,
-    changeTab: (tab: Literals) => set({ tab }, false, 'changeTab'),
-  });
+
+    setTab(tab: string) {
+      set({ tab }, false, `setTab ${tab}`)
+    },
+
+    reset() {
+      set({ ...initialState }, false, 'reset')
+    },
+  })
+
+  return tabsSlice
+}
+
+export type TabsState = {
+  tab: string
+}
+
+type Actions = {
+  setTab(tab: string): void
+  reset(): void
+}

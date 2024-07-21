@@ -1,1 +1,1 @@
-export { articlePageRoute } from './article-page.route';
+export { articlePageRoute } from './article-page.route'

@@ -1,28 +1,19 @@
-import { IoAdd } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
-import { profileQueries, profileTypes } from '~entities/profile';
-import { pathKeys } from '~shared/lib/react-router';
-import { sessionService } from '~shared/session';
-import { Button } from '~shared/ui/button';
+import { IoAdd } from 'react-icons/io5'
+import { Button } from '~shared/ui/button'
+import { profileTypes } from '~entities/profile'
+import { useFollowProfileMutation } from './follow-profile.mutation'
 
-type FollowUserButtonProps = { profile: profileTypes.Profile };
+export function FollowUserButton(props: { profile: profileTypes.Profile }) {
+  const { profile } = props
 
-export function FollowUserButton(props: FollowUserButtonProps) {
-  const { profile } = props;
-
-  const navigate = useNavigate();
-
-  const { mutate: followProfile } = profileQueries.useFollowProfileMutation(
-    profile.username,
-  );
+  const { mutate } = useFollowProfileMutation({
+    mutationKey: [profile.username],
+  })
 
   const handleClick = () => {
-    if (sessionService.hasToken()) {
-      followProfile({ username: profile.username });
-      return;
-    }
-    navigate(pathKeys.login());
-  };
+    const followedProfile = follow(profile)
+    mutate(followedProfile)
+  }
 
   return (
     <Button
@@ -34,5 +25,12 @@ export function FollowUserButton(props: FollowUserButtonProps) {
       <IoAdd size={16} />
       &nbsp; Follow {profile.username}
     </Button>
-  );
+  )
+}
+
+function follow(profile: profileTypes.Profile): profileTypes.Profile {
+  return {
+    ...profile,
+    following: true,
+  }
 }

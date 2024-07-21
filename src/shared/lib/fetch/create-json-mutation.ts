@@ -1,14 +1,14 @@
-import { Contract } from '../zod';
-import { createApiRequest } from './create-api-request';
-import { invalidDataError } from './fetch.errors';
-import { FetchApiRecord, RequestBody } from './fetch.types';
+import { ZodType } from 'zod'
+import { createValidationIssue } from '../error'
+import { createApiRequest } from './create-api-request'
+import { FetchApiRecord, RequestBody } from './fetch.types'
 
 interface JsonMutationConfig {
-  url: string;
-  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  headers?: FetchApiRecord;
-  query?: FetchApiRecord;
-  body?: RequestBody;
+  url: string
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  headers?: FetchApiRecord
+  query?: FetchApiRecord
+  body?: RequestBody
 }
 
 export async function createJsonMutation<
@@ -16,57 +16,66 @@ export async function createJsonMutation<
   ContractData extends Response,
   MappedData,
 >(config: {
-  request: JsonMutationConfig;
+  request: JsonMutationConfig
   response: {
-    contract: Contract<Response, ContractData>;
-    mapData: (data: ContractData) => MappedData;
-  };
-}): Promise<MappedData>;
+    contract: ZodType<ContractData>
+    mapData: (data: ContractData) => MappedData
+  }
+}): Promise<MappedData>
 
 export async function createJsonMutation<
   Response,
   ContractData extends Response,
 >(config: {
-  request: JsonMutationConfig;
+  request: JsonMutationConfig
   response: {
-    contract: Contract<Response, ContractData>;
-  };
-}): Promise<ContractData>;
+    contract: ZodType<ContractData>
+  }
+}): Promise<ContractData>
 
 export async function createJsonMutation<
   Response,
   ContractData extends Response,
   MappedData,
 >(config: {
-  request: JsonMutationConfig;
+  request: JsonMutationConfig
   response: {
-    mapData: (data: ContractData) => MappedData;
-  };
-}): Promise<MappedData>;
+    mapData: (data: ContractData) => MappedData
+  }
+}): Promise<MappedData>
 
 export async function createJsonMutation(config: {
-  request: JsonMutationConfig;
-}): Promise<unknown>;
+  request: JsonMutationConfig
+}): Promise<unknown>
 
 export async function createJsonMutation<
   Response,
   ContractData extends Response,
   MappedData,
 >(config: {
-  request: JsonMutationConfig;
+  request: JsonMutationConfig
   response?: {
-    contract?: Contract<Response, ContractData>;
-    mapData?: (data: ContractData) => MappedData;
-  };
+    contract?: ZodType<ContractData>
+    mapData?: (data: ContractData) => MappedData
+  }
 }) {
-  const data = await createApiRequest({ request: config.request });
+  const data = await createApiRequest({ request: config.request })
 
-  if (config?.response?.contract && !config.response.contract.isData(data)) {
-    throw invalidDataError({
-      validationErrors: config.response.contract.getErrorMessages(data),
-      response: data,
-    });
+  if (config?.response?.contract) {
+    const validation = config.response.contract.safeParse(data)
+
+    if (validation.error) {
+      throw createValidationIssue({
+        errors: validation.error.errors,
+        context: data,
+        cause: validation.error,
+      })
+    }
+
+    return config?.response?.mapData
+      ? config.response.mapData(validation.data)
+      : validation.data
   }
 
-  return config?.response?.mapData ? config.response.mapData(data) : data;
+  return config?.response?.mapData ? config.response.mapData(data) : data
 }

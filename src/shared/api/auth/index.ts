@@ -1,3 +1,3 @@
-export * as authContracts from './auth.contracts';
-export { AuthService, type IAuthService } from './auth.service';
-export * as authTypes from './auth.types';
+export * as authContractsDto from './auth.contracts'
+export { AuthService } from './auth.service'
+export * as authTypesDto from './auth.types'
