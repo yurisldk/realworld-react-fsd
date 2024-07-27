@@ -3,9 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { BrowserRouter, useNavigate } from 'react-router-dom'
 import { Mock, describe, expect, it, vi } from 'vitest'
 import { AuthService, authTypesDto } from '~shared/api/auth'
+import { AxiosLib } from '~shared/lib/axios'
 import { pathKeys } from '~shared/lib/react-router'
 import { renderWithQueryClient } from '~shared/lib/test'
-import { useSessionStore } from '~shared/session'
 import { LoginForm } from './login.ui'
 
 describe('LoginForm', () => {
@@ -32,7 +32,7 @@ describe('LoginForm', () => {
   it('should call login mutation on valid form submission', async () => {
     const loginUserMutation = vi
       .spyOn(AuthService, 'loginUserMutation')
-      .mockResolvedValue(userDto)
+      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse(userDto))
 
     const { click, type } = renderLoginForm()
 
@@ -41,16 +41,16 @@ describe('LoginForm', () => {
     await click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
-      expect(loginUserMutation).toHaveBeenCalledWith({ user: loginUserDto })
+      expect(loginUserMutation).toHaveBeenCalledWith({ loginUserDto })
     })
   })
 
   it('should navigate to profile on successful login', async () => {
     const navigate = vi.fn()
     mockedUseNavigate.mockReturnValue(navigate)
-    const session = useSessionStore.getState()
-    const setSession = vi.spyOn(session, 'setSession')
-    vi.spyOn(AuthService, 'loginUserMutation').mockResolvedValue(userDto)
+    vi.spyOn(AuthService, 'loginUserMutation').mockResolvedValue(
+      AxiosLib.mockResolvedAxiosResponse(userDto),
+    )
 
     const { click, type } = renderLoginForm()
 
@@ -59,7 +59,6 @@ describe('LoginForm', () => {
     await click(screen.getByRole('button', { name: /sign in/i }))
 
     await waitFor(() => {
-      expect(setSession).toHaveBeenCalledWith(userDto.user)
       expect(navigate).toHaveBeenCalledWith(
         pathKeys.profile.byUsername({ username: userDto.user.username }),
       )

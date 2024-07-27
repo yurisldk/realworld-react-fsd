@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { CommentService } from '~shared/api/comment'
+import { AxiosLib } from '~shared/lib/axios'
 import { renderWithQueryClient } from '~shared/lib/test'
 import { DeleteCommentButtton } from './delete-comment.ui'
 
@@ -16,7 +17,7 @@ describe('Delete Comment Button', () => {
   it('should call mutate function with correct data when button is clicked', async () => {
     const deleteCommentMutationSpy = vi
       .spyOn(CommentService, 'deleteCommentMutation')
-      .mockResolvedValue({})
+      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({}))
 
     const { click } = renderDeleteCommentButtton()
 
@@ -27,10 +28,7 @@ describe('Delete Comment Button', () => {
     await click(screen.getByRole('button'))
 
     await waitFor(() => {
-      expect(deleteCommentMutationSpy).toHaveBeenCalledWith({
-        slug: 'test-slug',
-        id: 1,
-      })
+      expect(deleteCommentMutationSpy).toHaveBeenCalledWith('test-slug', 1)
     })
   })
 })

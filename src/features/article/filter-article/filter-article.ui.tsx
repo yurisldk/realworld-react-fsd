@@ -4,7 +4,7 @@ import { compose, withSuspense } from '~shared/lib/react'
 import { useSessionStore } from '~shared/session'
 import { ErrorHandler, logError } from '~shared/ui/error-handler'
 import { Tabs } from '~shared/ui/tabs'
-import { tagQueries } from '~entities/tag'
+import { TagQueries } from '~entities/tag'
 import { TagFilterSkeleton } from './filter-article.skeleton'
 
 export type MainArticleFilter = {
@@ -57,7 +57,7 @@ const enhance = compose<TagFilterProps>(
 export const TagFilter = enhance((props: TagFilterProps) => {
   const { tagArticleFilter } = props
 
-  const { data: tags } = useSuspenseQuery(tagQueries.tagsQuery())
+  const { data: tags } = useSuspenseQuery(TagQueries.tagsQuery())
 
   const handleTagClick = (tag: string) => () => {
     tagArticleFilter.onTagClick(tag)

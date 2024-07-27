@@ -11,19 +11,15 @@ export function DeleteArticleButton(props: DeleteArticleButtonProps) {
 
   const navigate = useNavigate()
 
-  const { mutate } = useDeleteArticleMutation({
+  const { mutate, isPending } = useDeleteArticleMutation({
     mutationKey: [slug],
 
     onMutate: () => {
       spinnerModel.globalSpinner.getState().show()
-      navigate(pathKeys.home(), { replace: true })
     },
 
-    onError: (error, variables) => {
-      navigate(pathKeys.article.bySlug({ slug: variables }), {
-        state: { error },
-        replace: true,
-      })
+    onSuccess: () => {
+      navigate(pathKeys.home(), { replace: true })
     },
 
     onSettled: () => {
@@ -40,6 +36,7 @@ export function DeleteArticleButton(props: DeleteArticleButtonProps) {
       onClick={handleClick}
       className="btn btn-outline-danger btn-sm"
       type="button"
+      disabled={isPending}
     >
       <IoTrash size={16} />
       &nbsp;Delete Article

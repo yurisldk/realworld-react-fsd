@@ -28,11 +28,10 @@ export class ArticleQueries {
     return queryOptions({
       queryKey: [...this.keys.rootBySlug, slug],
       queryFn: async ({ signal }) => {
-        const data = await ArticleService.articleQuery({ slug }, signal)
-        return transformArticleDtoToArticle(data)
+        const response = await ArticleService.articleQuery(slug, { signal })
+        return transformArticleDtoToArticle(response.data)
       },
-      // FIXME:
-      // @ts-expect-error
+      // @ts-expect-error FIXME: https://github.com/TanStack/query/issues/7341
       initialData: () => this.getInitialData<Article>(['article', slug]),
       initialDataUpdatedAt: () => this.getQueryDataUpdateAt(['article', slug]),
     })
@@ -53,29 +52,27 @@ export class ArticleQueries {
     return infiniteQueryOptions({
       queryKey,
       queryFn: async ({ pageParam, signal }) => {
-        const data = await ArticleService.articlesQuery(
-          {
-            query: {
-              limit,
-              offset: pageParam * limit,
-              ...(author && { author }),
-              ...(favorited && { favorited }),
-              ...(tag && { tag }),
-            },
+        const response = await ArticleService.articlesQuery({
+          params: {
+            limit,
+            offset: pageParam * limit,
+            ...(author && { author }),
+            ...(favorited && { favorited }),
+            ...(tag && { tag }),
           },
           signal,
-        )
+        })
 
-        const articles = transformArticlesDtoToArticles(data)
+        const articles = transformArticlesDtoToArticles(response.data)
 
         this.setArticleData(articles)
 
         return articles
       },
       initialPageParam: this.getInitialPageParam({ limit, offset }),
-      getNextPageParam: this.getNextPageParam,
+      getNextPageParam: this.getNextPageParam(limit),
       getPreviousPageParam: this.getPreviousPageParam,
-      // @ts-expect-error FIXME:
+      // @ts-expect-error FIXME: https://github.com/TanStack/query/issues/7341
       initialData: () =>
         this.getInitialData<InfiniteData<Articles, number>>(queryKey),
       initialDataUpdatedAt: () => this.getQueryDataUpdateAt(queryKey),
@@ -90,21 +87,21 @@ export class ArticleQueries {
     return infiniteQueryOptions({
       queryKey,
       queryFn: async ({ pageParam, signal }) => {
-        const data = await ArticleService.articlesFeedQuery(
-          { query: { limit, offset: pageParam * limit } },
+        const response = await ArticleService.articlesFeedQuery({
+          params: { limit, offset: pageParam * limit },
           signal,
-        )
+        })
 
-        const articles = transformArticlesDtoToArticles(data)
+        const articles = transformArticlesDtoToArticles(response.data)
 
         this.setArticleData(articles)
 
         return articles
       },
       initialPageParam: this.getInitialPageParam({ limit, offset }),
-      getNextPageParam: this.getNextPageParam,
+      getNextPageParam: this.getNextPageParam(limit),
       getPreviousPageParam: this.getPreviousPageParam,
-      // @ts-expect-error FIXME:
+      // @ts-expect-error FIXME: https://github.com/TanStack/query/issues/7341
       initialData: () =>
         this.getInitialData<InfiniteData<Articles, number>>(queryKey),
       initialDataUpdatedAt: () => this.getQueryDataUpdateAt(queryKey),
@@ -126,13 +123,15 @@ export class ArticleQueries {
     return queryClient.getQueryState<T>(slug)?.dataUpdatedAt
   }
 
-  private static getNextPageParam(
-    lastPage: Articles,
-    _allPages: Array<Articles>,
-    lastPageParam: number,
-  ) {
-    if (lastPage.size === 0) return
-    return lastPageParam + 1
+  private static getNextPageParam(limit: number) {
+    return (
+      lastPage: Articles,
+      _allPages: Array<Articles>,
+      lastPageParam: number,
+    ) => {
+      if (lastPage.size < limit) return
+      return lastPageParam + 1
+    }
   }
 
   private static getPreviousPageParam(

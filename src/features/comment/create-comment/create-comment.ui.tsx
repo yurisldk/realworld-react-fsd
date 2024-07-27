@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { commentContractsDto, commentTypesDto } from '~shared/api/comment'
 import { compose, withSuspense } from '~shared/lib/react'
 import { hasMessages } from '~shared/lib/react-hook-form'
-import { SessionQueries, useSessionStore } from '~shared/session'
+import { SessionQueries } from '~shared/session'
 import { ErrorHandler, logError } from '~shared/ui/error-handler'
 import { ErrorList } from '~shared/ui/error-list'
 import { transformCreateCommentDtoToComment } from './create-comment.lib'
@@ -29,7 +29,9 @@ const enhance = compose<CreateCommentFormProps>(
 export const CreateCommentForm = enhance((props: CreateCommentFormProps) => {
   const { slug } = props
 
-  const { data: user } = useSuspenseQuery(SessionQueries.currentSessionQuery())
+  const { data: session } = useSuspenseQuery(
+    SessionQueries.currentSessionQuery(),
+  )
 
   const {
     register,
@@ -58,8 +60,6 @@ export const CreateCommentForm = enhance((props: CreateCommentFormProps) => {
   const canSubmit = [isDirty, isValid].every(Boolean)
 
   const onSubmit = (createCommentDto: commentTypesDto.CreateCommentDto) => {
-    const { session } = useSessionStore.getState()
-
     if (!session)
       throw new Error('Session does not exist. Please log in and try again.')
 
@@ -90,9 +90,9 @@ export const CreateCommentForm = enhance((props: CreateCommentFormProps) => {
         </div>
         <div className="card-footer">
           <img
-            src={user.image}
+            src={session.image}
             className="comment-author-img"
-            alt={user.username}
+            alt={session.username}
           />
 
           <button

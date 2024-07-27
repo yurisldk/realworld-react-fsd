@@ -3,10 +3,10 @@
 /// <reference types="@testing-library/react" />
 
 import '@tanstack/react-query'
-import { GenericIssue } from '~shared/lib/error'
+import { AxiosError } from 'axios'
 
 declare module '@tanstack/react-query' {
   interface Register {
-    defaultError: GenericIssue<any>
+    defaultError: AxiosError
   }
 }

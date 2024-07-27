@@ -31,7 +31,7 @@ export function useFollowProfileMutation(
     mutationKey: ['profile', 'follow', ...mutationKey],
 
     mutationFn: ({ username }: profileTypes.Profile) =>
-      ProfileService.followProfileMutation({ username }),
+      ProfileService.followProfileMutation(username),
 
     onMutate: async (updatedProfile) => {
       await Promise.all([

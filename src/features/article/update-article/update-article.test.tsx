@@ -1,8 +1,9 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
+import { BrowserRouter, useNavigate } from 'react-router-dom'
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 import { ArticleService, articleTypesDto } from '~shared/api/article'
+import { AxiosLib } from '~shared/lib/axios'
 import { pathKeys } from '~shared/lib/react-router'
 import { renderWithQueryClient } from '~shared/lib/test'
 import { spinnerModel } from '~shared/ui/spinner'
@@ -11,7 +12,9 @@ import { UpdateArticleForm } from './update-article.ui'
 
 describe('UpdateArticleForm', () => {
   beforeEach(() => {
-    vi.spyOn(ArticleService, 'articleQuery').mockResolvedValue(articleDto)
+    vi.spyOn(ArticleService, 'articleQuery').mockResolvedValue(
+      AxiosLib.mockResolvedAxiosResponse(articleDto),
+    )
   })
 
   it('should render the form with the correct initial values', async () => {
@@ -33,26 +36,10 @@ describe('UpdateArticleForm', () => {
     })
   })
 
-  it('should show an error message when there is an error in state', async () => {
-    mockedUseLocation.mockImplementation(() => ({
-      state: {
-        error: { message: 'An error occurred' },
-        updatedArticle: { ...article, description: 'Updated Description' },
-      },
-    }))
-
-    renderUpdateArticleForm()
-
-    await waitFor(() => {
-      expect(mockedUseLocation).toHaveBeenCalled()
-      expect(screen.getByText('An error occurred')).toBeInTheDocument()
-    })
-  })
-
   it('should call the mutation with the updated article on form submission', async () => {
     const updateArticleMutationSpy = vi
       .spyOn(ArticleService, 'updateArticleMutation')
-      .mockResolvedValue({ article })
+      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({ article }))
 
     const { click, type, clear } = renderUpdateArticleForm()
 
@@ -83,8 +70,7 @@ describe('UpdateArticleForm', () => {
     await click(screen.getByRole('button', { name: /update article/i }))
 
     await waitFor(() => {
-      expect(updateArticleMutationSpy).toHaveBeenCalledWith({
-        slug: article.slug,
+      expect(updateArticleMutationSpy).toHaveBeenCalledWith(article.slug, {
         updateArticleDto: {
           title: 'Updated Title',
           description: 'Updated Description',
@@ -118,16 +104,14 @@ describe('UpdateArticleForm', () => {
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(
         pathKeys.article.bySlug({ slug: article.slug }),
+        { replace: true },
       )
     })
   })
 
-  it('should navigate to the editor with an error on mutation error', async () => {
-    const navigate = vi.fn()
-    mockedUseNavigate.mockReturnValue(navigate)
-
+  it('should display server errors on mutation error', async () => {
     vi.spyOn(ArticleService, 'updateArticleMutation').mockRejectedValue({
-      explanation: 'An error occurred',
+      message: 'An error occurred',
     })
 
     const { click, type, clear } = renderUpdateArticleForm()
@@ -147,13 +131,7 @@ describe('UpdateArticleForm', () => {
     await click(screen.getByRole('button', { name: /update article/i }))
 
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(pathKeys.editor.root(), {
-        state: {
-          error: { explanation: 'An error occurred' },
-          updatedArticle: { ...article, description: 'Updated Description' },
-        },
-        replace: true,
-      })
+      expect(screen.getByText('An error occurred')).toBeInTheDocument()
     })
   })
 
@@ -230,7 +208,6 @@ const articleDto: articleTypesDto.ArticleDto = {
 
 const article = articleLib.transformArticleDtoToArticle(articleDto)
 
-const mockedUseLocation = useLocation as Mock
 const mockedUseNavigate = useNavigate as Mock
 
 function renderUpdateArticleForm() {

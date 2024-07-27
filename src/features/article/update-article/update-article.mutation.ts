@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query'
 import { ArticleService } from '~shared/api/article'
 import { queryClient } from '~shared/lib/react-query'
-import { ArticleQueries, articleTypes } from '~entities/article'
+import { articleLib, ArticleQueries, articleTypes } from '~entities/article'
 import { transformArticleToUpdateArticleDto } from './update-article.lib'
 
 export function useUpdateArticleMutation(
@@ -33,66 +33,34 @@ export function useUpdateArticleMutation(
     mutationFn: (article: articleTypes.Article) => {
       const { slug } = article
       const updateArticleDto = transformArticleToUpdateArticleDto(article)
-      return ArticleService.updateArticleMutation({ slug, updateArticleDto })
+      return ArticleService.updateArticleMutation(slug, { updateArticleDto })
     },
 
     onMutate: async (updatedArticle) => {
-      await queryClient.cancelQueries({ queryKey: ArticleQueries.keys.root })
-
-      const previousArticle = queryClient.getQueryData(
-        ArticleQueries.articleQuery(updatedArticle.slug).queryKey,
-      )
-
-      const previousInfiniteArticles = queryClient.getQueriesData({
-        queryKey: ArticleQueries.keys.generalInfinity,
-      })
-
-      queryClient.setQueryData(
-        ArticleQueries.articleQuery(updatedArticle.slug).queryKey,
-        updatedArticle,
-      )
-
-      queryClient.setQueriesData(
-        { queryKey: ArticleQueries.keys.generalInfinity },
-        (infinityArticles: articleTypes.InfiniteArticles | undefined) => {
-          if (!infinityArticles) return
-          const { pages, pageParams } = infinityArticles
-          const updatedPages = pages.map((articles) => {
-            if (!articles.has(updatedArticle.slug)) return articles
-            const updatedArticles = new Map(articles)
-            updatedArticles.set(updatedArticle.slug, updatedArticle)
-            return updatedArticles
-          })
-          return { pages: updatedPages, pageParams }
-        },
-      )
-
-      await onMutate?.(updatedArticle)
-
-      return { previousArticle, previousInfiniteArticles }
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: ArticleQueries.keys.root }),
+        onMutate?.(updatedArticle),
+      ])
     },
 
-    onSuccess,
-
-    onError: async (error, updatedArticle, context) => {
-      const { previousInfiniteArticles, previousArticle } = context || {}
+    onSuccess: async (response, variables, context) => {
+      const article = articleLib.transformArticleDtoToArticle(response.data)
+      const { slug } = article
 
       queryClient.setQueryData(
-        ArticleQueries.articleQuery(updatedArticle.slug).queryKey,
-        previousArticle,
+        ArticleQueries.articleQuery(slug).queryKey,
+        article,
       )
 
-      previousInfiniteArticles?.forEach(([queryKey, data]) => {
-        queryClient.setQueriesData({ queryKey }, data)
-      })
-
-      await onError?.(error, updatedArticle, context)
+      await onSuccess?.(response, variables, context)
     },
 
-    onSettled: async (data, error, variables, context) => {
+    onError,
+
+    onSettled: async (response, error, variables, context) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ArticleQueries.keys.root }),
-        onSettled?.(data, error, variables, context),
+        onSettled?.(response, error, variables, context),
       ])
     },
   })

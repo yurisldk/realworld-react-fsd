@@ -1,6 +1,5 @@
 import { LoaderFunctionArgs, redirect } from 'react-router-dom'
 import { z } from 'zod'
-import { ValidationError, createValidationIssue } from '~shared/lib/error'
 import { queryClient } from '~shared/lib/react-query'
 import { pathKeys, routerContracts } from '~shared/lib/react-router'
 import { SessionQueries, useSessionStore } from '~shared/session'
@@ -40,15 +39,6 @@ export class ArticleLoader {
   }
 
   private static getArticleLoaderData(args: LoaderFunctionArgs) {
-    const validation = ArticleLoaderDataSchema.safeParse(args)
-
-    if (validation.error) {
-      throw createValidationIssue({
-        errors: validation.error.errors,
-        cause: new ValidationError(),
-      })
-    }
-
-    return validation.data
+    return ArticleLoaderDataSchema.parse(args)
   }
 }

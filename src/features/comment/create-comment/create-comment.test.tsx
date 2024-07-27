@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthService, authTypesDto } from '~shared/api/auth'
 import { CommentService } from '~shared/api/comment'
+import { AxiosLib } from '~shared/lib/axios'
 import { renderWithQueryClient } from '~shared/lib/test'
 import { sessionLib, useSessionStore, sessionTypes } from '~shared/session'
 import { transformCreateCommentDtoToComment } from './create-comment.lib'
@@ -11,9 +12,11 @@ import { CreateCommentForm } from './create-comment.ui'
 
 describe('Create Comment Form', () => {
   beforeEach(() => {
-    vi.spyOn(AuthService, 'currentUserQuery').mockResolvedValue({
-      user: session,
-    })
+    vi.spyOn(AuthService, 'currentUserQuery').mockResolvedValue(
+      AxiosLib.mockResolvedAxiosResponse({
+        user: session,
+      }),
+    )
     useSessionStore.getState().setSession(session)
   })
 
@@ -48,7 +51,7 @@ describe('Create Comment Form', () => {
   it('should call mutate function with correct data when form is submitted', async () => {
     const createCommentMutationSpy = vi
       .spyOn(CommentService, 'createCommentMutation')
-      .mockResolvedValue({ comment })
+      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({ comment }))
 
     const { click, type } = renderCreateCommentForm()
 
@@ -61,9 +64,8 @@ describe('Create Comment Form', () => {
     await click(screen.getByRole('button', { name: /post comment/i }))
 
     await waitFor(() => {
-      expect(createCommentMutationSpy).toHaveBeenCalledWith({
-        slug: 'test-slug',
-        comment: { body: comment.body },
+      expect(createCommentMutationSpy).toHaveBeenCalledWith('test-slug', {
+        createCommentDto: { body: comment.body },
       })
     })
   })

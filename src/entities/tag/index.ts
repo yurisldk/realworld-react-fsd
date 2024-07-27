@@ -1,1 +1,1 @@
-export * as tagQueries from './tag.queries'
+export { TagQueries } from './tag.queries'

@@ -1,9 +1,8 @@
-import { useLayoutEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { withErrorBoundary } from 'react-error-boundary'
 import { useForm } from 'react-hook-form'
-import { useLocation, useNavigate, Location } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { authContractsDto, authTypesDto } from '~shared/api/auth'
 import { compose, withSuspense } from '~shared/lib/react'
 import { hasMessages } from '~shared/lib/react-hook-form'
@@ -11,6 +10,7 @@ import { pathKeys } from '~shared/lib/react-router'
 import { SessionQueries } from '~shared/session'
 import { ErrorHandler, logError } from '~shared/ui/error-handler'
 import { ErrorList } from '~shared/ui/error-list'
+import { spinnerModel } from '~shared/ui/spinner'
 import { useUpdateSessionMutation } from './update-session.mutation'
 import { UpdateSessionFormSkeleton } from './update-session.skeleton'
 
@@ -26,9 +26,6 @@ const enhance = compose(
 
 export const UpdateSessionForm = enhance(() => {
   const navigate = useNavigate()
-
-  const { state } =
-    useLocation() as Location<InitializeUpdateSessionFormState | null>
 
   const { data: user } = useSuspenseQuery(SessionQueries.currentSessionQuery())
 
@@ -52,22 +49,21 @@ export const UpdateSessionForm = enhance(() => {
   const { mutate, isPending } = useUpdateSessionMutation({
     mutationKey: [user],
 
-    onMutate: async (updateUserDto) => {
-      navigate(
-        pathKeys.profile.byUsername({
-          username: updateUserDto.username || user.username,
-        }),
-        {
-          replace: true,
-        },
-      )
+    onMutate: async () => {
+      spinnerModel.globalSpinner.getState().show()
     },
 
-    onError: (error, updateUserDto) => {
-      navigate(pathKeys.settings(), {
-        state: { error, updateUserDto },
-        replace: true,
-      })
+    onSuccess: (response) => {
+      const { username } = response.data.user
+      navigate(pathKeys.profile.byUsername({ username }), { replace: true })
+    },
+
+    onError: (error) => {
+      setError('root', { message: error.message })
+    },
+
+    onSettled: () => {
+      spinnerModel.globalSpinner.getState().hide()
     },
   })
 
@@ -75,13 +71,6 @@ export const UpdateSessionForm = enhance(() => {
 
   const onSubmit = (updateUserDto: authTypesDto.UpdateUserDto) =>
     mutate(updateUserDto)
-
-  useLayoutEffect(() => {
-    if (!state) return
-    setError('root', { message: state.error.message })
-    window.history.replaceState({}, '')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   return (
     <>
@@ -157,8 +146,3 @@ export const UpdateSessionForm = enhance(() => {
     </>
   )
 })
-
-type InitializeUpdateSessionFormState = {
-  error: Error
-  updateUserDto: authTypesDto.UpdateUserDto
-}

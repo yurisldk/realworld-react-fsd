@@ -3,9 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { BrowserRouter, useNavigate } from 'react-router-dom'
 import { describe, it, expect, vi, Mock } from 'vitest'
 import { AuthService, authTypesDto } from '~shared/api/auth'
+import { AxiosLib } from '~shared/lib/axios'
 import { pathKeys } from '~shared/lib/react-router'
 import { renderWithQueryClient } from '~shared/lib/test'
-import { useSessionStore } from '~shared/session'
 import { RegisterForm } from './register.ui'
 
 describe('RegisterForm', () => {
@@ -37,10 +37,7 @@ describe('RegisterForm', () => {
 
     const createUserMutation = vi
       .spyOn(AuthService, 'createUserMutation')
-      .mockResolvedValue(userDto)
-
-    const session = useSessionStore.getState()
-    const setSession = vi.spyOn(session, 'setSession')
+      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse(userDto))
 
     const { click, type } = renderRegisterForm()
 
@@ -50,8 +47,7 @@ describe('RegisterForm', () => {
     await click(screen.getByRole('button', { name: /sign up/i }))
 
     await waitFor(() => {
-      expect(createUserMutation).toHaveBeenCalledWith({ user: createUserDto })
-      expect(setSession).toHaveBeenCalledWith(userDto.user)
+      expect(createUserMutation).toHaveBeenCalledWith({ createUserDto })
       expect(navigate).toHaveBeenCalledWith(
         pathKeys.profile.byUsername({ username: userDto.user.username }),
       )

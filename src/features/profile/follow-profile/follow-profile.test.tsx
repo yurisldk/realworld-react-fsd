@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { ProfileService, profileTypesDto } from '~shared/api/profile'
+import { AxiosLib } from '~shared/lib/axios'
 import { renderWithQueryClient } from '~shared/lib/test'
 import { profileTypes } from '~entities/profile'
 import { FollowUserButton } from './follow-profile.ui'
@@ -19,16 +20,14 @@ describe('FollowUserButton Component', () => {
   it('should call the mutate function with the followed profile when clicked', async () => {
     const followProfileMutationSpy = vi
       .spyOn(ProfileService, 'followProfileMutation')
-      .mockResolvedValue(followedProfileDto)
+      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse(followedProfileDto))
 
     const { click } = renderFollowUserButton()
 
     await click(screen.getByRole('button', { name: /follow testuser/i }))
 
     await waitFor(() => {
-      expect(followProfileMutationSpy).toHaveBeenCalledWith({
-        username: profile.username,
-      })
+      expect(followProfileMutationSpy).toHaveBeenCalledWith(profile.username)
     })
   })
 })

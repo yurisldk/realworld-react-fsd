@@ -1,2 +1,2 @@
 export * as profileTypes from './profie.types'
-export * from './profile.queries'
+export { ProfileQueries } from './profile.queries'

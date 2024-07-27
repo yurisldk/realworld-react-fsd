@@ -6,7 +6,6 @@ import { authContractsDto, authTypesDto } from '~shared/api/auth'
 import { compose } from '~shared/lib/react'
 import { hasMessages } from '~shared/lib/react-hook-form'
 import { pathKeys } from '~shared/lib/react-router'
-import { sessionLib, useSessionStore } from '~shared/session'
 import { ErrorHandler, logError } from '~shared/ui/error-handler'
 import { ErrorList } from '~shared/ui/error-list'
 import { useLoginMutation } from './login.mutation'
@@ -33,10 +32,9 @@ export const LoginForm = enhance(() => {
   })
 
   const { mutate, isPending } = useLoginMutation({
-    onSuccess: async (data) => {
-      const user = sessionLib.transformUserDtoToSession(data)
-      useSessionStore.getState().setSession(user)
-      navigate(pathKeys.profile.byUsername({ username: user.username }))
+    onSuccess: async (response) => {
+      const { username } = response.data.user
+      navigate(pathKeys.profile.byUsername({ username }))
     },
 
     onError(error) {

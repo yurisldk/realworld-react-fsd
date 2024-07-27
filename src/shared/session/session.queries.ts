@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
-import { AuthService } from '~shared/api/auth'
-import { queryClient } from '~shared/lib/react-query'
+import { AuthService } from '../api/auth'
+import { queryClient } from '../lib/react-query'
 import { transformUserDtoToSession } from './session.lib'
 import { Session } from './session.types'
 
@@ -9,10 +9,10 @@ export class SessionQueries {
     return queryOptions({
       queryKey: ['session', 'current-user'],
       queryFn: async ({ signal }) => {
-        const data = await AuthService.currentUserQuery(signal)
-        return transformUserDtoToSession(data)
+        const response = await AuthService.currentUserQuery({ signal })
+        return transformUserDtoToSession(response.data)
       },
-      // @ts-expect-error
+      // @ts-expect-error FIXME: https://github.com/TanStack/query/issues/7341
       initialData: () =>
         queryClient.getQueryData<Session>(['session', 'current-session']),
       initialDataUpdatedAt: () =>

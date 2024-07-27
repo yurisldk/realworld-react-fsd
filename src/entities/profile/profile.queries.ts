@@ -13,10 +13,10 @@ export class ProfileQueries {
     return queryOptions({
       queryKey: [...this.keys.root, username],
       queryFn: async ({ signal }) => {
-        const data = await ProfileService.profileQuery({ username }, signal)
-        return transformProfileDtoToProfile(data)
+        const response = await ProfileService.profileQuery(username, { signal })
+        return transformProfileDtoToProfile(response.data)
       },
-      // @ts-expect-error FIXME:
+      // @ts-expect-error FIXME: https://github.com/TanStack/query/issues/7341
       initialData: () =>
         queryClient.getQueryData<Profile>([...this.keys.root, username]),
       initialDataUpdatedAt: () =>

@@ -4,6 +4,7 @@ import {
   useMutation,
 } from '@tanstack/react-query'
 import { AuthService, authTypesDto } from '~shared/api/auth'
+import { sessionLib, useSessionStore } from '~shared/session'
 
 export function useRegisterMutation(
   options?: Pick<
@@ -28,11 +29,19 @@ export function useRegisterMutation(
     mutationKey: ['session', 'register-user', ...mutationKey],
 
     mutationFn: async (createUserDto: authTypesDto.CreateUserDto) =>
-      AuthService.createUserMutation({ user: createUserDto }),
+      AuthService.createUserMutation({ createUserDto }),
 
     onMutate,
 
-    onSuccess,
+    onSuccess: async (response, variables, context) => {
+      const { user } = response.data
+      const { setSession } = useSessionStore.getState()
+
+      const session = sessionLib.transformUserDtoToSession({ user })
+      setSession(session)
+
+      await onSuccess?.(response, variables, context)
+    },
 
     onError,
 

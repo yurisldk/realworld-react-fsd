@@ -26,5 +26,3 @@ export const CreateCommentDtoSchema = z.object({
     message: 'The comment body must contain at least 1 character.',
   }),
 })
-
-export const EmptySchema = z.object({})

@@ -1,44 +1,23 @@
-import { handleMutationIssue } from '~shared/lib/error'
-import { createJsonMutation, createJsonQuery } from '../../lib/fetch'
-import { getUrl, authHeaderService } from '../api.service'
+import { AxiosContracts } from '../../lib/axios'
+import { realworld } from '../index'
 import { ProfileDtoSchema } from './profile.contracts'
 
 export class ProfileService {
-  static profileQuery(params: { username: string }, signal?: AbortSignal) {
-    return createJsonQuery({
-      request: {
-        url: getUrl(`/profiles/${params.username}`),
-        method: 'GET',
-        headers: authHeaderService.getHeader(),
-      },
-      response: { contract: ProfileDtoSchema },
-      abort: signal,
-    })
+  static profileQuery(username: string, config: { signal?: AbortSignal }) {
+    return realworld
+      .get(`/profiles/${username}`, config)
+      .then(AxiosContracts.responseContract(ProfileDtoSchema))
   }
 
-  static followProfileMutation(params: { username: string }) {
-    return createJsonMutation({
-      request: {
-        url: getUrl(`/profiles/${params.username}/follow`),
-        method: 'POST',
-        headers: authHeaderService.getHeader(),
-      },
-      response: { contract: ProfileDtoSchema },
-    }).catch((e) => {
-      throw handleMutationIssue(e)
-    })
+  static followProfileMutation(username: string) {
+    return realworld
+      .post(`/profiles/${username}/follow`)
+      .then(AxiosContracts.responseContract(ProfileDtoSchema))
   }
 
-  static unfollowProfileMutation(params: { username: string }) {
-    return createJsonMutation({
-      request: {
-        url: getUrl(`/profiles/${params.username}/follow`),
-        method: 'DELETE',
-        headers: authHeaderService.getHeader(),
-      },
-      response: { contract: ProfileDtoSchema },
-    }).catch((e) => {
-      throw handleMutationIssue(e)
-    })
+  static unfollowProfileMutation(username: string) {
+    return realworld
+      .delete(`/profiles/${username}/follow`)
+      .then(AxiosContracts.responseContract(ProfileDtoSchema))
   }
 }

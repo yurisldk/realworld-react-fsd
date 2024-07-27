@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { pathKeys } from '~shared/lib/react-router'
-import { useSessionStore } from '~shared/session'
 import { useLogoutMutation } from './logout.mutation'
 
 export function LogoutButton() {
@@ -8,7 +7,6 @@ export function LogoutButton() {
 
   const { mutate } = useLogoutMutation({
     onSuccess: () => {
-      useSessionStore.getState().resetSession()
       navigate(pathKeys.home())
     },
   })

@@ -1,32 +1,17 @@
-import { handleMutationIssue } from '~shared/lib/error'
-import { createJsonMutation } from '../../lib/fetch'
-import { getUrl, authHeaderService } from '../api.service'
+import { AxiosContracts } from '../../lib/axios'
+import { realworld } from '../index'
 import { FavoriteArticleDtoSchema } from './favorite.contracts'
 
 export class FavoriteService {
-  static favoriteArticleMutation(params: { slug: string }) {
-    return createJsonMutation({
-      request: {
-        url: getUrl(`/articles/${params.slug}/favorite`),
-        method: 'POST',
-        headers: authHeaderService.getHeader(),
-      },
-      response: { contract: FavoriteArticleDtoSchema },
-    }).catch((e) => {
-      throw handleMutationIssue(e)
-    })
+  static favoriteArticleMutation(slug: string) {
+    return realworld
+      .post(`/articles/${slug}/favorite`)
+      .then(AxiosContracts.responseContract(FavoriteArticleDtoSchema))
   }
 
-  static unfavoriteArticleMutation(params: { slug: string }) {
-    return createJsonMutation({
-      request: {
-        url: getUrl(`/articles/${params.slug}/favorite`),
-        method: 'DELETE',
-        headers: authHeaderService.getHeader(),
-      },
-      response: { contract: FavoriteArticleDtoSchema },
-    }).catch((e) => {
-      throw handleMutationIssue(e)
-    })
+  static unfavoriteArticleMutation(slug: string) {
+    return realworld
+      .post(`/articles/${slug}/favorite`)
+      .then(AxiosContracts.responseContract(FavoriteArticleDtoSchema))
   }
 }

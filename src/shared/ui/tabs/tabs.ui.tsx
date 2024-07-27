@@ -40,7 +40,7 @@ function Root(props: RootProps) {
       contextValue: value,
       onContextValueChange: onValueChange,
     }),
-    [value],
+    [onValueChange, value],
   )
 
   return (

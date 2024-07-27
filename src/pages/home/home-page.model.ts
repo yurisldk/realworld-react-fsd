@@ -3,7 +3,7 @@ import { queryClient } from '~shared/lib/react-query'
 import { SessionQueries, useSessionStore } from '~shared/session'
 import { tabsModel } from '~shared/ui/tabs'
 import { ArticleQueries } from '~entities/article'
-import { tagQueries } from '~entities/tag'
+import { TagQueries } from '~entities/tag'
 import {
   MainArticleFilter,
   TagArticleFilter,
@@ -12,7 +12,7 @@ import {
 
 export class HomeLoader {
   static async homePage(args: LoaderFunctionArgs) {
-    const promises = [queryClient.prefetchQuery(tagQueries.tagsQuery())]
+    const promises = [queryClient.prefetchQuery(TagQueries.tagsQuery())]
 
     if (useSessionStore.getState().session) {
       promises.push(...HomeLoader.handleUserSession())
@@ -45,15 +45,10 @@ export class HomeLoader {
     const promises: Promise<void>[] = []
 
     const filter = homeModel.useHomeArticleFilterStore.getState()
-    try {
-      const infinityQuery = ArticleQueries.articlesInfiniteQuery(filter)
-      promises.push(queryClient.prefetchInfiniteQuery(infinityQuery))
+    const infinityQuery = ArticleQueries.articlesInfiniteQuery(filter)
+    promises.push(queryClient.prefetchInfiniteQuery(infinityQuery))
 
-      return promises
-    } catch (error) {
-      console.log(error)
-      throw error
-    }
+    return promises
   }
 }
 

@@ -39,6 +39,38 @@ export default defineConfig(({ mode }) => ({
   },
   server: { host: false },
   preview: { open: true },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'article-service': [
+            'src/shared/api/article/article.service.ts',
+            'src/shared/api/article/index.ts',
+          ],
+          'auth-service': [
+            'src/shared/api/auth/auth.service.ts',
+            'src/shared/api/auth/index.ts',
+          ],
+          'comment-service': [
+            'src/shared/api/comment/comment.service.ts',
+            'src/shared/api/comment/index.ts',
+          ],
+          'favorite-service': [
+            'src/shared/api/favorite/favorite.service.ts',
+            'src/shared/api/favorite/index.ts',
+          ],
+          'profile-service': [
+            'src/shared/api/profile/profile.service.ts',
+            'src/shared/api/profile/index.ts',
+          ],
+          'tag-service': [
+            'src/shared/api/tag/tag.service.ts',
+            'src/shared/api/tag/index.ts',
+          ],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '~app': path.resolve('src/app'),

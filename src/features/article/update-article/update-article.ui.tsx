@@ -1,9 +1,8 @@
-import { useLayoutEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { withErrorBoundary } from 'react-error-boundary'
 import { useForm } from 'react-hook-form'
-import { useLocation, Location, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { compose, withSuspense } from '~shared/lib/react'
 import { hasMessages } from '~shared/lib/react-hook-form'
 import { pathKeys } from '~shared/lib/react-router'
@@ -35,9 +34,6 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
 
   const navigate = useNavigate()
 
-  const { state } =
-    useLocation() as Location<InitializeUpdateArticleFormState | null>
-
   const { data: currentArticle } = useSuspenseQuery(
     ArticleQueries.articleQuery(slug),
   )
@@ -45,16 +41,18 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
   const { mutate, isPending } = useUpdateArticleMutation({
     mutationKey: [slug],
 
-    onMutate: (updatedArticle) => {
+    onMutate: () => {
       spinnerModel.globalSpinner.getState().show()
-      navigate(pathKeys.article.bySlug({ slug: updatedArticle.slug }))
     },
 
-    onError: (error, updatedArticle) => {
-      navigate(pathKeys.editor.root(), {
-        state: { error, updatedArticle },
-        replace: true,
-      })
+    onSuccess: (response) => {
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      const { slug } = response.data.article
+      navigate(pathKeys.article.bySlug({ slug }), { replace: true })
+    },
+
+    onError: (error) => {
+      setError('root', { message: error.message })
     },
 
     onSettled: () => {
@@ -70,7 +68,6 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
   } = useForm<UpdateArticle>({
     mode: 'onTouched',
     resolver: zodResolver(UpdateArticleSchema),
-    // TODO: add ...state?.updatedArticle
     defaultValues: transformArticleToUpdateArticle(currentArticle),
   })
 
@@ -80,17 +77,9 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
     mutate({
       ...currentArticle,
       ...updateArticle,
-      // TODO: merge currentArticle.tagList with updateArticle.tagList
       tagList: updateArticle.tagList?.split(', ') || [],
     })
   }
-
-  useLayoutEffect(() => {
-    if (!state) return
-    setError('root', { message: state.error.message })
-    window.history.replaceState({}, '')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -101,6 +90,7 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
           type="text"
           className="form-control form-control-lg"
           placeholder="Article Title"
+          disabled={isPending}
           {...register('title')}
         />
       </fieldset>
@@ -109,6 +99,7 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
           type="text"
           className="form-control"
           placeholder="What's this article about?"
+          disabled={isPending}
           {...register('description')}
         />
       </fieldset>
@@ -117,6 +108,7 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
           className="form-control"
           rows={8}
           placeholder="Write your article (in markdown)"
+          disabled={isPending}
           {...register('body')}
         />
       </fieldset>
@@ -125,6 +117,7 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
           type="text"
           className="form-control"
           placeholder="Enter tags"
+          disabled={isPending}
           {...register('tagList')}
         />
       </fieldset>
@@ -139,8 +132,3 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
     </form>
   )
 })
-
-type InitializeUpdateArticleFormState = {
-  error: Error
-  updateArticle: UpdateArticle
-}

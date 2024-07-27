@@ -145,6 +145,20 @@ module.exports = {
           'ignorePackages',
           { '': 'never', tsx: 'never', ts: 'never' },
         ],
+        'import/no-extraneous-dependencies': [
+          'error',
+          {
+            devDependencies: [
+              '**/__tests__/**',
+              '**/__mocks__/**',
+              '**/*.test.ts',
+              '**/*.test.tsx',
+              '**/*.spec.ts',
+              'src/shared/lib/test/setup.ts',
+              'src/shared/lib/test/test.lib.tsx',
+            ],
+          },
+        ],
       },
     },
   ],

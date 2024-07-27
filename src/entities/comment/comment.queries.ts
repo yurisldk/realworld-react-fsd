@@ -13,10 +13,10 @@ export class CommentQueries {
     return queryOptions({
       queryKey: [...this.keys.root, 'comments', slug],
       queryFn: async ({ signal }) => {
-        const data = await CommentService.commentsQuery({ slug }, signal)
-        return transformCommentsDtoToComments(data)
+        const response = await CommentService.commentsQuery(slug, { signal })
+        return transformCommentsDtoToComments(response.data)
       },
-      // @ts-expect-error FIXME:
+      // @ts-expect-error FIXME: https://github.com/TanStack/query/issues/7341
       initialData: () => queryClient.getQueryData<Comments>(['comment', slug]),
       initialDataUpdatedAt: () =>
         queryClient.getQueryState(['comment', slug])?.dataUpdatedAt,

@@ -30,7 +30,7 @@ export function useFavoriteArticleMutation(
     mutationKey: ['article', 'favorite', ...mutationKey],
 
     mutationFn: ({ slug }: articleTypes.Article) =>
-      FavoriteService.favoriteArticleMutation({ slug }),
+      FavoriteService.favoriteArticleMutation(slug),
 
     onMutate: async (updatedArticle) => {
       await queryClient.cancelQueries({ queryKey: ArticleQueries.keys.root })

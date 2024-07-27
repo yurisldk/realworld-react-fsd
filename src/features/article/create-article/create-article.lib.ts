@@ -3,13 +3,6 @@ import { sessionTypes } from '~shared/session'
 import { articleTypes } from '~entities/article'
 import { CreateArticle } from './create-article.contract'
 
-export function transformArticleToCreateArticle(
-  article: articleTypes.Article,
-): CreateArticle {
-  const { title, description, body, tagList } = article
-  return { title, description, body, tagList: tagList.join(', ') }
-}
-
 export function transformArticleToCreateArticleDto(
   article: articleTypes.Article,
 ): articleTypesDto.CreateArticleDto {

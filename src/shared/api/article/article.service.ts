@@ -1,99 +1,67 @@
-import { handleMutationIssue } from '~shared/lib/error'
-import { createJsonQuery, createJsonMutation } from '../../lib/fetch'
-import { authHeaderService, getUrl } from '../api.service'
-import { ArticleDtoSchema, ArticlesDtoSchema } from './article.contracts'
+import { AxiosContracts } from '~shared/lib/axios'
+import { realworld } from '../index'
 import {
-  ArticlesQueryDto,
-  ArticlesFeedQueryDto,
+  ArticleDtoSchema,
+  ArticlesDtoSchema,
+  CreateArticleDtoSchema,
+  UpdateArticleDtoSchema,
+} from './article.contracts'
+import {
+  ArticlesParamsDto,
+  ArticlesParamsQueryDto,
   CreateArticleDto,
   UpdateArticleDto,
 } from './article.types'
 
 export class ArticleService {
-  static articlesQuery(
-    params: { query: ArticlesQueryDto },
-    signal?: AbortSignal,
-  ) {
-    return createJsonQuery({
-      request: {
-        url: getUrl('/articles'),
-        method: 'GET',
-        headers: authHeaderService.getHeader(),
-        query: params.query,
-      },
-      response: { contract: ArticlesDtoSchema },
-      abort: signal,
-    })
-  }
-
-  static articlesFeedQuery(
-    params: { query: ArticlesFeedQueryDto },
-    signal?: AbortSignal,
-  ) {
-    return createJsonQuery({
-      request: {
-        url: getUrl('/articles/feed'),
-        method: 'GET',
-        headers: authHeaderService.getHeader(),
-        query: params.query,
-      },
-      response: { contract: ArticlesDtoSchema },
-      abort: signal,
-    })
-  }
-
-  static articleQuery(params: { slug: string }, signal?: AbortSignal) {
-    return createJsonQuery({
-      request: {
-        url: getUrl(`/articles/${params.slug}`),
-        method: 'GET',
-        headers: authHeaderService.getHeader(),
-      },
-      response: { contract: ArticleDtoSchema },
-      abort: signal,
-    })
-  }
-
-  static createArticleMutation(params: { createArticleDto: CreateArticleDto }) {
-    return createJsonMutation({
-      request: {
-        url: getUrl('/articles'),
-        method: 'POST',
-        headers: authHeaderService.getHeader(),
-        body: JSON.stringify({ article: params.createArticleDto }),
-      },
-      response: { contract: ArticleDtoSchema },
-    }).catch((e) => {
-      throw handleMutationIssue(e)
-    })
-  }
-
-  static deleteArticleMutation(params: { slug: string }) {
-    return createJsonMutation({
-      request: {
-        url: getUrl(`/articles/${params.slug}`),
-        method: 'DELETE',
-        headers: authHeaderService.getHeader(),
-      },
-    }).catch((e) => {
-      throw handleMutationIssue(e)
-    })
-  }
-
-  static updateArticleMutation(params: {
-    slug: string
-    updateArticleDto: UpdateArticleDto
+  static articlesQuery(config: {
+    params: ArticlesParamsDto
+    signal?: AbortSignal
   }) {
-    return createJsonMutation({
-      request: {
-        url: getUrl(`/articles/${params.slug}`),
-        method: 'PUT',
-        headers: authHeaderService.getHeader(),
-        body: JSON.stringify({ article: params.updateArticleDto }),
-      },
-      response: { contract: ArticleDtoSchema },
-    }).catch((e) => {
-      throw handleMutationIssue(e)
-    })
+    return realworld
+      .get('/articles', config)
+      .then(AxiosContracts.responseContract(ArticlesDtoSchema))
+  }
+
+  static articlesFeedQuery(config: {
+    params: ArticlesParamsQueryDto
+    signal?: AbortSignal
+  }) {
+    return realworld
+      .get('/articles/feed', config)
+      .then(AxiosContracts.responseContract(ArticlesDtoSchema))
+  }
+
+  static articleQuery(slug: string, config: { signal?: AbortSignal }) {
+    return realworld
+      .get(`/articles/${slug}`, config)
+      .then(AxiosContracts.responseContract(ArticleDtoSchema))
+  }
+
+  static createArticleMutation(data: { createArticleDto: CreateArticleDto }) {
+    const createArticleDto = AxiosContracts.requestContract(
+      CreateArticleDtoSchema,
+      data.createArticleDto,
+    )
+    return realworld
+      .post('/articles', { article: createArticleDto })
+      .then(AxiosContracts.responseContract(ArticleDtoSchema))
+  }
+
+  static deleteArticleMutation(slug: string) {
+    return realworld.delete(`/articles/${slug}`)
+  }
+
+  static updateArticleMutation(
+    slug: string,
+    data: { updateArticleDto: UpdateArticleDto },
+  ) {
+    const updateArticleDto = AxiosContracts.requestContract(
+      UpdateArticleDtoSchema,
+      data.updateArticleDto,
+    )
+    return realworld
+      .put(`/articles/${slug}`, { article: updateArticleDto })
+      .then(AxiosContracts.responseContract(ArticleDtoSchema))
   }
 }

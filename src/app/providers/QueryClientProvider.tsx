@@ -4,13 +4,7 @@ import {
   QueryClientProvider as TanStackQueryClientProvider,
 } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import {
-  ValidationError,
-  PreparationError,
-  HttpError,
-  NetworkError,
-  UnexpectedError,
-} from '~shared/lib/error'
+import { AxiosError } from 'axios'
 import { queryClient } from '~shared/lib/react-query'
 
 type QueryClientProviderProps = {
@@ -28,28 +22,12 @@ export function QueryClientProvider(props: QueryClientProviderProps) {
         buttonPosition="bottom-left"
         errorTypes={[
           {
-            name: 'Validation Error',
-            initializer: errorInitializer(new ValidationError()),
-          },
-          {
-            name: 'Preparation Error',
-            initializer: errorInitializer(new PreparationError()),
-          },
-          {
-            name: 'Http Error',
-            initializer: errorInitializer(new HttpError()),
-          },
-          {
-            name: 'Network Error',
-            initializer: errorInitializer(new NetworkError()),
-          },
-          {
-            name: 'Unexpected Error',
-            initializer: errorInitializer(new UnexpectedError()),
-          },
-          {
             name: 'Error',
-            initializer: errorInitializer(new Error('error')),
+            initializer: errorInitializer(new Error('Error message')),
+          },
+          {
+            name: 'Axios Error',
+            initializer: errorInitializer(new AxiosError('Axios error')),
           },
         ]}
       />

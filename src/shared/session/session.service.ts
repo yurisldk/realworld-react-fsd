@@ -87,7 +87,6 @@ export class PermissionService {
     Resource extends NestedKeysWithField<SessionPermission, T>,
     ConditionalContext extends ConditionalPermissionContext<T, Resource>,
   >(action: T, resource: Resource, context?: ConditionalContext): boolean {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const session = useSessionStore.use.session()
     const role = PermissionService.getRole({ context, session })
 

@@ -1,6 +1,4 @@
-import '~shared/main.css'
 import { withErrorBoundary } from 'react-error-boundary'
-import { GenericError, isGenericIssue } from '~shared/lib/error'
 import { compose } from '~shared/lib/react'
 import { ErrorHandler, logError } from '~shared/ui/error-handler'
 import { Spinner, spinnerModel } from '~shared/ui/spinner'
@@ -33,13 +31,3 @@ function GlobalSpinner() {
     />
   )
 }
-
-window.addEventListener('error', (event) => {
-  if (event.error instanceof GenericError) {
-    event.preventDefault()
-  }
-
-  if (isGenericIssue(event.error)) {
-    event.preventDefault()
-  }
-})

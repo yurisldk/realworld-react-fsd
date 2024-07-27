@@ -32,7 +32,9 @@ export function useCreateCommentMutation(
     mutationFn: (config: { slug: string; comment: commentTypes.Comment }) => {
       const { slug, comment } = config
       const { body } = comment
-      return CommentService.createCommentMutation({ slug, comment: { body } })
+      return CommentService.createCommentMutation(slug, {
+        createCommentDto: { body },
+      })
     },
 
     onMutate: async (variables) => {

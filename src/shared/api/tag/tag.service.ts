@@ -1,16 +1,11 @@
-import { createJsonQuery } from '../../lib/fetch'
-import { getUrl } from '../api.service'
+import { AxiosContracts } from '../../lib/axios'
+import { realworld } from '../index'
 import { TagsDtoSchema } from './tag.contracts'
 
 export class TagService {
-  static tagsQuery(signal?: AbortSignal) {
-    return createJsonQuery({
-      request: {
-        url: getUrl('/tags'),
-        method: 'GET',
-      },
-      response: { contract: TagsDtoSchema },
-      abort: signal,
-    })
+  static tagsQuery(config: { signal?: AbortSignal }) {
+    return realworld
+      .get('/tags', config)
+      .then(AxiosContracts.responseContract(TagsDtoSchema))
   }
 }

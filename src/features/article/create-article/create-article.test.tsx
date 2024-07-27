@@ -4,6 +4,7 @@ import { BrowserRouter, useNavigate } from 'react-router-dom'
 import { Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ArticleService, articleTypesDto } from '~shared/api/article'
 import { AuthService, authTypesDto } from '~shared/api/auth'
+import { AxiosLib } from '~shared/lib/axios'
 import { pathKeys } from '~shared/lib/react-router'
 import { renderWithQueryClient } from '~shared/lib/test'
 import { sessionLib, useSessionStore } from '~shared/session'
@@ -14,7 +15,9 @@ import { CreateArticleForm } from './create-article.ui'
 
 describe('CreateArticleForm', () => {
   beforeEach(() => {
-    vi.spyOn(AuthService, 'currentUserQuery').mockResolvedValue(userDto)
+    vi.spyOn(AuthService, 'currentUserQuery').mockResolvedValue(
+      AxiosLib.mockResolvedAxiosResponse(userDto),
+    )
     useSessionStore.getState().setSession(session)
   })
 
@@ -55,7 +58,7 @@ describe('CreateArticleForm', () => {
   it('should call mutate when the form is valid and submitted', async () => {
     const createArticleMutationSpy = vi
       .spyOn(ArticleService, 'createArticleMutation')
-      .mockResolvedValue({ article })
+      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({ article }))
 
     const { click, type } = renderCreateArticleForm()
 
@@ -89,9 +92,9 @@ describe('CreateArticleForm', () => {
     const navigate = vi.fn()
     mockedUseNavigate.mockReturnValue(navigate)
 
-    vi.spyOn(ArticleService, 'createArticleMutation').mockResolvedValue({
-      article,
-    })
+    vi.spyOn(ArticleService, 'createArticleMutation').mockResolvedValue(
+      AxiosLib.mockResolvedAxiosResponse({ article }),
+    )
 
     const { click, type } = renderCreateArticleForm()
 
@@ -122,12 +125,9 @@ describe('CreateArticleForm', () => {
     })
   })
 
-  it('should navigate to the editor page with an error state on mutation error', async () => {
-    const navigate = vi.fn()
-    mockedUseNavigate.mockReturnValue(navigate)
-
+  it('should display server errors on mutation error', async () => {
     vi.spyOn(ArticleService, 'createArticleMutation').mockRejectedValue({
-      explanation: 'An error occurred',
+      message: 'An error occurred',
     })
 
     const { click, type } = renderCreateArticleForm()
@@ -152,19 +152,16 @@ describe('CreateArticleForm', () => {
     await click(screen.getByRole('button', { name: /publish article/i }))
 
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(pathKeys.editor.root(), {
-        state: { error: { explanation: 'An error occurred' }, createArticle },
-        replace: true,
-      })
+      expect(screen.getByText('An error occurred')).toBeInTheDocument()
     })
   })
 
   it('should show spinner while the mutation is pending', async () => {
     const globalSpinnerState = spinnerModel.globalSpinner.getState()
     const showSpy = vi.spyOn(globalSpinnerState, 'show')
-    vi.spyOn(ArticleService, 'createArticleMutation').mockResolvedValue({
-      article,
-    })
+    vi.spyOn(ArticleService, 'createArticleMutation').mockResolvedValue(
+      AxiosLib.mockResolvedAxiosResponse({ article }),
+    )
 
     const { click, type } = renderCreateArticleForm()
 
@@ -195,9 +192,9 @@ describe('CreateArticleForm', () => {
   it('should hide spinner when the mutation is settled', async () => {
     const globalSpinnerState = spinnerModel.globalSpinner.getState()
     const hideSpy = vi.spyOn(globalSpinnerState, 'hide')
-    vi.spyOn(ArticleService, 'createArticleMutation').mockResolvedValue({
-      article,
-    })
+    vi.spyOn(ArticleService, 'createArticleMutation').mockResolvedValue(
+      AxiosLib.mockResolvedAxiosResponse({ article }),
+    )
 
     const { click, type } = renderCreateArticleForm()
 

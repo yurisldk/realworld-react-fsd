@@ -1,5 +1,4 @@
 import { LoaderFunctionArgs, redirect } from 'react-router-dom'
-import { ValidationError, createValidationIssue } from '~shared/lib/error'
 import { queryClient } from '~shared/lib/react-query'
 import { pathKeys, routerContracts } from '~shared/lib/react-router'
 import {
@@ -60,17 +59,7 @@ export class EditorLoader {
       context: { ...args.context, ...homeContext },
     }
 
-    const validation =
-      routerContracts.EditorPageArgsSchema.safeParse(editorData)
-
-    if (validation.error) {
-      throw createValidationIssue({
-        errors: validation.error.errors,
-        cause: new ValidationError(),
-      })
-    }
-
-    return validation.data
+    return routerContracts.EditorPageArgsSchema.parse(editorData)
   }
 
   private static getEditorContext() {

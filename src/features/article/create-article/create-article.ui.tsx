@@ -1,8 +1,7 @@
-import { useLayoutEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { withErrorBoundary } from 'react-error-boundary'
 import { useForm } from 'react-hook-form'
-import { Location, useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { compose } from '~shared/lib/react'
 import { hasMessages } from '~shared/lib/react-hook-form'
 import { pathKeys } from '~shared/lib/react-router'
@@ -11,10 +10,7 @@ import { ErrorHandler, logError } from '~shared/ui/error-handler'
 import { ErrorList } from '~shared/ui/error-list'
 import { spinnerModel } from '~shared/ui/spinner'
 import { CreateArticleSchema, CreateArticle } from './create-article.contract'
-import {
-  transformArticleToCreateArticle,
-  transformCreateArticleToArticle,
-} from './create-article.lib'
+import { transformCreateArticleToArticle } from './create-article.lib'
 import { useCreateArticleMutation } from './create-article.mutation'
 
 const enhance = compose((component) =>
@@ -27,9 +23,6 @@ const enhance = compose((component) =>
 export const CreateArticleForm = enhance(() => {
   const navigate = useNavigate()
 
-  const { state } =
-    useLocation() as Location<InitializeCreateArticleFormState | null>
-
   const {
     register,
     handleSubmit,
@@ -38,36 +31,21 @@ export const CreateArticleForm = enhance(() => {
   } = useForm<CreateArticle>({
     mode: 'onTouched',
     resolver: zodResolver(CreateArticleSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      body: '',
-      tagList: '',
-      ...state?.createArticle,
-    },
+    defaultValues: { title: '', description: '', body: '', tagList: '' },
   })
 
   const { mutate, isPending } = useCreateArticleMutation({
-    onMutate: (variables) => {
+    onMutate: () => {
       spinnerModel.globalSpinner.getState().show()
-      navigate(pathKeys.article.bySlug({ slug: variables.slug }), {
-        replace: true,
-      })
     },
 
-    onSuccess: (data) => {
-      navigate(pathKeys.article.bySlug({ slug: data.article.slug }), {
-        replace: true,
-      })
+    onSuccess: (response) => {
+      const { slug } = response.data.article
+      navigate(pathKeys.article.bySlug({ slug }), { replace: true })
     },
 
-    onError: (error, variables) => {
-      const createArticle = transformArticleToCreateArticle(variables)
-
-      navigate(pathKeys.editor.root(), {
-        state: { error, createArticle },
-        replace: true,
-      })
+    onError: (error) => {
+      setError('root', { message: error.message })
     },
 
     onSettled: () => {
@@ -87,13 +65,6 @@ export const CreateArticleForm = enhance(() => {
     mutate(article)
   }
 
-  useLayoutEffect(() => {
-    if (!state) return
-    setError('root', { message: state.error.message })
-    window.history.replaceState({}, '')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       {hasMessages(errors) && <ErrorList errors={errors} />}
@@ -103,6 +74,7 @@ export const CreateArticleForm = enhance(() => {
           type="text"
           className="form-control form-control-lg"
           placeholder="Article Title"
+          disabled={isPending}
           {...register('title')}
         />
       </fieldset>
@@ -112,6 +84,7 @@ export const CreateArticleForm = enhance(() => {
           type="text"
           className="form-control"
           placeholder="What's this article about?"
+          disabled={isPending}
           {...register('description')}
         />
       </fieldset>
@@ -121,6 +94,7 @@ export const CreateArticleForm = enhance(() => {
           className="form-control"
           rows={8}
           placeholder="Write your article (in markdown)"
+          disabled={isPending}
           {...register('body')}
         />
       </fieldset>
@@ -130,6 +104,7 @@ export const CreateArticleForm = enhance(() => {
           type="text"
           className="form-control"
           placeholder="Enter tags"
+          disabled={isPending}
           {...register('tagList')}
         />
       </fieldset>
@@ -144,8 +119,3 @@ export const CreateArticleForm = enhance(() => {
     </form>
   )
 })
-
-type InitializeCreateArticleFormState = {
-  error: Error
-  createArticle: CreateArticle
-}

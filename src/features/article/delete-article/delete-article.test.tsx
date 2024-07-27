@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { BrowserRouter, useNavigate } from 'react-router-dom'
 import { describe, expect, it, Mock, vi } from 'vitest'
 import { ArticleService } from '~shared/api/article'
+import { AxiosLib } from '~shared/lib/axios'
 import { pathKeys } from '~shared/lib/react-router'
 import { renderWithQueryClient } from '~shared/lib/test'
 import { spinnerModel } from '~shared/ui/spinner'
@@ -17,9 +18,7 @@ describe('DeleteArticleButton', () => {
     ).toBeInTheDocument()
   })
 
-  it('should show the spinner and navigate to home on mutation', async () => {
-    const navigate = vi.fn()
-    mockedUseNavigate.mockReturnValue(navigate)
+  it('should show the spinner on mutation', async () => {
     const globalSpinnerState = spinnerModel.globalSpinner.getState()
     const showSpy = vi.spyOn(globalSpinnerState, 'show')
 
@@ -29,30 +28,23 @@ describe('DeleteArticleButton', () => {
 
     await waitFor(() => {
       expect(showSpy).toHaveBeenCalled()
-      expect(navigate).toHaveBeenCalledWith(pathKeys.home(), { replace: true })
     })
   })
 
-  it('should navigate to the article page with an error state on mutation error', async () => {
+  it('should navigate to the home page on successful mutation', async () => {
     const navigate = vi.fn()
     mockedUseNavigate.mockReturnValue(navigate)
 
-    vi.spyOn(ArticleService, 'deleteArticleMutation').mockRejectedValue({
-      explanation: 'An error occurred',
-    })
+    vi.spyOn(ArticleService, 'deleteArticleMutation').mockResolvedValue(
+      AxiosLib.mockResolvedAxiosResponse({}),
+    )
 
     const { click } = renderDeleteArticleButton()
 
     await click(screen.getByRole('button', { name: /delete article/i }))
 
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
-        pathKeys.article.bySlug({ slug: 'test-slug' }),
-        {
-          state: { error: { explanation: 'An error occurred' } },
-          replace: true,
-        },
-      )
+      expect(navigate).toHaveBeenCalledWith(pathKeys.home(), { replace: true })
     })
   })
 

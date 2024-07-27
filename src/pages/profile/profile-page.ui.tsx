@@ -7,14 +7,13 @@ import { pathKeys, routerTypes } from '~shared/lib/react-router'
 import { PermissionService } from '~shared/session'
 import { Button } from '~shared/ui/button'
 import { ErrorHandler, logError } from '~shared/ui/error-handler'
-import { Skeleton } from '~shared/ui/skeleton'
-import { Stack } from '~shared/ui/stack'
 import { ArticleQueries } from '~entities/article'
 import { ProfileQueries, profileTypes } from '~entities/profile'
 import { ProfileFilter } from '~features/article'
 import { FollowUserButton, UnfollowUserButton } from '~features/profile'
 import { ArticlesFeed } from '~widgets/articles-feed'
 import { profileModel } from './profile-page.model'
+import { ProfileInfoSkeleton } from './profile-page.skeleton'
 
 export function ProfilePage() {
   const { params } = useLoaderData() as routerTypes.ProfilePageData
@@ -147,43 +146,6 @@ function NavigateToLoginButton(props: { username: string }) {
       <IoAdd size={16} />
       &nbsp; Follow {username}
     </Button>
-  )
-}
-
-export function ProfileInfoSkeleton() {
-  return (
-    <Stack
-      direction="column"
-      alignItems="center"
-      spacing={16}
-    >
-      <Skeleton
-        variant="circular"
-        width={100}
-        height={100}
-      />
-      <Stack
-        direction="column"
-        alignItems="center"
-        spacing={8}
-        style={{ width: '100%' }}
-      >
-        <Skeleton
-          width={200}
-          height={26}
-        />
-        <Skeleton
-          width={320}
-          height={24}
-        />
-        <Skeleton
-          variant="text"
-          width={150}
-          height={28}
-          style={{ alignSelf: 'flex-end' }}
-        />
-      </Stack>
-    </Stack>
   )
 }
 

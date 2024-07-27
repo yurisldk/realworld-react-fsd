@@ -1,16 +1,18 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { BrowserRouter, useNavigate } from 'react-router-dom'
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
+import { BrowserRouter } from 'react-router-dom'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthService, authTypesDto } from '~shared/api/auth'
-import { pathKeys } from '~shared/lib/react-router'
+import { AxiosLib } from '~shared/lib/axios'
 import { renderWithQueryClient } from '~shared/lib/test'
 import { sessionLib, sessionTypes } from '~shared/session'
 import { UpdateSessionForm } from './update-session.ui'
 
 describe('UpdateSessionForm', () => {
   beforeEach(() => {
-    vi.spyOn(AuthService, 'currentUserQuery').mockResolvedValue(userDto)
+    vi.spyOn(AuthService, 'currentUserQuery').mockResolvedValue(
+      AxiosLib.mockResolvedAxiosResponse(userDto),
+    )
   })
 
   it('should render the form with user details', async () => {
@@ -48,7 +50,7 @@ describe('UpdateSessionForm', () => {
   it('should call the mutation function with form data when submitted', async () => {
     const updateUserMutationSpy = vi
       .spyOn(AuthService, 'updateUserMutation')
-      .mockResolvedValue(userDto)
+      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse(userDto))
 
     const { click, type, clear } = renderUpdateSessionForm()
 
@@ -61,36 +63,10 @@ describe('UpdateSessionForm', () => {
     await click(screen.getByRole('button', { name: /update settings/i }))
 
     await waitFor(() => {
-      expect(updateUserMutationSpy).toHaveBeenCalledWith({
-        user: updateUserDto,
-      })
-    })
-  })
-
-  it('should navigate to profile page on successful update', async () => {
-    const navigate = vi.fn()
-    mockedUseNavigate.mockReturnValue(navigate)
-
-    const { type, click, clear } = renderUpdateSessionForm()
-
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('Email')).toHaveValue(session.email)
-    })
-
-    await clear(screen.getByPlaceholderText('Your Name'))
-    await type(screen.getByPlaceholderText('Your Name'), updateUserDto.username)
-    await click(screen.getByRole('button', { name: /update settings/i }))
-
-    await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
-        pathKeys.profile.byUsername({ username: updateUserDto.username }),
-        { replace: true },
-      )
+      expect(updateUserMutationSpy).toHaveBeenCalledWith({ updateUserDto })
     })
   })
 })
-
-const mockedUseNavigate = useNavigate as Mock
 
 const userDto: authTypesDto.UserDto = {
   user: {

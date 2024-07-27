@@ -1,6 +1,6 @@
 import { StateCreator, create } from 'zustand'
-import { devtools } from 'zustand/middleware'
-import { createSelectors } from '~shared/lib/zustand'
+import { devtools, persist } from 'zustand/middleware'
+import { createSelectors } from '../lib/zustand'
 import { Session } from './session.types'
 
 type State = {
@@ -15,7 +15,7 @@ type Actions = {
 function createSessionSlice() {
   const sessionSlice: StateCreator<
     State & Actions,
-    [['zustand/devtools', never]],
+    [['zustand/devtools', never], ['zustand/persist', unknown]],
     [],
     State & Actions
   > = (set) => ({
@@ -27,6 +27,7 @@ function createSessionSlice() {
 }
 
 const slice = createSessionSlice()
-const withDevtools = devtools(slice, { name: 'Session Service' })
+const withPersist = persist(slice, { name: 'session' })
+const withDevtools = devtools(withPersist, { name: 'Session Service' })
 const store = create(withDevtools)
 export const useSessionStore = createSelectors(store)

@@ -30,7 +30,7 @@ export function useDeleteCommentMutation(
     mutationKey: ['comment', 'delete', ...mutationKey],
 
     mutationFn: (config: { id: number; slug: string }) =>
-      CommentService.deleteCommentMutation(config),
+      CommentService.deleteCommentMutation(config.slug, config.id),
 
     onMutate: async (variables) => {
       const { id, slug } = variables

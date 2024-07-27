@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { FavoriteService } from '~shared/api/favorite'
+import { AxiosLib } from '~shared/lib/axios'
 import { renderWithQueryClient } from '~shared/lib/test'
 import { articleTypes } from '~entities/article'
 import {
@@ -22,16 +23,14 @@ describe('UnfavoriteArticleButton', () => {
     it('should trigger mutation and update favorites count when clicked', async () => {
       const unfavoriteArticleMutationSpy = vi
         .spyOn(FavoriteService, 'unfavoriteArticleMutation')
-        .mockResolvedValue({ article })
+        .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({ article }))
 
       const { click } = renderUnfavoriteArticleBriefButton()
 
       await click(screen.getByRole('button'))
 
       await waitFor(() => {
-        expect(unfavoriteArticleMutationSpy).toHaveBeenCalledWith({
-          slug: article.slug,
-        })
+        expect(unfavoriteArticleMutationSpy).toHaveBeenCalledWith(article.slug)
       })
     })
   })
@@ -49,16 +48,14 @@ describe('UnfavoriteArticleButton', () => {
     it('should trigger mutation and update favorites count when clicked', async () => {
       const unfavoriteArticleMutationSpy = vi
         .spyOn(FavoriteService, 'unfavoriteArticleMutation')
-        .mockResolvedValue({ article })
+        .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({ article }))
 
       const { click } = renderUnfavoriteArticleExtendedButton()
 
       await click(screen.getByRole('button', { name: /unfavorite article/i }))
 
       await waitFor(() => {
-        expect(unfavoriteArticleMutationSpy).toHaveBeenCalledWith({
-          slug: article.slug,
-        })
+        expect(unfavoriteArticleMutationSpy).toHaveBeenCalledWith(article.slug)
       })
     })
   })

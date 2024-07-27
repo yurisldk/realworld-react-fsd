@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const isDevelopment = import.meta.env.DEV
 
 export function logError(

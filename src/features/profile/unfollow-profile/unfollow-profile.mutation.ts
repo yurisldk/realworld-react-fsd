@@ -31,7 +31,7 @@ export function useUnfollowProfileMutation(
     mutationKey: ['profile', 'unfollow', ...mutationKey],
 
     mutationFn: ({ username }: profileTypes.Profile) =>
-      ProfileService.unfollowProfileMutation({ username }),
+      ProfileService.unfollowProfileMutation(username),
 
     onMutate: async (updatedProfile) => {
       await Promise.all([

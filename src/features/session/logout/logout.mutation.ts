@@ -4,6 +4,8 @@ import {
   useMutation,
 } from '@tanstack/react-query'
 import { AuthService } from '~shared/api/auth'
+import { queryClient } from '~shared/lib/react-query'
+import { useSessionStore } from '~shared/session'
 
 export function useLogoutMutation(
   options?: Pick<
@@ -31,7 +33,14 @@ export function useLogoutMutation(
 
     onMutate,
 
-    onSuccess,
+    onSuccess: async (response, variables, context) => {
+      const { resetSession } = useSessionStore.getState()
+      resetSession()
+
+      queryClient.removeQueries()
+
+      await onSuccess?.(response, variables, context)
+    },
 
     onError,
 
