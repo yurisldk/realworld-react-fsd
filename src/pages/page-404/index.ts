@@ -1,1 +1,1 @@
-export { page404Route } from './page-404.route';
+export { page404Route } from './page-404.route'

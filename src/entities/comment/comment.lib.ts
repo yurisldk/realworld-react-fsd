@@ -1,11 +1,28 @@
-// eslint-disable-next-line no-restricted-imports
-import { mapProfile } from '~entities/profile/@x/comment';
-import { Comment, CommentDto, Comments, CommentsDto } from './comment.types';
+import { commentTypesDto } from '~shared/api/comment'
+import { Comment, Comments } from './comment.types'
 
-export function mapComment(commentDto: CommentDto): Comment {
-  return { ...commentDto, author: mapProfile(commentDto.author) };
+export function transformCommentDtoToComment(
+  commentDto: commentTypesDto.CommentDto,
+): Comment {
+  const { comment } = commentDto
+
+  return {
+    ...comment,
+    author: {
+      ...comment.author,
+      bio: comment.author.bio || '',
+    },
+  }
 }
 
-export function mapComments(commentsDto: CommentsDto): Comments {
-  return commentsDto.comments.map(mapComment);
+export function transformCommentsDtoToComments(
+  commentsDto: commentTypesDto.CommentsDto,
+): Comments {
+  const { comments } = commentsDto
+  return new Map(
+    comments.map((comment) => [
+      comment.id,
+      transformCommentDtoToComment({ comment }),
+    ]),
+  )
 }

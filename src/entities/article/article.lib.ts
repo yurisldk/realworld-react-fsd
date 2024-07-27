@@ -1,62 +1,27 @@
-// eslint-disable-next-line no-restricted-imports
-import { mapProfile } from '~entities/profile/@x/article';
-import type {
-  Article,
-  ArticleDto,
-  Articles,
-  ArticlesDto,
-  CreateArticle,
-  CreateArticleDto,
-  UpdateArticle,
-  UpdateArticleDto,
-} from './article.types';
+import { articleTypesDto } from '~shared/api/article'
+import type { Article, Articles } from './article.types'
 
-export function mapArticle(articleDto: ArticleDto): Article {
-  return { ...articleDto, author: mapProfile(articleDto.author) };
-}
-
-export function mapArticles(articlesDto: ArticlesDto): Articles {
-  return articlesDto.articles.map(mapArticle);
-}
-
-export function mapCreateDtoArticle(
-  createArticle: CreateArticle,
-): CreateArticleDto {
-  const { tagList, ...article } = createArticle;
-  const tags = createArticle?.tagList
-    ? createArticle.tagList.split(', ')
-    : undefined;
+export function transformArticleDtoToArticle(
+  articleDto: articleTypesDto.ArticleDto,
+): Article {
+  const { article } = articleDto
 
   return {
     ...article,
-    tagList: tags,
-  };
+    tagList: article.tagList.filter(Boolean),
+    author: { ...article.author, bio: article.author.bio || '' },
+  }
 }
 
-export function mapUpdateDtoArticle(
-  updateArticle: UpdateArticle,
-): UpdateArticleDto {
-  const { tagList, ...article } = updateArticle;
-  const tags = updateArticle?.tagList
-    ? updateArticle.tagList.split(', ')
-    : undefined;
+export function transformArticlesDtoToArticles(
+  articlesDto: articleTypesDto.ArticlesDto,
+): Articles {
+  const { articles } = articlesDto
 
-  return {
-    ...article,
-    tagList: tags,
-  };
-}
-
-export function mapUpdateArticle(
-  updateArticle: UpdateArticleDto,
-): UpdateArticle {
-  const { tagList, ...article } = updateArticle;
-  const tags = updateArticle?.tagList
-    ? updateArticle.tagList.join(', ')
-    : undefined;
-
-  return {
-    ...article,
-    tagList: tags,
-  };
+  return new Map(
+    articles.map((article) => [
+      article.slug,
+      transformArticleDtoToArticle({ article }),
+    ]),
+  )
 }

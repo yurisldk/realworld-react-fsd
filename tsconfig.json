@@ -4,10 +4,10 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "noErrorTruncation": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "types": ["vitest/globals"],
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -19,7 +19,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "typeRoots": ["./node_modules/@types", "./types/", "./node_modules"],
     "baseUrl": "./src",
     "paths": {
       "~app": ["./app"],
@@ -41,6 +40,6 @@
       "~shared/*": ["./shared/*"]
     }
   },
-  "include": ["src", "types"],
+  "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

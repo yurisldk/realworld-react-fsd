@@ -1,1 +1,1 @@
-export { profilePageRoute } from './profile-page.route';
+export { profilePageRoute } from './profile-page.route'

@@ -1,1 +1,1 @@
-export { registerPageRoute } from './register-page.route';
+export { registerPageRoute } from './register-page.route'

@@ -1,45 +1,97 @@
-import { createStore } from 'zustand';
-import { DevtoolsOptions, devtools } from 'zustand/middleware';
-import { articleModel } from '~entities/article';
-import { tabsModel } from '~shared/ui/tabs';
+import { LoaderFunctionArgs, redirect } from 'react-router-dom'
+import { queryClient } from '~shared/lib/react-query'
+import { pathKeys, routerContracts } from '~shared/lib/react-router'
+import { SessionQueries, useSessionStore } from '~shared/session'
+import { tabsModel } from '~shared/ui/tabs'
+import { ArticleQueries } from '~entities/article'
+import { ProfileQueries } from '~entities/profile'
+import { ProfileArticleFilter, filterArticleModel } from '~features/article'
 
-type Tab = 'authorArticles' | 'authorFavoritedArticles';
+export class ProfileLoader {
+  static async indexPage() {
+    return redirect(pathKeys.page404())
+  }
 
-const initialTabState: tabsModel.State<Tab> = {
-  tab: 'authorArticles',
-};
-const tabStoreDevtoolsOptions: DevtoolsOptions = {
-  name: 'ProfilePage TabStore',
-};
+  static async userPage(args: LoaderFunctionArgs) {
+    return ProfileLoader.profilePage(args, boundSetAuthorFeed)
+  }
 
-export const tabStore = createStore<tabsModel.TabState<Tab>>()(
-  devtools(
-    tabsModel.createTabSlice<Tab>(initialTabState),
-    tabStoreDevtoolsOptions,
-  ),
-);
+  static async favoritePage(args: LoaderFunctionArgs) {
+    return ProfileLoader.profilePage(args, boundSetFavoriteFeed)
+  }
 
-const initialArticleFilterState: articleModel.State = {
-  pageQuery: { limit: 10, offset: 0 },
-  filterQuery: {},
-};
-const articleFilterStoreDevtoolsOptions: DevtoolsOptions = {
-  name: 'ProfilePage ArticleFilterStore',
-};
+  private static async profilePage(
+    args: LoaderFunctionArgs,
+    setTabFunction: (username: string) => void,
+  ) {
+    const profileData = ProfileLoader.getProfileData(args)
+    const { username } = profileData.params
 
-export const articleFilterStore = createStore<articleModel.FilterState>()(
-  devtools(
-    articleModel.createArticleFilterSlice(initialArticleFilterState),
-    articleFilterStoreDevtoolsOptions,
-  ),
-);
+    const filter = profileModel.useProfileArticleFilterStore.getState()
+    const infinityQuery = ArticleQueries.articlesInfiniteQuery(filter)
 
-export const onAuthorArticles = (username: string) => {
-  tabStore.getState().changeTab('authorArticles');
-  articleFilterStore.getState().changeFilter({ author: username });
-};
+    const promises = [
+      queryClient.prefetchQuery(ProfileQueries.profileQuery(username)),
+      queryClient.prefetchInfiniteQuery(infinityQuery),
+    ]
 
-export const onAuthorFavoritedArticles = (username: string) => {
-  tabStore.getState().changeTab('authorFavoritedArticles');
-  articleFilterStore.getState().changeFilter({ favorited: username });
-};
+    setTabFunction(username)
+
+    if (useSessionStore.getState().session) {
+      const currentUserQuery = SessionQueries.currentSessionQuery()
+      promises.push(queryClient.prefetchQuery(currentUserQuery))
+    }
+
+    Promise.all(promises)
+
+    return profileData
+  }
+
+  private static getProfileData(args: LoaderFunctionArgs) {
+    return routerContracts.ProfilePageArgsSchema.parse(args)
+  }
+}
+
+class ProfileModel implements ProfileArticleFilter {
+  readonly useProfileArticleFilterStore
+
+  readonly useProfileTabsStore
+
+  constructor() {
+    this.useProfileArticleFilterStore =
+      filterArticleModel.createArticleFilterStore({
+        devtoolsOptions: { name: 'Profile Article Filter Store' },
+      })
+
+    this.useProfileTabsStore = tabsModel.createTabsStore({
+      initialState: { tab: 'author-feed' },
+      devtoolsOptions: { name: 'Profile Tabs Store' },
+    })
+  }
+
+  onTabChange = (username: string) => (tab: string) => {
+    if (tab === 'author-feed') this.setAuthorFeed(username)
+    if (tab === 'favorite-feed') this.setFavoriteFeed(username)
+  }
+
+  useTab() {
+    return this.useProfileTabsStore.use.tab()
+  }
+
+  setAuthorFeed(username: string) {
+    this.useProfileArticleFilterStore.getState().reset()
+    this.useProfileArticleFilterStore.getState().setAuthor(username)
+    this.useProfileTabsStore.getState().setTab('author-feed')
+  }
+
+  setFavoriteFeed(username: string) {
+    this.useProfileArticleFilterStore.getState().reset()
+    this.useProfileArticleFilterStore.getState().setFavorited(username)
+    this.useProfileTabsStore.getState().setTab('favorite-feed')
+  }
+}
+
+export const profileModel = new ProfileModel()
+
+const boundSetAuthorFeed = profileModel.setAuthorFeed.bind(profileModel)
+const boundSetFavoriteFeed = profileModel.setFavoriteFeed.bind(profileModel)

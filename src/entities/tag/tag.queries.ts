@@ -1,39 +1,25 @@
-import { queryOptions as tsqQueryOptions } from '@tanstack/react-query';
-import { queryClient } from '~shared/lib/react-query';
-import { tagsQuery } from './tag.api';
-import { Tags } from './tag.types';
+import { queryOptions } from '@tanstack/react-query'
+import { TagService } from '~shared/api/tag'
+import { queryClient } from '~shared/lib/react-query'
+import { transformTagsDtoToTags } from './tag.lib'
+import { Tags } from './tag.types'
 
-const keys = {
-  root: () => ['tag'],
-  tags: () => [...keys.root(), 'tags'] as const,
-};
+export class TagQueries {
+  static readonly keys = {
+    root: ['comment'] as const,
+  }
 
-export const tagsService = {
-  queryKey: () => keys.tags(),
-
-  getCache: () => queryClient.getQueryData<Tags>(tagsService.queryKey()),
-
-  setCache: (tags: Tags) =>
-    queryClient.setQueryData(tagsService.queryKey(), tags),
-
-  removeCache: () =>
-    queryClient.removeQueries({ queryKey: tagsService.queryKey() }),
-
-  queryOptions: () => {
-    const tagsKey = tagsService.queryKey();
-    return tsqQueryOptions({
-      queryKey: tagsKey,
-      queryFn: async ({ signal }) => tagsQuery(signal),
-      initialData: () => tagsService.getCache()!,
+  static tagsQuery() {
+    return queryOptions({
+      queryKey: ['tags'],
+      queryFn: async ({ signal }) => {
+        const response = await TagService.tagsQuery({ signal })
+        return transformTagsDtoToTags(response.data)
+      },
+      // @ts-expect-error FIXME: https://github.com/TanStack/query/issues/7341
+      initialData: () => queryClient.getQueryData<Tags>(['tags']),
       initialDataUpdatedAt: () =>
-        queryClient.getQueryState(tagsKey)?.dataUpdatedAt,
-    });
-  },
-
-  prefetchQuery: async () => {
-    queryClient.prefetchQuery(tagsService.queryOptions());
-  },
-
-  ensureQueryData: async () =>
-    queryClient.ensureQueryData(tagsService.queryOptions()),
-};
+        queryClient.getQueryState(['tags'])?.dataUpdatedAt,
+    })
+  }
+}

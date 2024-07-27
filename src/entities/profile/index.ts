@@ -1,3 +1,2 @@
-export * as profileApi from './profie.api';
-export * as profileTypes from './profie.types';
-export * as profileQueries from './profile.queries';
+export * as profileTypes from './profie.types'
+export { ProfileQueries } from './profile.queries'

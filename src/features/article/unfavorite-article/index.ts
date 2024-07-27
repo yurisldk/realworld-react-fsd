@@ -1,1 +1,4 @@
-export { UnfavoriteArticleButton } from './unfavorite-article.ui';
+export {
+  UnfavoriteArticleBriefButton,
+  UnfavoriteArticleExtendedButton,
+} from './unfavorite-article.ui'

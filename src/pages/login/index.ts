@@ -1,1 +1,1 @@
-export { loginPageRoute } from './login-page.route';
+export { loginPageRoute } from './login-page.route'

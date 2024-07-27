@@ -1,10 +1,10 @@
 /// <reference types="vitest" />
-import path from 'path';
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import unfonts from 'unplugin-fonts/vite';
-import checker from 'vite-plugin-checker';
-import eslint from 'vite-plugin-eslint';
+import path from 'path'
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import unfonts from 'unplugin-fonts/vite'
+import checker from 'vite-plugin-checker'
+import eslint from 'vite-plugin-eslint'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -30,10 +30,8 @@ export default defineConfig(({ mode }) => ({
     ],
   }),
   test: {
-    globals: true,
     environment: 'jsdom',
     setupFiles: 'src/shared/lib/test/setup.ts',
-    include: ['**/__tests__/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     coverage: {
       provider: 'v8',
       exclude: ['src/shared/api/realworld/**'],
@@ -41,6 +39,38 @@ export default defineConfig(({ mode }) => ({
   },
   server: { host: false },
   preview: { open: true },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'article-service': [
+            'src/shared/api/article/article.service.ts',
+            'src/shared/api/article/index.ts',
+          ],
+          'auth-service': [
+            'src/shared/api/auth/auth.service.ts',
+            'src/shared/api/auth/index.ts',
+          ],
+          'comment-service': [
+            'src/shared/api/comment/comment.service.ts',
+            'src/shared/api/comment/index.ts',
+          ],
+          'favorite-service': [
+            'src/shared/api/favorite/favorite.service.ts',
+            'src/shared/api/favorite/index.ts',
+          ],
+          'profile-service': [
+            'src/shared/api/profile/profile.service.ts',
+            'src/shared/api/profile/index.ts',
+          ],
+          'tag-service': [
+            'src/shared/api/tag/tag.service.ts',
+            'src/shared/api/tag/index.ts',
+          ],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '~app': path.resolve('src/app'),
@@ -51,4 +81,4 @@ export default defineConfig(({ mode }) => ({
       '~widgets': path.resolve('src/widgets'),
     },
   },
-}));
+}))

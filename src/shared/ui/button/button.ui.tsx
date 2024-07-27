@@ -1,11 +1,11 @@
-import { ButtonHTMLAttributes } from 'react';
-import cn from 'classnames';
+import { ButtonHTMLAttributes } from 'react'
+import cn from 'classnames'
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  color?: 'primary' | 'secondary';
-  variant?: 'outline';
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-};
+  color?: 'primary' | 'secondary'
+  variant?: 'outline'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+}
 
 export function Button(props: ButtonProps) {
   const {
@@ -15,7 +15,7 @@ export function Button(props: ButtonProps) {
     variant,
     className,
     ...other
-  } = props;
+  } = props
 
   const classes = cn(
     {
@@ -25,8 +25,15 @@ export function Button(props: ButtonProps) {
       [`btn-${size}`]: size,
     },
     className,
-  );
+  )
 
-  // eslint-disable-next-line react/button-has-type
-  return <button className={classes} type={type} {...other} />;
+  return (
+    <button
+      className={classes}
+      // FIXME:
+      // eslint-disable-next-line react/button-has-type
+      type={type}
+      {...other}
+    />
+  )
 }

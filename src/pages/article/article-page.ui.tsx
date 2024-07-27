@@ -1,42 +1,51 @@
-import { useSuspenseQueries } from '@tanstack/react-query';
-import dayjs from 'dayjs';
-import { withErrorBoundary } from 'react-error-boundary';
-import { IoPencil } from 'react-icons/io5';
-import { Link, useParams } from 'react-router-dom';
-import { articleQueries, articleTypes } from '~entities/article';
-import { profileTypes } from '~entities/profile';
-import { sessionQueries } from '~entities/session';
+import { ReactNode } from 'react'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { withErrorBoundary } from 'react-error-boundary'
+import { IoAdd, IoHeart, IoPencil } from 'react-icons/io5'
+import { Link, useLoaderData, useNavigate } from 'react-router-dom'
+import { compose, withSuspense } from '~shared/lib/react'
+import { pathKeys } from '~shared/lib/react-router'
+import { PermissionService } from '~shared/session'
+import { Button } from '~shared/ui/button'
+import { ErrorHandler, logError } from '~shared/ui/error-handler'
+import { ArticleQueries, articleTypes } from '~entities/article'
+import { profileTypes } from '~entities/profile'
 import {
   DeleteArticleButton,
-  FavoriteArticleButton,
-  UnfavoriteArticleButton,
-} from '~features/article';
-import { FollowUserButton, UnfollowUserButton } from '~features/profile';
-import { withSuspense } from '~shared/lib/react';
-import { pathKeys, routerTypes } from '~shared/lib/react-router';
-import { ErrorHandler } from '~shared/ui/error';
-import { Loader } from '~shared/ui/loader';
-import { CommentsList } from '~widgets/comments-list';
-import { CreateCommentForm } from '~widgets/create-comment-form';
+  FavoriteArticleExtendedButton,
+  UnfavoriteArticleExtendedButton,
+} from '~features/article'
+import { FollowUserButton, UnfollowUserButton } from '~features/profile'
+import { CommentsFeed } from '~widgets/comments-feed'
+import { ArticleLoaderData } from './article-page.model'
+import { ArticlePageSkeleton } from './article-page.skeleton'
 
-function Page() {
-  const { slug } = useParams() as routerTypes.SlugPageParams;
+const enhance = compose(
+  (component) =>
+    withErrorBoundary(component, {
+      FallbackComponent: ErrorHandler,
+      onError: logError,
+    }),
+  (component) =>
+    withSuspense(component, { FallbackComponent: ArticlePageSkeleton }),
+)
 
-  const [user, article] = useSuspenseQueries({
-    queries: [
-      sessionQueries.userService.queryOptions(),
-      articleQueries.articleService.queryOptions(slug),
-    ],
-  });
+export const ArticlePage = enhance(() => {
+  const { params } = useLoaderData() as ArticleLoaderData
 
-  const isOwner = user.data?.username === article.data.author.username;
+  const { slug } = params
+
+  const { data: article } = useSuspenseQuery(ArticleQueries.articleQuery(slug))
 
   return (
     <div className="article-page">
       <div className="banner">
         <div className="container">
-          <h1>{article.data.title}</h1>
-          <ArticleMeta article={article.data} isOwner={isOwner} />
+          <h1>{article.title}</h1>
+          <ArticleMeta
+            article={article}
+            actions={<ArticleActions article={article} />}
+          />
         </div>
       </div>
 
@@ -44,11 +53,14 @@ function Page() {
         <div className="row article-content">
           <div className="col-md-12">
             <div>
-              <p>{article.data.body}</p>
+              <p>{article.body}</p>
             </div>
             <ul className="tag-list">
-              {article.data.tagList.map((tag) => (
-                <li key={tag} className="tag-default tag-pill tag-outline">
+              {article.tagList.map((tag) => (
+                <li
+                  key={tag}
+                  className="tag-default tag-pill tag-outline"
+                >
                   {tag}
                 </li>
               ))}
@@ -59,112 +71,194 @@ function Page() {
         <hr />
 
         <div className="article-actions">
-          <ArticleMeta article={article.data} isOwner={isOwner} />
+          <ArticleMeta
+            article={article}
+            actions={<ArticleActions article={article} />}
+          />
         </div>
 
         <div className="row">
           <div className="col-xs-12 col-md-8 offset-md-2">
-            <CreateCommentForm />
-            <CommentsList />
+            <CommentsFeed slug={slug} />
           </div>
         </div>
       </div>
     </div>
-  );
-}
+  )
+})
 
-type ArticleMetaProps = { article: articleTypes.Article; isOwner: boolean };
-function ArticleMeta(props: ArticleMetaProps) {
+function ArticleMeta(props: {
+  article: articleTypes.Article
+  actions?: ReactNode
+}) {
+  const { article, actions } = props
+
+  const { author, updatedAt } = article
+
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(updatedAt)
+
   return (
     <div className="article-meta">
-      <Link
-        to={pathKeys.profile.byUsername({
-          username: props.article.author.username,
-        })}
-      >
+      <Link to={pathKeys.profile.byUsername({ username: author.username })}>
         <img
-          src={props.article.author.image}
-          alt={props.article.author.username}
+          src={author.image}
+          alt={author.username}
         />
       </Link>
       <div className="info">
         <Link
           className="author"
-          to={pathKeys.profile.byUsername({
-            username: props.article.author.username,
-          })}
+          to={pathKeys.profile.byUsername({ username: author.username })}
         >
-          {props.article.author.username}
+          {author.username}
         </Link>
-        <span className="date">
-          {dayjs(props.article.updatedAt).format('MMMM D, YYYY')}
-        </span>
+        <span className="date">{formattedDate}</span>
       </div>
-      <ArticleActions article={props.article} isOwner={props.isOwner} />
+      {actions}
     </div>
-  );
+  )
 }
 
-type ArticleActionsProps = { article: articleTypes.Article; isOwner: boolean };
-function ArticleActions(props: ArticleActionsProps) {
-  return props.isOwner ? (
-    <AuthorActions slug={props.article.slug} />
-  ) : (
-    <UserActions article={props.article} />
-  );
-}
+function ArticleActions(props: { article: articleTypes.Article }) {
+  const { article } = props
+  const { author } = article
+  const { username } = author
 
-type UserActionsProps = { article: articleTypes.Article };
-function UserActions(props: UserActionsProps) {
+  const canUpdateArticle = PermissionService.useCanPerformAction(
+    'update',
+    'article',
+    { articleAuthorId: username },
+  )
+
+  const canDeleteArticle = PermissionService.useCanPerformAction(
+    'delete',
+    'article',
+    { articleAuthorId: username },
+  )
+
   return (
     <>
-      <FollowProfileActionButtons profile={props.article.author} />
+      {canUpdateArticle && <EditArticleLink slug={article.slug} />}
+      {!canUpdateArticle && <ToggleFollowProfile profile={author} />}
       &nbsp;
-      <FavoriteArticleActionButtons article={props.article} />
+      {canDeleteArticle && <DeleteArticleButton slug={article.slug} />}
+      {!canDeleteArticle && <ToggleFavoriteArticle article={article} />}
     </>
-  );
+  )
 }
 
-type AuthorActionsProps = { slug: string };
-function AuthorActions(props: AuthorActionsProps) {
+function ToggleFollowProfile(props: { profile: profileTypes.Profile }) {
+  const { profile } = props
+  const { following } = profile
+
+  const canFollowProfile = PermissionService.useCanPerformAction(
+    'follow',
+    'profile',
+  )
+  const canUnfollowProfile = PermissionService.useCanPerformAction(
+    'unfollow',
+    'profile',
+  )
+  const cannotFollowOrUnfollow = !canFollowProfile || !canUnfollowProfile
+
+  const canFollow = canFollowProfile && !following
+  const canUnfollow = canUnfollowProfile && following
+
   return (
     <>
-      <Link
-        className="btn btn-outline-secondary btn-sm"
-        to={pathKeys.editor.bySlug({ slug: props.slug })}
-      >
-        <IoPencil size={16} />
-        Edit Article
-      </Link>
-      &nbsp;
-      <DeleteArticleButton slug={props.slug} />
+      {canFollow && <FollowUserButton profile={profile} />}
+      {canUnfollow && <UnfollowUserButton profile={profile} />}
+      {cannotFollowOrUnfollow && (
+        <NavigateToLoginButtonFollow username={profile.username} />
+      )}
     </>
-  );
+  )
 }
 
-type FavoriteArticleActionButtonsProps = { article: articleTypes.Article };
-function FavoriteArticleActionButtons(
-  props: FavoriteArticleActionButtonsProps,
-) {
-  return props.article.favorited ? (
-    <UnfavoriteArticleButton article={props.article} />
-  ) : (
-    <FavoriteArticleButton article={props.article} />
-  );
+function ToggleFavoriteArticle(props: { article: articleTypes.Article }) {
+  const { article } = props
+  const { favorited } = article
+
+  const canLikeArticle = PermissionService.useCanPerformAction(
+    'like',
+    'article',
+  )
+  const canDislikeArticle = PermissionService.useCanPerformAction(
+    'dislike',
+    'article',
+  )
+  const cannotLikeOrDislike = !canLikeArticle || !canDislikeArticle
+
+  const canLike = canLikeArticle && !favorited
+  const canDislike = canDislikeArticle && favorited
+
+  return (
+    <>
+      {canLike && <FavoriteArticleExtendedButton article={article} />}
+      {canDislike && <UnfavoriteArticleExtendedButton article={article} />}
+      {cannotLikeOrDislike && (
+        <NavigateToLoginButtonFavorite
+          favoritesCount={article.favoritesCount}
+        />
+      )}
+    </>
+  )
 }
 
-type FollowProfileActionButtonsProps = { profile: profileTypes.Profile };
-function FollowProfileActionButtons(props: FollowProfileActionButtonsProps) {
-  return props.profile.following ? (
-    <UnfollowUserButton profile={props.profile} />
-  ) : (
-    <FollowUserButton profile={props.profile} />
-  );
+function EditArticleLink(props: { slug: string }) {
+  const { slug } = props
+
+  return (
+    <Link
+      className="btn btn-outline-secondary btn-sm"
+      to={pathKeys.editor.bySlug({ slug })}
+    >
+      <IoPencil size={16} />
+      Edit Article
+    </Link>
+  )
 }
 
-const SuspensedPage = withSuspense(Page, {
-  fallback: <Loader />,
-});
-export const ArticlePage = withErrorBoundary(SuspensedPage, {
-  fallbackRender: ({ error }) => <ErrorHandler error={error} />,
-});
+function NavigateToLoginButtonFollow(props: { username: string }) {
+  const { username } = props
+
+  const navigate = useNavigate()
+
+  const onClick = () => navigate(pathKeys.login())
+
+  return (
+    <Button
+      color="secondary"
+      variant="outline"
+      className="action-btn "
+      onClick={onClick}
+    >
+      <IoAdd size={16} />
+      &nbsp; Follow {username}
+    </Button>
+  )
+}
+
+function NavigateToLoginButtonFavorite(props: { favoritesCount: number }) {
+  const { favoritesCount } = props
+
+  const navigate = useNavigate()
+
+  const onClick = () => navigate(pathKeys.login())
+
+  return (
+    <Button
+      color="primary"
+      variant="outline"
+      onClick={onClick}
+    >
+      <IoHeart size={16} />
+      &nbsp;Favorite Article&nbsp;
+      <span className="counter">({favoritesCount})</span>
+    </Button>
+  )
+}

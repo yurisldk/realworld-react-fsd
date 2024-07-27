@@ -1,26 +1,13 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
-import cn from 'classnames';
-import { useStore } from 'zustand';
-import { sessionQueries } from '~entities/session';
-import { ArticlesList } from '~widgets/articles-list';
-import { PopularTags } from '~widgets/popular-tags';
-import {
-  articleFilterStore,
-  onArticles,
-  onArticlesFeed,
-  onTag,
-  tabStore,
-} from './home-page.model';
+import { ArticleQueries } from '~entities/article'
+import { MainFilter, TagFilter } from '~features/article'
+import { ArticlesFeed } from '~widgets/articles-feed'
+import { homeModel } from './home-page.model'
 
 export function HomePage() {
-  const { data: user } = useSuspenseQuery(
-    sessionQueries.userService.queryOptions(),
-  );
-
-  const activeTab = useStore(tabStore, (state) => state.tab);
-
-  const { tag } =
-    useStore(articleFilterStore, (state) => state.filterQuery) || {};
+  const tab = homeModel.useHomeTabsStore.use.tab()
+  const isUserFeed = tab === 'user-feed'
+  const isGlobalFeed = tab === 'global-feed'
+  const isTagFeed = tab === 'tag-feed'
 
   return (
     <div className="home-page">
@@ -34,51 +21,36 @@ export function HomePage() {
       <div className="container page">
         <div className="row">
           <div className="col-md-9">
-            <ul className="nav nav-pills outline-active">
-              {user && (
-                <li className="nav-item">
-                  <button
-                    className={cn('nav-link', {
-                      active: activeTab === 'articlesFeed',
-                    })}
-                    type="button"
-                    onClick={() => onArticlesFeed()}
-                  >
-                    Your Feed
-                  </button>
-                </li>
-              )}
-              <li className="nav-item">
-                <button
-                  className={cn('nav-link', {
-                    active: activeTab === 'articles',
-                  })}
-                  type="button"
-                  onClick={onArticles}
-                >
-                  Global Feed
-                </button>
-              </li>
-              {activeTab === 'tag' && (
-                <li className="nav-item">
-                  <button
-                    className={cn('nav-link', { active: activeTab === 'tag' })}
-                    type="button"
-                  >
-                    #{tag}
-                  </button>
-                </li>
-              )}
-            </ul>
+            <MainFilter mainArticleFilter={homeModel} />
 
-            <ArticlesList filterStore={articleFilterStore} />
+            {isUserFeed && (
+              <ArticlesFeed
+                articlesInfiniteQueryOptions={boundArticlesFeedInfinityQuery}
+              />
+            )}
+
+            {(isGlobalFeed || isTagFeed) && (
+              <ArticlesFeed
+                useArticleFilterStore={homeModel.useHomeArticleFilterStore}
+                articlesInfiniteQueryOptions={boundArticlesInfiniteQuery}
+              />
+            )}
           </div>
 
           <div className="col-md-3">
-            <PopularTags onTagClicked={onTag} />
+            <div className="sidebar">
+              <p>Popular Tags</p>
+              <TagFilter tagArticleFilter={homeModel} />
+            </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
+
+const boundArticlesFeedInfinityQuery =
+  ArticleQueries.articlesFeedInfinityQuery.bind(ArticleQueries)
+
+const boundArticlesInfiniteQuery =
+  ArticleQueries.articlesInfiniteQuery.bind(ArticleQueries)

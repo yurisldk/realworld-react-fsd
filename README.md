@@ -1,20 +1,10 @@
-<div>
-  <h1 align="center">🙌 RealWorld example app 🍰 Feature-Sliced Design</h1>
+# 🙌 RealWorld example app 🍰 Feature-Sliced Design
 
-  <p>
-    This codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the <a href="https://github.com/gothinkster/realworld">RealWorld</a> spec and API. Powered by <a href="https://feature-sliced.design">FSD (Feature-Sliced Design)</a> architectural methodology.
-  </p>
-  <p>Feel free to take a look at <a href="https://effector.dev/">Effector</a> version in <a href="https://github.com/sldk-yuri/realworld-react-fsd/tree/effector">the effector branch</a></p>
+This codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API. Powered by [FSD (Feature-Sliced Design)](https://feature-sliced.design) architectural methodology.
 
-  <a href="https://realworld-fsd.netlify.app">
-    <img
-      alt="Realworld example app website"
-      src="./logo.gif"
-    />
-  </a>
-</div>
+![Realworld example app](./logo.gif)
 
-<hr />
+---
 
 [![Netlify Status][netlify-domain]](https://realworld-fsd.netlify.app/)
 [![Build workflow][build-domain]](https://github.com/sldk-yuri/realworld-react-fsd/actions/workflows/build.yml)
@@ -22,7 +12,7 @@
 [![Code style: prettier][prettier-domain]](https://github.com/prettier/prettier)
 [![license][license-domain]](https://github.com/sldk-yuri/realworld-react-fsd/blob/master/LICENSE)
 
-# Features
+## Features
 
 The example application is a social blogging site (i.e. a Medium.com clone) called "Conduit". It uses a custom API for all requests, including authentication.
 
@@ -58,7 +48,7 @@ The example application is a social blogging site (i.e. a Medium.com clone) call
   - Show basic user info
   - List of articles populated from author's created articles or author's favorited articles
 
-# Getting started
+## Getting started
 
 This project was bootstrapped with [Create Vite](https://vitejs.dev/guide/#getting-started)
 
@@ -68,12 +58,11 @@ To get the frontend running locally:
 2. `yarn install` to install all the dependencies defined in a `package.json` file.
 3. `yarn dev` to start Vite dev server.
 
-# Scripts
+## Scripts
 
 - `yarn dev` - start a development server with hot reload.
 - `yarn build` - build for production. The generated files will be on the dist folder.
 - `yarn preview` - locally preview the production build.
-- `yarn generate:api` - generate api via swagger scheme
 - `yarn lint` - run ESLint.
 - `yarn lint:perf` - run ESLint and track the performance of individual rules.
 - `yarn prettier` - run Prettier on changed files.
@@ -81,7 +70,6 @@ To get the frontend running locally:
 - `yarn test:run` - run all test suites.
 - `yarn test:watch` - run all test suites but watch for changes and rerun tests when they change.
 - `yarn test:coverage` - run all test suites and enable coverage report.
-- `coverage:open` - open coverage report in browser.
 - `yarn test:coverage:open` - run all test suites and enable coverage report then open coverage report in browser.
 - `yarn dep-cruiser:preview` - create a graph of the dependencies[^1]
 
@@ -90,8 +78,6 @@ To get the frontend running locally:
     comparable systems this will be. In case it's not, see
     [GraphViz' download page](https://www.graphviz.org/download/) for instructions
     on how to get it on your machine.
-
-<br/>
 
 [![Feature-Sliced Design][shields-fsd-domain]](https://feature-sliced.design/)
 [![Vite][shields-vite-domain]](https://vitejs.dev/)
