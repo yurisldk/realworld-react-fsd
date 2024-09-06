@@ -18,8 +18,24 @@ const ArticleDto = z.object({
   }),
 })
 
+const ArticlePreviewDto = z.object({
+  slug: z.string(),
+  title: z.string(),
+  description: z.string(),
+  tagList: z.string().array(),
+  createdAt: z.coerce.date(),
+  favorited: z.boolean(),
+  favoritesCount: z.number(),
+  author: z.object({
+    username: z.string(),
+    bio: z.optional(z.string()),
+    image: z.string(),
+    following: z.boolean(),
+  }),
+})
+
 export const ArticlesDtoSchema = z.object({
-  articles: z.array(ArticleDto),
+  articles: z.array(ArticlePreviewDto),
   articlesCount: z.number(),
 })
 
@@ -42,6 +58,10 @@ export const ArticlesParamsDtoSchema = z.intersection(
 export const ArticlesFeedParamsDtoSchema = z.object({
   offset: z.number().min(0),
   limit: z.number().min(1),
+})
+
+export const ArticlePreviewDtoSchema = z.object({
+  articlePreview: ArticlePreviewDto,
 })
 
 export const ArticleDtoSchema = z.object({

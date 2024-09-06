@@ -26,4 +26,20 @@ export const ArticleSchema = z.object({
   }),
 })
 
-export const ArticlesSchema = z.map(z.string(), ArticleSchema)
+export const ArticlePreviewSchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  description: z.string(),
+  tagList: z.string().array(),
+  createdAt: z.coerce.date(),
+  favorited: z.boolean(),
+  favoritesCount: z.number(),
+  author: z.object({
+    username: z.string(),
+    bio: z.string(),
+    image: z.string(),
+    following: z.boolean(),
+  }),
+})
+
+export const ArticlesSchema = z.map(z.string(), ArticlePreviewSchema)
