@@ -11,7 +11,7 @@ export class FavoriteService {
 
   static unfavoriteArticleMutation(slug: string) {
     return realworld
-      .post(`/articles/${slug}/favorite`)
+      .delete(`/articles/${slug}/favorite`)
       .then(AxiosContracts.responseContract(FavoriteArticleDtoSchema))
   }
 }

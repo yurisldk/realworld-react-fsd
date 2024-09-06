@@ -79,11 +79,27 @@ const article: articleTypes.Article = {
   },
 }
 
+const articlePreview: articleTypes.ArticlePreview = {
+  slug: 'test-article',
+  title: 'Test Article',
+  description: 'This is a test article',
+  tagList: [],
+  createdAt: new Date(Date.now()),
+  favorited: true,
+  favoritesCount: 1,
+  author: {
+    username: 'testuser',
+    bio: '',
+    image: '',
+    following: false,
+  },
+}
+
 function renderUnfavoriteArticleBriefButton() {
   const user = userEvent.setup()
   const renderResult = renderWithQueryClient(
     <BrowserRouter>
-      <UnfavoriteArticleBriefButton article={article} />
+      <UnfavoriteArticleBriefButton article={articlePreview} />
     </BrowserRouter>,
   )
 

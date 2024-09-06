@@ -1,18 +1,31 @@
 import { IoHeart } from 'react-icons/io5'
 import { Button } from '~shared/ui/button'
 import { articleTypes } from '~entities/article'
+import { useFavoriteArticlePreviewMutation } from './favorite-article-preview.mutation'
 import { useFavoriteArticleMutation } from './favorite-article.mutation'
 
 type FavoriteArticleButtonProps = {
   article: articleTypes.Article
 }
 
-export function FavoriteArticleBriefButton(props: FavoriteArticleButtonProps) {
+type FavoriteArticlePreviewButtonProps = {
+  article: articleTypes.ArticlePreview
+}
+
+export function FavoriteArticleBriefButton(props: FavoriteArticlePreviewButtonProps) {
   const { article } = props
 
-  const { mutate } = useFavoriteArticleMutation({
+  const { mutate } = useFavoriteArticlePreviewMutation({
     mutationKey: ['brief', article.slug],
   })
+
+  function favorite(articleToFavorite: articleTypes.ArticlePreview): articleTypes.ArticlePreview {
+    return {
+      ...articleToFavorite,
+      favorited: true,
+      favoritesCount: articleToFavorite.favoritesCount + 1,
+    }
+  }
 
   const handleFavorite = () => {
     const favoritedArticle = favorite(article)
@@ -40,6 +53,14 @@ export function FavoriteArticleExtendedButton(
     mutationKey: ['extended', article.slug],
   })
 
+  function favorite(articleToFavorite: articleTypes.Article): articleTypes.Article {
+    return {
+      ...articleToFavorite,
+      favorited: true,
+      favoritesCount: articleToFavorite.favoritesCount + 1,
+    }
+  }
+
   const handleFavorite = () => {
     const favoritedArticle = favorite(article)
     mutate(favoritedArticle)
@@ -58,10 +79,3 @@ export function FavoriteArticleExtendedButton(
   )
 }
 
-function favorite(article: articleTypes.Article): articleTypes.Article {
-  return {
-    ...article,
-    favorited: true,
-    favoritesCount: article.favoritesCount + 1,
-  }
-}

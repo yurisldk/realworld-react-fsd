@@ -167,7 +167,7 @@ function LoadingPageButton() {
   )
 }
 
-function FavoriteArticleAction(props: { article: articleTypes.Article }) {
+function FavoriteArticleAction(props: { article: articleTypes.ArticlePreview }) {
   const { article } = props
 
   const canLike = PermissionService.useCanPerformAction('like', 'article')
