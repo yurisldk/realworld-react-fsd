@@ -18,7 +18,7 @@ const ArticleDto = z.object({
   }),
 })
 
-const ArticlePreviewDto = z.object({
+export const ArticlePreviewDtoSchema = z.object({
   slug: z.string(),
   title: z.string(),
   description: z.string(),
@@ -35,7 +35,7 @@ const ArticlePreviewDto = z.object({
 })
 
 export const ArticlesDtoSchema = z.object({
-  articles: z.array(ArticlePreviewDto),
+  articles: z.array(ArticlePreviewDtoSchema),
   articlesCount: z.number(),
 })
 
@@ -58,10 +58,6 @@ export const ArticlesParamsDtoSchema = z.intersection(
 export const ArticlesFeedParamsDtoSchema = z.object({
   offset: z.number().min(0),
   limit: z.number().min(1),
-})
-
-export const ArticlePreviewDtoSchema = z.object({
-  articlePreview: ArticlePreviewDto,
 })
 
 export const ArticleDtoSchema = z.object({
