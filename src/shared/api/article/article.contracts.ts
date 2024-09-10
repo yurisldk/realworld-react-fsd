@@ -18,8 +18,24 @@ const ArticleDto = z.object({
   }),
 })
 
+export const ArticlePreviewDtoSchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  description: z.string(),
+  tagList: z.string().array(),
+  createdAt: z.coerce.date(),
+  favorited: z.boolean(),
+  favoritesCount: z.number(),
+  author: z.object({
+    username: z.string(),
+    bio: z.optional(z.string()),
+    image: z.string(),
+    following: z.boolean(),
+  }),
+})
+
 export const ArticlesDtoSchema = z.object({
-  articles: z.array(ArticleDto),
+  articles: z.array(ArticlePreviewDtoSchema),
   articlesCount: z.number(),
 })
 

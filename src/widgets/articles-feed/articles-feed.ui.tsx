@@ -78,16 +78,16 @@ export const ArticlesFeed = enhance((props: ArticlesFeedProps) => {
   )
 })
 
-type ArticleMetaProps = { article: articleTypes.Article; action?: ReactNode }
+type ArticleMetaProps = { article: articleTypes.ArticlePreview; action?: ReactNode }
 function ArticleMeta(props: ArticleMetaProps) {
   const { article, action } = props
-  const { author, updatedAt } = article
+  const { author, createdAt } = article
 
   const formattedDate = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(updatedAt)
+  }).format(createdAt)
 
   return (
     <div className="article-preview">
@@ -167,7 +167,7 @@ function LoadingPageButton() {
   )
 }
 
-function FavoriteArticleAction(props: { article: articleTypes.Article }) {
+function FavoriteArticleAction(props: { article: articleTypes.ArticlePreview }) {
   const { article } = props
 
   const canLike = PermissionService.useCanPerformAction('like', 'article')

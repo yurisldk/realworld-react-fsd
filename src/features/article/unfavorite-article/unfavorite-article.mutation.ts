@@ -12,7 +12,7 @@ export function useUnfavoriteArticleMutation(
     UseMutationOptions<
       Awaited<ReturnType<typeof FavoriteService.unfavoriteArticleMutation>>,
       DefaultError,
-      articleTypes.Article,
+      string,
       unknown
     >,
     'mutationKey' | 'onMutate' | 'onSuccess' | 'onError' | 'onSettled'
@@ -29,22 +29,28 @@ export function useUnfavoriteArticleMutation(
   return useMutation({
     mutationKey: ['article', 'unfavorite', ...mutationKey],
 
-    mutationFn: ({ slug }: articleTypes.Article) =>
-      FavoriteService.unfavoriteArticleMutation(slug),
+    mutationFn: (slug) => FavoriteService.unfavoriteArticleMutation(slug),
 
-    onMutate: async (updatedArticle) => {
+    onMutate: async (slug) => {
       await queryClient.cancelQueries({ queryKey: ArticleQueries.keys.root })
 
       const previousArticle = queryClient.getQueryData(
-        ArticleQueries.articleQuery(updatedArticle.slug).queryKey,
+        ArticleQueries.articleQuery(slug).queryKey,
       )
 
-      const previousInfiniteArticles = queryClient.getQueriesData({
-        queryKey: ArticleQueries.keys.rootInfinity,
-      })
+      const updatedArticle = previousArticle && {
+        ...previousArticle,
+        favorited: false,
+        favoritesCount: previousArticle.favoritesCount - 1,
+      }
+
+      const previousInfiniteArticles =
+        queryClient.getQueriesData<articleTypes.InfiniteArticles>({
+          queryKey: ArticleQueries.keys.rootInfinity,
+        })
 
       queryClient.setQueryData(
-        ArticleQueries.articleQuery(updatedArticle.slug).queryKey,
+        ArticleQueries.articleQuery(slug).queryKey,
         updatedArticle,
       )
 
@@ -52,37 +58,45 @@ export function useUnfavoriteArticleMutation(
         { queryKey: ArticleQueries.keys.rootInfinity },
         (infinityArticles: articleTypes.InfiniteArticles | undefined) => {
           if (!infinityArticles) return
+
           const { pages, pageParams } = infinityArticles
+
           const updatedPages = pages.map((articles) => {
-            if (!articles.has(updatedArticle.slug)) return articles
+            if (!articles.has(slug)) return articles
+
             const updatedArticles = new Map(articles)
-            updatedArticles.set(updatedArticle.slug, updatedArticle)
+            const previousArticlePreview = articles.get(slug)!
+
+            const updatedArticlePreview = {
+              ...previousArticlePreview,
+              favorited: false,
+              favoritesCount: previousArticlePreview.favoritesCount - 1,
+            }
+
+            updatedArticles.set(slug, updatedArticlePreview)
+
             return updatedArticles
           })
           return { pages: updatedPages, pageParams }
         },
       )
 
-      await onMutate?.(updatedArticle)
+      await onMutate?.(slug)
 
       return { previousArticle, previousInfiniteArticles }
     },
 
     onSuccess,
 
-    onError: async (error, updatedArticle, context) => {
-      const { previousInfiniteArticles, previousArticle } = context || {}
+    onError: async (error, slug, context) => {
+      const { previousArticle } = context || {}
 
       queryClient.setQueryData(
-        ArticleQueries.articleQuery(updatedArticle.slug).queryKey,
+        ArticleQueries.articleQuery(slug).queryKey,
         previousArticle,
       )
 
-      previousInfiniteArticles?.forEach(([queryKey, data]) => {
-        queryClient.setQueriesData({ queryKey }, data)
-      })
-
-      await onError?.(error, updatedArticle, context)
+      await onError?.(error, slug, context)
     },
 
     onSettled: async (data, error, variables, context) => {
