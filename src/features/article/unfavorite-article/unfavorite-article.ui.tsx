@@ -1,7 +1,6 @@
 import { IoHeart } from 'react-icons/io5'
 import { Button } from '~shared/ui/button'
 import { articleTypes } from '~entities/article'
-import { useUnfavoriteArticlePreviewMutation } from './unfavorite-article-preview.mutation'
 import { useUnfavoriteArticleMutation } from './unfavorite-article.mutation'
 
 type UnfavoriteArticleButtonProps = {
@@ -17,21 +16,12 @@ export function UnfavoriteArticleBriefButton(
 ) {
   const { article } = props
 
-  const { mutate } = useUnfavoriteArticlePreviewMutation({
+  const { mutate } = useUnfavoriteArticleMutation({
     mutationKey: ['brief', article.slug],
   })
 
-  function unfavorite(articleToUnfavorite: articleTypes.ArticlePreview): articleTypes.ArticlePreview {
-    return {
-      ...articleToUnfavorite,
-      favorited: false,
-      favoritesCount: articleToUnfavorite.favoritesCount - 1,
-    }
-  }
-
   const handleUnfavorite = () => {
-    const unfavoritedArticle = unfavorite(article)
-    mutate(unfavoritedArticle)
+    mutate(article.slug)
   }
 
   return (
@@ -54,17 +44,8 @@ export function UnfavoriteArticleExtendedButton(
     mutationKey: ['extended', article.slug],
   })
 
-  function unfavorite(articleToUnfavorite: articleTypes.Article): articleTypes.Article {
-    return {
-      ...articleToUnfavorite,
-      favorited: false,
-      favoritesCount: articleToUnfavorite.favoritesCount - 1,
-    }
-  }
-
   const handleUnfavorite = () => {
-    const unfavoritedArticle = unfavorite(article)
-    mutate(unfavoritedArticle)
+    mutate(article.slug)
   }
 
   return (
