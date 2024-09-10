@@ -1,35 +1,19 @@
 import { IoHeart } from 'react-icons/io5'
 import { Button } from '~shared/ui/button'
 import { articleTypes } from '~entities/article'
-import { useFavoriteArticlePreviewMutation } from './favorite-article-preview.mutation'
 import { useFavoriteArticleMutation } from './favorite-article.mutation'
 
-type FavoriteArticleButtonProps = {
-  article: articleTypes.Article
-}
-
-type FavoriteArticlePreviewButtonProps = {
+export function FavoriteArticleBriefButton(props: {
   article: articleTypes.ArticlePreview
-}
-
-export function FavoriteArticleBriefButton(props: FavoriteArticlePreviewButtonProps) {
+}) {
   const { article } = props
 
-  const { mutate } = useFavoriteArticlePreviewMutation({
+  const { mutate } = useFavoriteArticleMutation({
     mutationKey: ['brief', article.slug],
   })
 
-  function favorite(articleToFavorite: articleTypes.ArticlePreview): articleTypes.ArticlePreview {
-    return {
-      ...articleToFavorite,
-      favorited: true,
-      favoritesCount: articleToFavorite.favoritesCount + 1,
-    }
-  }
-
   const handleFavorite = () => {
-    const favoritedArticle = favorite(article)
-    mutate(favoritedArticle)
+    mutate(article.slug)
   }
 
   return (
@@ -44,26 +28,17 @@ export function FavoriteArticleBriefButton(props: FavoriteArticlePreviewButtonPr
   )
 }
 
-export function FavoriteArticleExtendedButton(
-  props: FavoriteArticleButtonProps,
-) {
+export function FavoriteArticleExtendedButton(props: {
+  article: articleTypes.Article
+}) {
   const { article } = props
 
   const { mutate } = useFavoriteArticleMutation({
     mutationKey: ['extended', article.slug],
   })
 
-  function favorite(articleToFavorite: articleTypes.Article): articleTypes.Article {
-    return {
-      ...articleToFavorite,
-      favorited: true,
-      favoritesCount: articleToFavorite.favoritesCount + 1,
-    }
-  }
-
   const handleFavorite = () => {
-    const favoritedArticle = favorite(article)
-    mutate(favoritedArticle)
+    mutate(article.slug)
   }
 
   return (
@@ -78,4 +53,3 @@ export function FavoriteArticleExtendedButton(
     </Button>
   )
 }
-
