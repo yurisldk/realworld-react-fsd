@@ -6,11 +6,27 @@ This codebase containing real world examples (CRUD, auth, advanced patterns, etc
 
 ---
 
-[![Netlify Status][netlify-domain]](https://realworld-fsd.netlify.app/)
-[![Build workflow][build-domain]](https://github.com/sldk-yuri/realworld-react-fsd/actions/workflows/build.yml)
-[![Codecov][codecov-domain]](https://app.codecov.io/gh/sldk-yuri/realworld-react-fsd/branch/master)
-[![Code style: prettier][prettier-domain]](https://github.com/prettier/prettier)
-[![license][license-domain]](https://github.com/sldk-yuri/realworld-react-fsd/blob/master/LICENSE)
+[![Feature-Sliced Design][shields-fsd-domain]](https://feature-sliced.design/)
+[![Vite][shields-vite-domain]](https://vitejs.dev/)
+[![React][shields-react-domain]](https://react.dev/)
+[![React Router][shields-react-router-domain]](https://reactrouter.com/)
+[![React Query][shields-react-query-domain]](https://tanstack.com/query/v4/)
+[![Zustand][shields-zustand-domain]](https://zustand-demo.pmnd.rs/)
+[![TypeScript][shields-typescript-domain]](https://www.typescriptlang.org/)
+
+## Backend Assistance Request
+
+Hello everyone,
+
+I’m currently working on the backend for the RealWorld application, built using React. However, I’ve encountered some challenges due to recent updates to the API specifications. As mentioned in this [GitHub discussion](https://github.com/gothinkster/realworld/issues/1611), the project will no longer be maintained. The API server has been deleted, and the demo deployment is no longer available, which has introduced some issues for developers relying on it.
+
+If anyone has experience with these changes or expertise in implementing the backend, I’d greatly appreciate your assistance in adapting my backend to align with the updated specifications. Your support will be essential in ensuring compatibility and smooth operation for the app.
+
+As a temporary solution, we can use the official backend implementation from [this GitHub repository](https://github.com/gothinkster/node-express-realworld-example-app) or explore other community-backed implementations available through [Codebase Show](https://codebase.show/projects/realworld?category=backend). These resources should help keep the project running while I work on resolving the backend issues.
+
+For further details and feedback, please refer to the [Backend Assistance Request Issue](https://github.com/yurisldk/realworld-react-fsd/issues/19) for more context and ongoing updates.
+
+Feel free to reach out or contribute to the repository if you can provide help!
 
 ## Features
 
@@ -78,14 +94,6 @@ To get the frontend running locally:
     comparable systems this will be. In case it's not, see
     [GraphViz' download page](https://www.graphviz.org/download/) for instructions
     on how to get it on your machine.
-
-[![Feature-Sliced Design][shields-fsd-domain]](https://feature-sliced.design/)
-[![Vite][shields-vite-domain]](https://vitejs.dev/)
-[![React][shields-react-domain]](https://react.dev/)
-[![React Router][shields-react-router-domain]](https://reactrouter.com/)
-[![React Query][shields-react-query-domain]](https://tanstack.com/query/v4/)
-[![Zustand][shields-zustand-domain]](https://zustand-demo.pmnd.rs/)
-[![TypeScript][shields-typescript-domain]](https://www.typescriptlang.org/)
 
 [shields-react-router-domain]: https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white
 [shields-react-query-domain]: https://img.shields.io/badge/-React%20Query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white
