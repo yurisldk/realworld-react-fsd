@@ -7,8 +7,12 @@ type UnfavoriteArticleButtonProps = {
   article: articleTypes.Article
 }
 
+type UnfavoriteArticlePreviewButtonProps = {
+  article: articleTypes.ArticlePreview
+}
+
 export function UnfavoriteArticleBriefButton(
-  props: UnfavoriteArticleButtonProps,
+  props: UnfavoriteArticlePreviewButtonProps,
 ) {
   const { article } = props
 
@@ -17,8 +21,7 @@ export function UnfavoriteArticleBriefButton(
   })
 
   const handleUnfavorite = () => {
-    const unfavoritedArticle = unfavorite(article)
-    mutate(unfavoritedArticle)
+    mutate(article.slug)
   }
 
   return (
@@ -42,8 +45,7 @@ export function UnfavoriteArticleExtendedButton(
   })
 
   const handleUnfavorite = () => {
-    const unfavoritedArticle = unfavorite(article)
-    mutate(unfavoritedArticle)
+    mutate(article.slug)
   }
 
   return (
@@ -56,12 +58,4 @@ export function UnfavoriteArticleExtendedButton(
       <span className="counter">({article.favoritesCount})</span>
     </Button>
   )
-}
-
-function unfavorite(article: articleTypes.Article): articleTypes.Article {
-  return {
-    ...article,
-    favorited: false,
-    favoritesCount: article.favoritesCount - 1,
-  }
 }

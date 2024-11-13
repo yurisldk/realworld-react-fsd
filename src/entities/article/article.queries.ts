@@ -63,11 +63,7 @@ export class ArticleQueries {
           signal,
         })
 
-        const articles = transformArticlesDtoToArticles(response.data)
-
-        this.setArticleData(articles)
-
-        return articles
+        return transformArticlesDtoToArticles(response.data)
       },
       initialPageParam: this.getInitialPageParam({ limit, offset }),
       getNextPageParam: this.getNextPageParam(limit),
@@ -92,11 +88,7 @@ export class ArticleQueries {
           signal,
         })
 
-        const articles = transformArticlesDtoToArticles(response.data)
-
-        this.setArticleData(articles)
-
-        return articles
+        return transformArticlesDtoToArticles(response.data)
       },
       initialPageParam: this.getInitialPageParam({ limit, offset }),
       getNextPageParam: this.getNextPageParam(limit),
@@ -141,11 +133,5 @@ export class ArticleQueries {
   ) {
     if (firstPageParam <= 1) return
     return firstPageParam - 1
-  }
-
-  private static setArticleData(articles: Articles) {
-    articles.forEach((article) => {
-      queryClient.setQueryData([...this.keys.root, article.slug], article)
-    })
   }
 }

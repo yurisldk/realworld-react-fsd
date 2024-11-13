@@ -3,11 +3,9 @@ import { Button } from '~shared/ui/button'
 import { articleTypes } from '~entities/article'
 import { useFavoriteArticleMutation } from './favorite-article.mutation'
 
-type FavoriteArticleButtonProps = {
-  article: articleTypes.Article
-}
-
-export function FavoriteArticleBriefButton(props: FavoriteArticleButtonProps) {
+export function FavoriteArticleBriefButton(props: {
+  article: articleTypes.ArticlePreview
+}) {
   const { article } = props
 
   const { mutate } = useFavoriteArticleMutation({
@@ -15,8 +13,7 @@ export function FavoriteArticleBriefButton(props: FavoriteArticleButtonProps) {
   })
 
   const handleFavorite = () => {
-    const favoritedArticle = favorite(article)
-    mutate(favoritedArticle)
+    mutate(article.slug)
   }
 
   return (
@@ -31,9 +28,9 @@ export function FavoriteArticleBriefButton(props: FavoriteArticleButtonProps) {
   )
 }
 
-export function FavoriteArticleExtendedButton(
-  props: FavoriteArticleButtonProps,
-) {
+export function FavoriteArticleExtendedButton(props: {
+  article: articleTypes.Article
+}) {
   const { article } = props
 
   const { mutate } = useFavoriteArticleMutation({
@@ -41,8 +38,7 @@ export function FavoriteArticleExtendedButton(
   })
 
   const handleFavorite = () => {
-    const favoritedArticle = favorite(article)
-    mutate(favoritedArticle)
+    mutate(article.slug)
   }
 
   return (
@@ -56,12 +52,4 @@ export function FavoriteArticleExtendedButton(
       <span className="counter">({article.favoritesCount})</span>
     </Button>
   )
-}
-
-function favorite(article: articleTypes.Article): articleTypes.Article {
-  return {
-    ...article,
-    favorited: true,
-    favoritesCount: article.favoritesCount + 1,
-  }
 }

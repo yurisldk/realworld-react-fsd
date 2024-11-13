@@ -1,5 +1,5 @@
 import { articleTypesDto } from '~shared/api/article'
-import type { Article, Articles } from './article.types'
+import { Article, ArticlePreview, Articles } from './article.types'
 
 export function transformArticleDtoToArticle(
   articleDto: articleTypesDto.ArticleDto,
@@ -13,15 +13,28 @@ export function transformArticleDtoToArticle(
   }
 }
 
+export function transformArticlePreviewDtoToArticlePreview(
+  articlePreviewDto: articleTypesDto.ArticlePreviewDto,
+): ArticlePreview {
+  return {
+    ...articlePreviewDto,
+    tagList: articlePreviewDto.tagList.filter(Boolean),
+    author: {
+      ...articlePreviewDto.author,
+      bio: articlePreviewDto.author.bio || '',
+    },
+  }
+}
+
 export function transformArticlesDtoToArticles(
   articlesDto: articleTypesDto.ArticlesDto,
 ): Articles {
   const { articles } = articlesDto
 
   return new Map(
-    articles.map((article) => [
-      article.slug,
-      transformArticleDtoToArticle({ article }),
+    articles.map((articlePreview) => [
+      articlePreview.slug,
+      transformArticlePreviewDtoToArticlePreview(articlePreview),
     ]),
   )
 }

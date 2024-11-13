@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import {
   ArticleDtoSchema,
+  ArticlePreviewDtoSchema,
   ArticlesDtoSchema,
   ArticlesFeedParamsDtoSchema,
   ArticlesParamsDtoSchema,
@@ -11,6 +12,7 @@ import {
 } from './article.contracts'
 
 export type ArticleDto = z.infer<typeof ArticleDtoSchema>
+export type ArticlePreviewDto = z.infer<typeof ArticlePreviewDtoSchema>
 export type ArticlesDto = z.infer<typeof ArticlesDtoSchema>
 export type PageParamsDto = z.infer<typeof PageParamsDtoSchema>
 export type FilterParamsDto = z.infer<typeof FilterParamsDtoSchema>
