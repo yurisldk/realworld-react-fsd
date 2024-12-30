@@ -7,9 +7,9 @@ export function transformUserDtoToSession(
   const { user } = userDto
   return {
     email: user.email,
-    image: user.image,
     token: user.token,
     username: user.username,
+    image: user?.image || '',
     bio: user?.bio || '',
   }
 }
