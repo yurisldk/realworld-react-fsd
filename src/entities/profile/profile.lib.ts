@@ -8,6 +8,7 @@ export function transformProfileDtoToProfile(
 
   return {
     ...profile,
-    bio: profile.bio || '',
+    image: profile?.image || '',
+    bio: profile?.bio || '',
   }
 }

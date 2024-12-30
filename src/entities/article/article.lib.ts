@@ -9,7 +9,11 @@ export function transformArticleDtoToArticle(
   return {
     ...article,
     tagList: article.tagList.filter(Boolean),
-    author: { ...article.author, bio: article.author.bio || '' },
+    author: {
+      ...article.author,
+      image: article.author?.image || '',
+      bio: article.author?.bio || '',
+    },
   }
 }
 

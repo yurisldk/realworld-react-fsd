@@ -40,8 +40,8 @@ export const UpdateSessionForm = enhance(() => {
     defaultValues: {
       username: user.username,
       email: user.email,
-      bio: user.bio,
-      image: user.image,
+      bio: user?.bio || '',
+      image: user?.image || '',
       password: '',
     },
   })
