@@ -14,19 +14,15 @@ This codebase containing real world examples (CRUD, auth, advanced patterns, etc
 [![Zustand][shields-zustand-domain]](https://zustand-demo.pmnd.rs/)
 [![TypeScript][shields-typescript-domain]](https://www.typescriptlang.org/)
 
-## Backend Assistance Request
+## Backend Solution for RealWorld API Challenges
 
-Hello everyone,
+As part of the solution to the issues caused by recent changes to the [RealWorld API specifications](https://github.com/gothinkster/realworld/issues/1611), I’ve forked an backend and created a fully compatible alternative with **[RealWorld Express + Prisma](https://github.com/yurisldk/realworld-express-prisma)**.
 
-I’m currently working on the backend for the RealWorld application, built using React. However, I’ve encountered some challenges due to recent updates to the API specifications. As mentioned in this [GitHub discussion](https://github.com/gothinkster/realworld/issues/1611), the project will no longer be maintained. The API server has been deleted, and the demo deployment is no longer available, which has introduced some issues for developers relying on it.
+This fork addresses the challenges caused by the deletion of the official API server and demo deployment, and it implements the updated API specifications to keep the project running smoothly.
 
-If anyone has experience with these changes or expertise in implementing the backend, I’d greatly appreciate your assistance in adapting my backend to align with the updated specifications. Your support will be essential in ensuring compatibility and smooth operation for the app.
+To get the backend up and running, you can find instructions on how to install and set it up in the [RealWorld Express + Prisma repository](https://github.com/yurisldk/realworld-express-prisma).
 
-As a temporary solution, we can use the official backend implementation from [this GitHub repository](https://github.com/gothinkster/node-express-realworld-example-app) or explore other community-backed implementations available through [Codebase Show](https://codebase.show/projects/realworld?category=backend). These resources should help keep the project running while I work on resolving the backend issues.
-
-For further details and feedback, please refer to the [Backend Assistance Request Issue](https://github.com/yurisldk/realworld-react-fsd/issues/19) for more context and ongoing updates.
-
-Feel free to reach out or contribute to the repository if you can provide help!
+Feel free to contribute or reach out if you have any questions or suggestions!
 
 ## Features
 
