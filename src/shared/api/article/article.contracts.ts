@@ -12,8 +12,8 @@ const ArticleDto = z.object({
   favoritesCount: z.number(),
   author: z.object({
     username: z.string(),
-    bio: z.nullable(z.string()),
-    image: z.string(),
+    bio: z.string().nullable(),
+    image: z.string().nullable(),
     following: z.boolean(),
   }),
 })
