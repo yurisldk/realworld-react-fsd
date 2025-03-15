@@ -16,11 +16,11 @@ This codebase containing real world examples (CRUD, auth, advanced patterns, etc
 
 ## Backend Solution for RealWorld API Challenges
 
-As part of the solution to the issues caused by recent changes to the [RealWorld API specifications](https://github.com/gothinkster/realworld/issues/1611), I’ve forked an backend and created a fully compatible alternative with **[RealWorld Express + Prisma](https://github.com/yurisldk/realworld-express-prisma)**.
+As part of the solution to the issues caused by recent changes to the [RealWorld API specifications](https://github.com/gothinkster/realworld/issues/1611), I’ve forked an backend and created a fully compatible alternative with **[RealWorld Express + Prisma](https://github.com/yurisldk/node-express-realworld-example-app)**.
 
 This fork addresses the challenges caused by the deletion of the official API server and demo deployment, and it implements the updated API specifications to keep the project running smoothly.
 
-To get the backend up and running, you can find instructions on how to install and set it up in the [RealWorld Express + Prisma repository](https://github.com/yurisldk/realworld-express-prisma).
+To get the backend up and running, you can find instructions on how to install and set it up in the [RealWorld Express + Prisma repository](https://github.com/yurisldk/node-express-realworld-example-app).
 
 Feel free to contribute or reach out if you have any questions or suggestions!
 
