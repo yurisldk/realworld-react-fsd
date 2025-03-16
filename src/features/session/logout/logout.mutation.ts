@@ -1,49 +1,33 @@
-import {
-  DefaultError,
-  UseMutationOptions,
-  useMutation,
-} from '@tanstack/react-query'
-import { AuthService } from '~shared/api/auth'
-import { queryClient } from '~shared/lib/react-query'
-import { useSessionStore } from '~shared/session'
+import { DefaultError, useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { logoutUser } from '~shared/api/api.service';
+import { queryClient } from '~shared/queryClient';
+import { store } from '~shared/store';
+import { sessionQueryOptions } from '~entities/session/session.api';
+import { resetSession } from '~entities/session/session.model';
 
 export function useLogoutMutation(
-  options?: Pick<
-    UseMutationOptions<
-      Awaited<ReturnType<typeof AuthService.logoutUserMutation>>,
-      DefaultError,
-      void,
-      unknown
-    >,
+  options: Pick<
+    UseMutationOptions<void, DefaultError, void, unknown>,
     'mutationKey' | 'onMutate' | 'onSuccess' | 'onError' | 'onSettled'
-  >,
+  > = {},
 ) {
-  const {
-    mutationKey = [],
-    onMutate,
-    onSuccess,
-    onError,
-    onSettled,
-  } = options || {}
+  const { mutationKey = [], onMutate, onSuccess, onError, onSettled } = options;
 
   return useMutation({
     mutationKey: ['session', 'logout-user', ...mutationKey],
 
-    mutationFn: async () => AuthService.logoutUserMutation(),
+    mutationFn: logoutUser,
 
     onMutate,
 
-    onSuccess: async (response, variables, context) => {
-      const { resetSession } = useSessionStore.getState()
-      resetSession()
-
-      queryClient.removeQueries()
-
-      await onSuccess?.(response, variables, context)
+    onSuccess: async (data, variables, context) => {
+      store.dispatch(resetSession());
+      queryClient.removeQueries({ queryKey: sessionQueryOptions.queryKey });
+      await onSuccess?.(data, variables, context);
     },
 
     onError,
 
     onSettled,
-  })
+  });
 }

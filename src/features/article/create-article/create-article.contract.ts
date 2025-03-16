@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const CreateArticleSchema = z.object({
   title: z.string().min(1, {
@@ -11,5 +11,4 @@ export const CreateArticleSchema = z.object({
     message: 'The article body must contain at least 1 character.',
   }),
   tagList: z.string().optional(),
-})
-export type CreateArticle = z.infer<typeof CreateArticleSchema>
+});

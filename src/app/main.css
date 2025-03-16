@@ -3203,15 +3203,11 @@ input[type='button'].btn-block {
   border-radius: 0;
 }
 .btn-group-vertical > .btn-group:first-child:not(:last-child) > .btn:last-child,
-.btn-group-vertical
-  > .btn-group:first-child:not(:last-child)
-  > .dropdown-toggle {
+.btn-group-vertical > .btn-group:first-child:not(:last-child) > .dropdown-toggle {
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
-.btn-group-vertical
-  > .btn-group:last-child:not(:first-child)
-  > .btn:first-child {
+.btn-group-vertical > .btn-group:last-child:not(:first-child) > .btn:first-child {
   border-top-right-radius: 0;
   border-top-left-radius: 0;
 }
@@ -3284,8 +3280,7 @@ input[type='button'].btn-block {
 .input-group-btn:not(:last-child) > .btn,
 .input-group-btn:not(:last-child) > .btn-group > .btn,
 .input-group-btn:not(:last-child) > .dropdown-toggle,
-.input-group-btn:not(:first-child)
-  > .btn:not(:last-child):not(.dropdown-toggle),
+.input-group-btn:not(:first-child) > .btn:not(:last-child):not(.dropdown-toggle),
 .input-group-btn:not(:first-child) > .btn-group:not(:last-child) > .btn {
   border-bottom-right-radius: 0;
   border-top-right-radius: 0;
@@ -3394,9 +3389,7 @@ input[type='button'].btn-block {
 .custom-checkbox .custom-control-input:checked ~ .custom-control-indicator {
   background-image: url(data:image/svg+xml;charset=utf8;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA4IDgnPjxwYXRoIGZpbGw9JyNmZmYnIGQ9J002LjU2NC43NWwtMy41OSAzLjYxMi0xLjUzOC0xLjU1TDAgNC4yNiAyLjk3NCA3LjI1IDggMi4xOTN6Jy8+PC9zdmc+);
 }
-.custom-checkbox
-  .custom-control-input:indeterminate
-  ~ .custom-control-indicator {
+.custom-checkbox .custom-control-input:indeterminate ~ .custom-control-indicator {
   background-color: #0074d9;
   background-image: url(data:image/svg+xml;charset=utf8;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA0IDQnPjxwYXRoIHN0cm9rZT0nI2ZmZicgZD0nTTAgMmg0Jy8+PC9zdmc+);
 }
@@ -5188,22 +5181,14 @@ button.close {
   opacity: 0.5;
 }
 .carousel-control.left {
-  background-image: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.0001) 100%
-  );
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.0001) 100%);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#80000000',endColorstr='#00000000',GradientType=1);
 }
 .carousel-control.right {
   right: 0;
   left: auto;
-  background-image: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.0001) 0%,
-    rgba(0, 0, 0, 0.5) 100%
-  );
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.0001) 0%, rgba(0, 0, 0, 0.5) 100%);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000',endColorstr='#80000000',GradientType=1);
 }

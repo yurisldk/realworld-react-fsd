@@ -1,14 +1,7 @@
-import { ArticleQueries } from '~entities/article'
-import { MainFilter, TagFilter } from '~features/article'
-import { ArticlesFeed } from '~widgets/articles-feed'
-import { homeModel } from './home-page.model'
+import { PrimaryFilter, TagFilter } from '~features/article/filter-article/filter-article.ui';
+import { ArticlesFeed } from '~widgets/articles-feed/articles-feed.ui';
 
-export function HomePage() {
-  const tab = homeModel.useHomeTabsStore.use.tab()
-  const isUserFeed = tab === 'user-feed'
-  const isGlobalFeed = tab === 'global-feed'
-  const isTagFeed = tab === 'tag-feed'
-
+export default function HomePage() {
   return (
     <div className="home-page">
       <div className="banner">
@@ -21,36 +14,18 @@ export function HomePage() {
       <div className="container page">
         <div className="row">
           <div className="col-md-9">
-            <MainFilter mainArticleFilter={homeModel} />
-
-            {isUserFeed && (
-              <ArticlesFeed
-                articlesInfiniteQueryOptions={boundArticlesFeedInfinityQuery}
-              />
-            )}
-
-            {(isGlobalFeed || isTagFeed) && (
-              <ArticlesFeed
-                useArticleFilterStore={homeModel.useHomeArticleFilterStore}
-                articlesInfiniteQueryOptions={boundArticlesInfiniteQuery}
-              />
-            )}
+            <PrimaryFilter />
+            <ArticlesFeed />
           </div>
 
           <div className="col-md-3">
             <div className="sidebar">
               <p>Popular Tags</p>
-              <TagFilter tagArticleFilter={homeModel} />
+              <TagFilter />
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-
-const boundArticlesFeedInfinityQuery =
-  ArticleQueries.articlesFeedInfinityQuery.bind(ArticleQueries)
-
-const boundArticlesInfiniteQuery =
-  ArticleQueries.articlesInfiniteQuery.bind(ArticleQueries)

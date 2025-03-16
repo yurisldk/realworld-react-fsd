@@ -1,48 +1,43 @@
-import { screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { BrowserRouter } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
-import { CommentService } from '~shared/api/comment'
-import { AxiosLib } from '~shared/lib/axios'
-import { renderWithQueryClient } from '~shared/lib/test'
-import { DeleteCommentButtton } from './delete-comment.ui'
+import { describe, expect, it } from '@jest/globals';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
+import { api } from '~shared/api/api.instance';
+import { renderWithQueryClient } from '~shared/lib/test/test.lib';
+import { DeleteCommentButtton } from './delete-comment.ui';
 
 describe('Delete Comment Button', () => {
   it('should display the delete icon', () => {
-    renderDeleteCommentButtton()
+    renderDeleteCommentButtton();
 
-    expect(screen.getByRole('button')).toBeInTheDocument()
-  })
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
 
   it('should call mutate function with correct data when button is clicked', async () => {
-    const deleteCommentMutationSpy = vi
-      .spyOn(CommentService, 'deleteCommentMutation')
-      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({}))
+    // @ts-expect-error Property 'mockResolvedValue' does not exist
+    const mockRequest = api.delete.mockResolvedValue({});
 
-    const { click } = renderDeleteCommentButtton()
-
-    await waitFor(() => {
-      expect(screen.getByRole('button')).toBeInTheDocument()
-    })
-
-    await click(screen.getByRole('button'))
+    const { click } = renderDeleteCommentButtton();
 
     await waitFor(() => {
-      expect(deleteCommentMutationSpy).toHaveBeenCalledWith('test-slug', 1)
-    })
-  })
-})
+      expect(screen.getByRole('button')).toBeInTheDocument();
+    });
+
+    await click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(mockRequest).toHaveBeenCalled();
+    });
+  });
+});
 
 function renderDeleteCommentButtton() {
-  const user = userEvent.setup()
+  const user = userEvent.setup();
   const renderResult = renderWithQueryClient(
     <BrowserRouter>
-      <DeleteCommentButtton
-        slug="test-slug"
-        id={1}
-      />
+      <DeleteCommentButtton slug="test-slug" id={1} />
     </BrowserRouter>,
-  )
+  );
 
-  return { ...user, ...renderResult }
+  return { ...user, ...renderResult };
 }

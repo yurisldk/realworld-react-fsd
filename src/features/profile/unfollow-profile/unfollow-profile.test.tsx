@@ -1,62 +1,41 @@
-import { screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { BrowserRouter } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
-import { ProfileService, profileTypesDto } from '~shared/api/profile'
-import { AxiosLib } from '~shared/lib/axios'
-import { renderWithQueryClient } from '~shared/lib/test'
-import { profileTypes } from '~entities/profile'
-import { UnfollowUserButton } from './unfollow-profile.ui'
+import { describe, expect, it } from '@jest/globals';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
+import { api } from '~shared/api/api.instance';
+import { renderWithQueryClient } from '~shared/lib/test/test.lib';
+import { UnfollowUserButton } from './unfollow-profile.ui';
 
 describe('UnfollowUserButton Component', () => {
   it('should display the button with the correct text', () => {
-    renderUnfollowUserButton()
+    renderUnfollowUserButton();
 
-    expect(
-      screen.getByRole('button', { name: /unfollow testuser/i }),
-    ).toBeInTheDocument()
-  })
+    expect(screen.getByRole('button', { name: /unfollow mockuser/i })).toBeInTheDocument();
+  });
 
   it('should call the mutate function with the unfollowed profile when clicked', async () => {
-    const unfollowProfileMutationSpy = vi
-      .spyOn(ProfileService, 'unfollowProfileMutation')
-      .mockResolvedValue(
-        AxiosLib.mockResolvedAxiosResponse(unfollowedProfileDto),
-      )
+    // @ts-expect-error Property 'mockResolvedValue' does not exist
+    const mockRequest = api.delete.mockResolvedValue({});
 
-    const { click } = renderUnfollowUserButton()
+    const { click } = renderUnfollowUserButton();
 
-    await click(screen.getByRole('button', { name: /unfollow testuser/i }))
+    await click(screen.getByRole('button', { name: /unfollow mockuser/i }));
 
     await waitFor(() => {
-      expect(unfollowProfileMutationSpy).toHaveBeenCalledWith(profile.username)
-    })
-  })
-})
+      expect(mockRequest).toHaveBeenCalled();
+    });
+  });
+});
 
-const profile: profileTypes.Profile = {
-  username: 'testuser',
-  following: true,
-  image: '',
-  bio: 'bio',
-}
-
-const unfollowedProfileDto: profileTypesDto.ProfileDto = {
-  profile: {
-    username: 'testuser',
-    following: false,
-    image: '',
-    bio: 'bio',
-  },
-}
+const username = 'mockuser';
 
 function renderUnfollowUserButton() {
-  const user = userEvent.setup()
+  const user = userEvent.setup();
   const renderResult = renderWithQueryClient(
     <BrowserRouter>
-      <UnfollowUserButton profile={profile} />
+      <UnfollowUserButton username={username} />
     </BrowserRouter>,
-  )
+  );
 
-  return { ...user, ...renderResult }
+  return { ...user, ...renderResult };
 }

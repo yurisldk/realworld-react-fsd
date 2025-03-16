@@ -1,4 +1,4 @@
-import { z } from 'zod'
-import { ProfileSchema } from './profie.contracts'
+import { z } from 'zod';
+import { ProfileSchema } from './profie.contracts';
 
-export type Profile = z.infer<typeof ProfileSchema>
+export type Profile = z.infer<typeof ProfileSchema>;

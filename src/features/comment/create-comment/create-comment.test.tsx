@@ -1,137 +1,143 @@
-import { screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { BrowserRouter } from 'react-router-dom'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AuthService, authTypesDto } from '~shared/api/auth'
-import { CommentService } from '~shared/api/comment'
-import { AxiosLib } from '~shared/lib/axios'
-import { renderWithQueryClient } from '~shared/lib/test'
-import { sessionLib, useSessionStore, sessionTypes } from '~shared/session'
-import { transformCreateCommentDtoToComment } from './create-comment.lib'
-import { CreateCommentForm } from './create-comment.ui'
+import { beforeEach, describe, expect, it } from '@jest/globals';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
+import { api } from '~shared/api/api.instance';
+import { UserDto } from '~shared/api/api.types';
+import { renderWithQueryClient } from '~shared/lib/test/test.lib';
+import { Comment } from '~entities/comment/comment.types';
+import { transformUserDtoToUser } from '~entities/session/session.lib';
+import { CreateComment } from './create-comment.types';
+import { CreateCommentForm } from './create-comment.ui';
 
 describe('Create Comment Form', () => {
   beforeEach(() => {
-    vi.spyOn(AuthService, 'currentUserQuery').mockResolvedValue(
-      AxiosLib.mockResolvedAxiosResponse({
-        user: session,
-      }),
-    )
-    useSessionStore.getState().setSession(session)
-  })
+    // @ts-expect-error Property 'mockResolvedValue' does not exist
+    api.get.mockImplementation((url) => {
+      if (url === '/user') {
+        return Promise.resolve({ data: mockUserDto });
+      }
+      return Promise.reject(new Error('Unknown API endpoint'));
+    });
+  });
 
   it('should display the user image and username', async () => {
-    renderCreateCommentForm()
+    renderCreateCommentForm();
 
     await waitFor(() => {
-      expect(screen.getByAltText(session.username)).toHaveAttribute(
-        'src',
-        session.image,
-      )
-    })
-  })
+      expect(screen.getByAltText(mockUser.username)).toHaveAttribute('src', mockUser.image);
+    });
+  });
 
   it('should display validation error', async () => {
-    const { type } = renderCreateCommentForm()
+    const { type } = renderCreateCommentForm();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /post comment/i }))
-    })
+      expect(screen.getByRole('button', { name: /post comment/i }));
+    });
 
-    await type(
-      screen.getByPlaceholderText('Write a comment...'),
-      'a[backspace]',
-    )
+    await type(screen.getByPlaceholderText('Write a comment...'), 'a[backspace]');
 
     await waitFor(() => {
-      expect(screen.getAllByRole('listitem')).toHaveLength(1)
-    })
-  })
+      expect(screen.getAllByRole('alert')).toHaveLength(1);
+    });
+  });
 
   it('should call mutate function with correct data when form is submitted', async () => {
-    const createCommentMutationSpy = vi
-      .spyOn(CommentService, 'createCommentMutation')
-      .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({ comment }))
+    // @ts-expect-error Property 'mockResolvedValue' does not exist
+    const mockRequest = api.post.mockResolvedValue({});
 
-    const { click, type } = renderCreateCommentForm()
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /post comment/i }))
-    })
-
-    await type(screen.getByPlaceholderText('Write a comment...'), comment.body)
-
-    await click(screen.getByRole('button', { name: /post comment/i }))
+    const { click, type } = renderCreateCommentForm();
 
     await waitFor(() => {
-      expect(createCommentMutationSpy).toHaveBeenCalledWith('test-slug', {
-        createCommentDto: { body: comment.body },
-      })
-    })
-  })
+      expect(screen.getByRole('button', { name: /post comment/i }));
+    });
+
+    await type(screen.getByPlaceholderText('Write a comment...'), mockCreateComment.body);
+
+    await click(screen.getByRole('button', { name: /post comment/i }));
+
+    await waitFor(() => {
+      expect(mockRequest).toHaveBeenCalled();
+    });
+  });
 
   it('should clear the textarea after successful submission', async () => {
-    const { click, type } = renderCreateCommentForm()
+    const { click, type } = renderCreateCommentForm();
+
+    // @ts-expect-error Property 'mockResolvedValue' does not exist
+    api.post.mockResolvedValue({ data: { comment: mockComment } });
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /post comment/i }))
-    })
+      expect(screen.getByRole('button', { name: /post comment/i }));
+    });
 
-    await type(screen.getByPlaceholderText('Write a comment...'), comment.body)
+    await type(screen.getByPlaceholderText('Write a comment...'), mockCreateComment.body);
 
-    await click(screen.getByRole('button', { name: /post comment/i }))
+    await click(screen.getByRole('button', { name: /post comment/i }));
 
     await waitFor(() => {
-      expect(screen.getByPlaceholderText('Write a comment...')).toHaveValue('')
-    })
-  })
+      expect(screen.getByPlaceholderText('Write a comment...')).toHaveValue('');
+    });
+  });
 
   it('should display error messages if the mutation fails', async () => {
-    vi.spyOn(CommentService, 'createCommentMutation').mockRejectedValue({
-      message: 'An error occurred',
-    })
+    // @ts-expect-error Property 'mockResolvedValue' does not exist
+    api.post.mockRejectedValue(new Error('Request failed'));
 
-    const { click, type } = renderCreateCommentForm()
-
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /post comment/i }))
-    })
-
-    await type(screen.getByPlaceholderText('Write a comment...'), comment.body)
-
-    await click(screen.getByRole('button', { name: /post comment/i }))
+    const { click, type } = renderCreateCommentForm();
 
     await waitFor(() => {
-      expect(screen.getByText(/An error occurred/i)).toBeInTheDocument()
-    })
-  })
-})
+      expect(screen.getByRole('button', { name: /post comment/i }));
+    });
 
-const userDto: authTypesDto.UserDto = {
+    await type(screen.getByPlaceholderText('Write a comment...'), mockComment.body);
+
+    await click(screen.getByRole('button', { name: /post comment/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Request failed/i)).toBeInTheDocument();
+    });
+  });
+});
+
+const mockUserDto: UserDto = {
   user: {
-    username: 'testuser',
-    email: 'testuser@example.com',
-    bio: 'A short bio',
-    image: 'http://example.com/profile.jpg',
-    token: 'testtoken',
+    email: 'mockuser@example.com',
+    token: 'mock-jwt-token-12345',
+    username: 'mockuser',
+    bio: 'This is a mock bio of the user.',
+    image: 'https://example.com/mockuser-image.jpg',
   },
-}
+};
 
-const session: sessionTypes.Session =
-  sessionLib.transformUserDtoToSession(userDto)
+const mockUser = transformUserDtoToUser(mockUserDto);
 
-const comment = transformCreateCommentDtoToComment({
-  createCommentDto: { body: 'This is a test comment' },
-  session,
-})
+const mockCreateComment: CreateComment = {
+  slug: 'test-slug',
+  body: 'This is a mock comment body.',
+};
+
+const mockComment: Comment = {
+  id: 1,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  body: 'This is a mock comment body.',
+  author: {
+    username: 'mockuser',
+    bio: 'This is a mock bio of the author.',
+    image: 'https://example.com/mockuser-image.jpg',
+    following: true,
+  },
+};
 
 function renderCreateCommentForm() {
-  const user = userEvent.setup()
+  const user = userEvent.setup();
   const renderResult = renderWithQueryClient(
     <BrowserRouter>
       <CreateCommentForm slug="test-slug" />
     </BrowserRouter>,
-  )
+  );
 
-  return { ...user, ...renderResult }
+  return { ...user, ...renderResult };
 }

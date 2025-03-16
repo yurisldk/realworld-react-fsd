@@ -1,25 +1,24 @@
-import { articleTypesDto } from '~shared/api/article'
-import { articleTypes } from '~entities/article'
-import { UpdateArticle } from './update-article.contract'
+import type { UpdateArticleDto } from '~shared/api/api.types';
+import type { Article } from '~entities/article/article.types';
+import type { UpdateArticle } from './update-article.types';
 
-export function transformArticleToUpdateArticleDto(
-  article: articleTypes.Article,
-): articleTypesDto.UpdateArticleDto {
+export function transformUpdateArticleToUpdateArticleDto(updateArticle: UpdateArticle): UpdateArticleDto {
   return {
-    title: article.title,
-    description: article.description,
-    body: article.body,
-    tagList: article.tagList,
-  }
+    article: {
+      title: updateArticle.title,
+      description: updateArticle.description,
+      body: updateArticle.body,
+      tagList: updateArticle.tagList?.split(', ').filter(Boolean),
+    },
+  };
 }
 
-export function transformArticleToUpdateArticle(
-  article: articleTypes.Article,
-): UpdateArticle {
+export function transformArticleToUpdateArticle(article: Article): UpdateArticle {
   return {
+    slug: article.slug,
     title: article.title,
     description: article.description,
     body: article.body,
     tagList: article.tagList.join(', '),
-  }
+  };
 }

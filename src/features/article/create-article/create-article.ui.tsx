@@ -1,73 +1,58 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { withErrorBoundary } from 'react-error-boundary'
-import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import { compose } from '~shared/lib/react'
-import { hasMessages } from '~shared/lib/react-hook-form'
-import { pathKeys } from '~shared/lib/react-router'
-import { useSessionStore } from '~shared/session'
-import { ErrorHandler, logError } from '~shared/ui/error-handler'
-import { ErrorList } from '~shared/ui/error-list'
-import { spinnerModel } from '~shared/ui/spinner'
-import { CreateArticleSchema, CreateArticle } from './create-article.contract'
-import { transformCreateArticleToArticle } from './create-article.lib'
-import { useCreateArticleMutation } from './create-article.mutation'
+import { ErrorMessage } from '@hookform/error-message';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { pathKeys } from '~shared/router';
+import { logError } from '~shared/ui/error-handler/error-handler.lib';
+import { ErrorHandler } from '~shared/ui/error-handler/error-handler.ui';
+import { CreateArticleSchema } from './create-article.contract';
+import { useCreateArticleMutation } from './create-article.mutation';
+import { CreateArticle } from './create-article.types';
 
-const enhance = compose((component) =>
-  withErrorBoundary(component, {
-    FallbackComponent: ErrorHandler,
-    onError: logError,
-  }),
-)
+export function CreateArticleForm() {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorHandler} onError={logError}>
+      <BaseCreateArticleForm />
+    </ErrorBoundary>
+  );
+}
 
-export const CreateArticleForm = enhance(() => {
-  const navigate = useNavigate()
+export function BaseCreateArticleForm() {
+  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors, isDirty, isValid },
   } = useForm<CreateArticle>({
     mode: 'onTouched',
     resolver: zodResolver(CreateArticleSchema),
     defaultValues: { title: '', description: '', body: '', tagList: '' },
-  })
+  });
 
-  const { mutate, isPending } = useCreateArticleMutation({
-    onMutate: () => {
-      spinnerModel.globalSpinner.getState().show()
+  const { mutate, isPending, isError, error } = useCreateArticleMutation({
+    onSuccess: (article) => {
+      navigate(pathKeys.article.bySlug(article.slug), { replace: true });
     },
+  });
 
-    onSuccess: (response) => {
-      const { slug } = response.data.article
-      navigate(pathKeys.article.bySlug({ slug }), { replace: true })
-    },
+  const mutationErrors = error?.response?.data || [error?.message];
+  const canSubmit = [isDirty, isValid, !isPending].every(Boolean);
 
-    onError: (error) => {
-      setError('root', { message: error.message })
-    },
-
-    onSettled: () => {
-      spinnerModel.globalSpinner.getState().hide()
-    },
-  })
-
-  const canSubmit = [isDirty, isValid, !isPending].every(Boolean)
-
-  const onSubmit = (createArticle: CreateArticle) => {
-    const { session } = useSessionStore.getState()
-
-    if (!session)
-      throw new Error('Session does not exist. Please log in and try again.')
-
-    const article = transformCreateArticleToArticle({ createArticle, session })
-    mutate(article)
-  }
+  const onValid = (createArticle: CreateArticle) => {
+    mutate(createArticle);
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {hasMessages(errors) && <ErrorList errors={errors} />}
+    <form onSubmit={handleSubmit(onValid)}>
+      {isError && (
+        <ul className="error-messages">
+          {mutationErrors.map((err) => (
+            <li key={err}>{err}</li>
+          ))}
+        </ul>
+      )}
 
       <fieldset className="form-group">
         <input
@@ -77,6 +62,7 @@ export const CreateArticleForm = enhance(() => {
           disabled={isPending}
           {...register('title')}
         />
+        <ErrorMessage errors={errors} name="title" as="div" role="alert" />
       </fieldset>
 
       <fieldset className="form-group">
@@ -87,6 +73,7 @@ export const CreateArticleForm = enhance(() => {
           disabled={isPending}
           {...register('description')}
         />
+        <ErrorMessage errors={errors} name="description" as="div" role="alert" />
       </fieldset>
 
       <fieldset className="form-group">
@@ -97,6 +84,7 @@ export const CreateArticleForm = enhance(() => {
           disabled={isPending}
           {...register('body')}
         />
+        <ErrorMessage errors={errors} name="body" as="div" role="alert" />
       </fieldset>
 
       <fieldset className="form-group">
@@ -107,15 +95,12 @@ export const CreateArticleForm = enhance(() => {
           disabled={isPending}
           {...register('tagList')}
         />
+        <ErrorMessage errors={errors} name="tagList" as="div" role="alert" />
       </fieldset>
 
-      <button
-        className="btn btn-lg pull-xs-right btn-primary"
-        type="submit"
-        disabled={!canSubmit}
-      >
+      <button className="btn btn-lg pull-xs-right btn-primary" type="submit" disabled={!canSubmit}>
         Publish Article
       </button>
     </form>
-  )
-})
+  );
+}

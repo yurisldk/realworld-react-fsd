@@ -1,6 +1,7 @@
-import { LogoutButton, UpdateSessionForm } from '~features/session'
+import LogoutButton from '~features/session/logout/logout.ui';
+import UpdateSessionForm from '~features/session/update/update.ui';
 
-export function SettingsPage() {
+export default function SettingsPage() {
   return (
     <div className="settings-page">
       <div className="container page">
@@ -17,5 +18,5 @@ export function SettingsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,49 +1,24 @@
-import { createElement, lazy } from 'react'
-import { LoaderFunctionArgs, RouteObject } from 'react-router-dom'
-import { compose, withSuspense } from '~shared/lib/react'
-import { ProfilePageSkeleton } from './profile-page.skeleton'
-
-const indexPageLoader = () =>
-  import('./profile-page.model').then((module) =>
-    module.ProfileLoader.indexPage(),
-  )
-
-const userPageLoader = (args: LoaderFunctionArgs) =>
-  import('./profile-page.model').then((module) =>
-    module.ProfileLoader.userPage(args),
-  )
-
-const favoritePageLoader = (args: LoaderFunctionArgs) =>
-  import('./profile-page.model').then((module) =>
-    module.ProfileLoader.favoritePage(args),
-  )
-
-const ProfilePage = lazy(() =>
-  import('./profile-page.ui').then((module) => ({
-    default: module.ProfilePage,
-  })),
-)
-
-const enhance = compose((component) =>
-  withSuspense(component, { FallbackComponent: ProfilePageSkeleton }),
-)
+import { RouteObject } from 'react-router-dom';
 
 export const profilePageRoute: RouteObject = {
   path: 'profile',
   children: [
     {
       index: true,
-      loader: indexPageLoader,
+      lazy: async () => {
+        const loader = await import('./profile-page.loader').then((module) => module.indexPageLoader);
+        return { loader };
+      },
     },
     {
       path: ':username',
-      element: createElement(enhance(ProfilePage)),
-      loader: userPageLoader,
-    },
-    {
-      path: ':username/favorites',
-      element: createElement(enhance(ProfilePage)),
-      loader: favoritePageLoader,
+      lazy: async () => {
+        const [loader, Component] = await Promise.all([
+          import('./profile-page.loader').then((module) => module.default),
+          import('./profile-page.ui').then((module) => module.default),
+        ]);
+        return { loader, Component };
+      },
     },
   ],
-}
+};

@@ -1,9 +1,9 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 export const CommentSchema = z.object({
   id: z.number(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
   body: z.string(),
   author: z.object({
     username: z.string(),
@@ -11,6 +11,6 @@ export const CommentSchema = z.object({
     image: z.string(),
     following: z.boolean(),
   }),
-})
+});
 
-export const CommentsSchema = z.map(z.number(), CommentSchema)
+export const CommentsSchema = z.array(CommentSchema);

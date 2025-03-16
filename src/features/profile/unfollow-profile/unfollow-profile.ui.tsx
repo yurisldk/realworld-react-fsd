@@ -1,35 +1,20 @@
-import { IoRemove } from 'react-icons/io5'
-import { Button } from '~shared/ui/button'
-import { profileTypes } from '~entities/profile'
-import { useUnfollowProfileMutation } from './unfollow-profile.mutation'
+import { IoRemove } from 'react-icons/io5';
+import { Button } from '~shared/ui/button/button.ui';
+import { useUnfollowProfileMutation } from './unfollow-profile.mutation';
 
-export function UnfollowUserButton(props: { profile: profileTypes.Profile }) {
-  const { profile } = props
+export function UnfollowUserButton(props: { username: string }) {
+  const { username } = props;
 
-  const { mutate } = useUnfollowProfileMutation({
-    mutationKey: [profile.username],
-  })
+  const { mutate } = useUnfollowProfileMutation({ mutationKey: [username] });
 
   const handleClick = () => {
-    const unfollowedProfile = unfollow(profile)
-    mutate(unfollowedProfile)
-  }
+    mutate(username);
+  };
 
   return (
-    <Button
-      color="secondary"
-      className="action-btn "
-      onClick={handleClick}
-    >
+    <Button color="secondary" className="action-btn " onClick={handleClick}>
       <IoRemove size={16} />
-      &nbsp; Unfollow {profile.username}
+      &nbsp; Unfollow {username}
     </Button>
-  )
-}
-
-function unfollow(profile: profileTypes.Profile): profileTypes.Profile {
-  return {
-    ...profile,
-    following: false,
-  }
+  );
 }

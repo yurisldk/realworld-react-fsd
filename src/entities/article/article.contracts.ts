@@ -1,12 +1,4 @@
-import { z } from 'zod'
-
-export const FilterQuerySchema = z.object({
-  offset: z.number().min(0),
-  limit: z.number().min(1),
-  tag: z.string().nullable(),
-  author: z.string().nullable(),
-  favorited: z.string().nullable(),
-})
+import { z } from 'zod';
 
 export const ArticleSchema = z.object({
   slug: z.string(),
@@ -14,8 +6,8 @@ export const ArticleSchema = z.object({
   description: z.string(),
   body: z.string(),
   tagList: z.string().array(),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
   favorited: z.boolean(),
   favoritesCount: z.number(),
   author: z.object({
@@ -24,6 +16,19 @@ export const ArticleSchema = z.object({
     image: z.string(),
     following: z.boolean(),
   }),
-})
+});
 
-export const ArticlesSchema = z.map(z.string(), ArticleSchema)
+export const ArticlesSchema = z.object({
+  articles: z.record(z.string(), ArticleSchema),
+  articlesCount: z.number(),
+});
+
+export const FilterQuerySchema = z.object({
+  page: z.coerce.string().refine((val) => !Number.isNaN(Number(val)) && Number(val) > 0, {
+    message: 'Page must be a positive number',
+  }),
+  source: z.enum(['user', 'global']),
+  tag: z.string().optional(),
+  author: z.string().optional(),
+  favorited: z.string().optional(),
+});

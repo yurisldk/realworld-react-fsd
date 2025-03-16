@@ -1,67 +1,39 @@
-import { IoHeart } from 'react-icons/io5'
-import { Button } from '~shared/ui/button'
-import { articleTypes } from '~entities/article'
-import { useUnfavoriteArticleMutation } from './unfavorite-article.mutation'
+import { IoHeart } from 'react-icons/io5';
+import { Button } from '~shared/ui/button/button.ui';
+import { Article } from '~entities/article/article.types';
+import { useUnfavoriteArticleMutation } from './unfavorite-article.mutation';
 
-type UnfavoriteArticleButtonProps = {
-  article: articleTypes.Article
-}
+export function UnfavoriteArticleBriefButton(props: { article: Article }) {
+  const { article } = props;
 
-export function UnfavoriteArticleBriefButton(
-  props: UnfavoriteArticleButtonProps,
-) {
-  const { article } = props
-
-  const { mutate } = useUnfavoriteArticleMutation({
-    mutationKey: ['brief', article.slug],
-  })
+  const { mutate } = useUnfavoriteArticleMutation({ mutationKey: [article.slug] });
 
   const handleUnfavorite = () => {
-    const unfavoritedArticle = unfavorite(article)
-    mutate(unfavoritedArticle)
-  }
+    mutate(article.slug);
+  };
 
   return (
-    <Button
-      color="primary"
-      onClick={handleUnfavorite}
-    >
+    <Button color="primary" onClick={handleUnfavorite}>
       <IoHeart size={16} />
       {article.favoritesCount}
     </Button>
-  )
+  );
 }
 
-export function UnfavoriteArticleExtendedButton(
-  props: UnfavoriteArticleButtonProps,
-) {
-  const { article } = props
+export function UnfavoriteArticleExtendedButton(props: { article: Article }) {
+  const { article } = props;
 
-  const { mutate } = useUnfavoriteArticleMutation({
-    mutationKey: ['extended', article.slug],
-  })
+  const { mutate } = useUnfavoriteArticleMutation({ mutationKey: [article.slug] });
 
   const handleUnfavorite = () => {
-    const unfavoritedArticle = unfavorite(article)
-    mutate(unfavoritedArticle)
-  }
+    mutate(article.slug);
+  };
 
   return (
-    <Button
-      color="primary"
-      onClick={handleUnfavorite}
-    >
+    <Button color="primary" onClick={handleUnfavorite}>
       <IoHeart size={16} />
       &nbsp;Unfavorite Article&nbsp;
       <span className="counter">({article.favoritesCount})</span>
     </Button>
-  )
-}
-
-function unfavorite(article: articleTypes.Article): articleTypes.Article {
-  return {
-    ...article,
-    favorited: false,
-    favoritesCount: article.favoritesCount - 1,
-  }
+  );
 }

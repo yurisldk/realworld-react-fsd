@@ -1,10 +1,8 @@
-import { commentTypesDto } from '~shared/api/comment'
-import { Comment, Comments } from './comment.types'
+import type { CommentDto, CommentsDto } from '~shared/api/api.types';
+import type { Comment, Comments } from './comment.types';
 
-export function transformCommentDtoToComment(
-  commentDto: commentTypesDto.CommentDto,
-): Comment {
-  const { comment } = commentDto
+export function transformCommentDtoToComment(commentDto: CommentDto): Comment {
+  const { comment } = commentDto;
 
   return {
     ...comment,
@@ -12,17 +10,9 @@ export function transformCommentDtoToComment(
       ...comment.author,
       bio: comment.author.bio || '',
     },
-  }
+  };
 }
 
-export function transformCommentsDtoToComments(
-  commentsDto: commentTypesDto.CommentsDto,
-): Comments {
-  const { comments } = commentsDto
-  return new Map(
-    comments.map((comment) => [
-      comment.id,
-      transformCommentDtoToComment({ comment }),
-    ]),
-  )
+export function transformCommentsDtoToComments(commentsDto: CommentsDto): Comments {
+  return commentsDto.comments.map((comment) => transformCommentDtoToComment({ comment }));
 }

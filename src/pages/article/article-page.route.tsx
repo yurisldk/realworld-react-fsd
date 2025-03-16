@@ -1,39 +1,24 @@
-import { createElement, lazy } from 'react'
-import { LoaderFunctionArgs, RouteObject } from 'react-router-dom'
-import { compose, withSuspense } from '~shared/lib/react'
-import { ArticlePageSkeleton } from './article-page.skeleton'
-
-const indexPageLoader = () =>
-  import('./article-page.model').then((module) =>
-    module.ArticleLoader.indexPage(),
-  )
-
-const articlePageLoader = (args: LoaderFunctionArgs) =>
-  import('./article-page.model').then((module) =>
-    module.ArticleLoader.articlePage(args),
-  )
-
-const ArticlePage = lazy(() =>
-  import('./article-page.ui').then((module) => ({
-    default: module.ArticlePage,
-  })),
-)
-
-const enhance = compose((component) =>
-  withSuspense(component, { FallbackComponent: ArticlePageSkeleton }),
-)
+import { RouteObject } from 'react-router-dom';
 
 export const articlePageRoute: RouteObject = {
   path: 'article',
   children: [
     {
       index: true,
-      loader: indexPageLoader,
+      lazy: async () => {
+        const loader = await import('./article-page.loader').then((module) => module.indexPageLoader);
+        return { loader };
+      },
     },
     {
       path: ':slug',
-      element: createElement(enhance(ArticlePage)),
-      loader: articlePageLoader,
+      lazy: async () => {
+        const [loader, Component] = await Promise.all([
+          import('./article-page.loader').then((module) => module.default),
+          import('./article-page.ui').then((module) => module.default),
+        ]);
+        return { loader, Component };
+      },
     },
   ],
-}
+};

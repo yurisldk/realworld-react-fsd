@@ -1,22 +1,21 @@
-import { IoTrash } from 'react-icons/io5'
-import { useDeleteCommentMutation } from './delete-comment.mutation'
+import { IoTrash } from 'react-icons/io5';
+import { useDeleteCommentMutation } from './delete-comment.mutation';
 
 type DeleteCommentButttonProps = {
-  slug: string
-  id: number
-}
+  id: number;
+  slug: string;
+};
 
 export function DeleteCommentButtton(props: DeleteCommentButttonProps) {
-  const { slug, id } = props
+  const { id, slug } = props;
 
-  const { mutate } = useDeleteCommentMutation({ mutationKey: [slug, id] })
+  const { mutate } = useDeleteCommentMutation({ mutationKey: [`${id} ${slug}`] });
 
   const handleClick = () => {
-    mutate({ slug, id })
-  }
+    mutate({ slug, id });
+  };
 
   return (
-    // eslint-disable-next-line jsx-a11y/control-has-associated-label
     <button
       style={{ border: 0, backgroundColor: 'transparent' }}
       className="mod-options"
@@ -27,5 +26,5 @@ export function DeleteCommentButtton(props: DeleteCommentButttonProps) {
         <IoTrash size={14} />
       </span>
     </button>
-  )
+  );
 }

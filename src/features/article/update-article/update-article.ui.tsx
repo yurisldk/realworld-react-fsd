@@ -1,89 +1,75 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { withErrorBoundary } from 'react-error-boundary'
-import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import { compose, withSuspense } from '~shared/lib/react'
-import { hasMessages } from '~shared/lib/react-hook-form'
-import { pathKeys } from '~shared/lib/react-router'
-import { ErrorHandler, logError } from '~shared/ui/error-handler'
-import { ErrorList } from '~shared/ui/error-list'
-import { spinnerModel } from '~shared/ui/spinner'
-import { ArticleQueries } from '~entities/article'
-import { UpdateArticleSchema, UpdateArticle } from './update-article.contract'
-import { transformArticleToUpdateArticle } from './update-article.lib'
-import { useUpdateArticleMutation } from './update-article.mutation'
-import { UpdateArticleSkeleton } from './update-article.skeleton'
+import { Suspense } from 'react';
+import { ErrorMessage } from '@hookform/error-message';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { pathKeys } from '~shared/router';
+import { logError } from '~shared/ui/error-handler/error-handler.lib';
+import { ErrorHandler } from '~shared/ui/error-handler/error-handler.ui';
+import { articleQueryOptions } from '~entities/article/article.api';
+import { UpdateArticleSchema } from './update-article.contract';
+import { transformArticleToUpdateArticle } from './update-article.lib';
+import { useUpdateArticleMutation } from './update-article.mutation';
+import { UpdateArticleSkeleton } from './update-article.skeleton';
+import { UpdateArticle } from './update-article.types';
 
 type UpdateArticleFormProps = {
-  slug: string
+  slug: string;
+};
+
+export function UpdateArticleForm(props: UpdateArticleFormProps) {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorHandler} onError={logError}>
+      <Suspense fallback={<UpdateArticleSkeleton />}>
+        <BaseUpdateArticleForm {...props} />
+      </Suspense>
+    </ErrorBoundary>
+  );
 }
 
-const enhance = compose<UpdateArticleFormProps>(
-  (component) =>
-    withErrorBoundary(component, {
-      FallbackComponent: ErrorHandler,
-      onError: logError,
-    }),
-  (component) =>
-    withSuspense(component, { FallbackComponent: UpdateArticleSkeleton }),
-)
+function BaseUpdateArticleForm(props: UpdateArticleFormProps) {
+  const { slug } = props;
 
-export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
-  const { slug } = props
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
+  const { data: article } = useSuspenseQuery(articleQueryOptions(slug));
 
-  const { data: currentArticle } = useSuspenseQuery(
-    ArticleQueries.articleQuery(slug),
-  )
-
-  const { mutate, isPending } = useUpdateArticleMutation({
+  const { mutate, isPending, isError, error } = useUpdateArticleMutation({
     mutationKey: [slug],
-
-    onMutate: () => {
-      spinnerModel.globalSpinner.getState().show()
+    onSuccess: (updatedArticle) => {
+      navigate(pathKeys.article.bySlug(updatedArticle.slug), { replace: true });
     },
+  });
 
-    onSuccess: (response) => {
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      const { slug } = response.data.article
-      navigate(pathKeys.article.bySlug({ slug }), { replace: true })
-    },
-
-    onError: (error) => {
-      setError('root', { message: error.message })
-    },
-
-    onSettled: () => {
-      spinnerModel.globalSpinner.getState().hide()
-    },
-  })
+  const mutationErrors = error?.response?.data || [error?.message];
 
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors, isDirty, isValid },
   } = useForm<UpdateArticle>({
     mode: 'onTouched',
     resolver: zodResolver(UpdateArticleSchema),
-    defaultValues: transformArticleToUpdateArticle(currentArticle),
-  })
+    defaultValues: transformArticleToUpdateArticle(article),
+  });
 
-  const canSubmit = [isDirty, isValid, !isPending].every(Boolean)
+  const canSubmit = [isDirty, isValid, !isPending].every(Boolean);
 
-  const onSubmit = (updateArticle: UpdateArticle) => {
-    mutate({
-      ...currentArticle,
-      ...updateArticle,
-      tagList: updateArticle.tagList?.split(', ') || [],
-    })
-  }
+  const onValid = (updateArticle: UpdateArticle) => {
+    mutate(updateArticle);
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {hasMessages(errors) && <ErrorList errors={errors} />}
+    <form onSubmit={handleSubmit(onValid)}>
+      {isError && (
+        <ul className="error-messages">
+          {mutationErrors.map((err) => (
+            <li key={err}>{err}</li>
+          ))}
+        </ul>
+      )}
 
       <fieldset className="form-group">
         <input
@@ -93,6 +79,7 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
           disabled={isPending}
           {...register('title')}
         />
+        <ErrorMessage errors={errors} name="title" />
       </fieldset>
       <fieldset className="form-group">
         <input
@@ -102,6 +89,7 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
           disabled={isPending}
           {...register('description')}
         />
+        <ErrorMessage errors={errors} name="description" />
       </fieldset>
       <fieldset className="form-group">
         <textarea
@@ -111,6 +99,7 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
           disabled={isPending}
           {...register('body')}
         />
+        <ErrorMessage errors={errors} name="body" />
       </fieldset>
       <fieldset className="form-group">
         <input
@@ -120,15 +109,12 @@ export const UpdateArticleForm = enhance((props: UpdateArticleFormProps) => {
           disabled={isPending}
           {...register('tagList')}
         />
+        <ErrorMessage errors={errors} name="tagList" />
       </fieldset>
 
-      <button
-        className="btn btn-lg pull-xs-right btn-primary"
-        type="submit"
-        disabled={!canSubmit}
-      >
+      <button className="btn btn-lg pull-xs-right btn-primary" type="submit" disabled={!canSubmit}>
         Update Article
       </button>
     </form>
-  )
-})
+  );
+}

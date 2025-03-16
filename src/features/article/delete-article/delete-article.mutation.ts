@@ -1,52 +1,32 @@
-import {
-  DefaultError,
-  UseMutationOptions,
-  useMutation,
-} from '@tanstack/react-query'
-import { ArticleService } from '~shared/api/article'
-import { queryClient } from '~shared/lib/react-query'
-import { ArticleQueries } from '~entities/article'
+import { DefaultError, useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { deleteArticle } from '~shared/api/api.service';
+import { queryClient } from '~shared/queryClient';
+import { ARTICLES_ROOT_QUERY_KEY } from '~entities/article/article.api';
 
 export function useDeleteArticleMutation(
-  options?: Pick<
-    UseMutationOptions<
-      Awaited<ReturnType<typeof ArticleService.deleteArticleMutation>>,
-      DefaultError,
-      string,
-      unknown
-    >,
+  options: Pick<
+    UseMutationOptions<unknown, DefaultError, string, unknown>,
     'mutationKey' | 'onMutate' | 'onSuccess' | 'onError' | 'onSettled'
-  >,
+  > = {},
 ) {
-  const {
-    mutationKey = [],
-    onMutate,
-    onSuccess,
-    onError,
-    onSettled,
-  } = options || {}
+  const { mutationKey = [], onMutate, onSuccess, onError, onSettled } = options;
 
   return useMutation({
     mutationKey: ['article', 'delete', ...mutationKey],
 
-    mutationFn: (slug: string) => ArticleService.deleteArticleMutation(slug),
+    mutationFn: (slug: string) => deleteArticle(slug),
 
-    onMutate: async (slug) => {
+    onMutate,
+
+    onSuccess: async (data, variables, context) => {
       await Promise.all([
-        queryClient.cancelQueries({ queryKey: ArticleQueries.keys.root }),
-        onMutate?.(slug),
-      ])
+        queryClient.invalidateQueries({ queryKey: ARTICLES_ROOT_QUERY_KEY }),
+        onSuccess?.(data, variables, context),
+      ]);
     },
-
-    onSuccess,
 
     onError,
 
-    onSettled: async (response, error, variables, context) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ArticleQueries.keys.root }),
-        onSettled?.(response, error, variables, context),
-      ])
-    },
-  })
+    onSettled,
+  });
 }

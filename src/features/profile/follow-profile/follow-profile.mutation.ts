@@ -1,103 +1,100 @@
-import {
-  DefaultError,
-  UseMutationOptions,
-  useMutation,
-} from '@tanstack/react-query'
-import { ProfileService } from '~shared/api/profile'
-import { queryClient } from '~shared/lib/react-query'
-import { ArticleQueries, articleTypes } from '~entities/article'
-import { ProfileQueries, profileTypes } from '~entities/profile'
+import { DefaultError, useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { followProfile } from '~shared/api/api.service';
+import { queryClient } from '~shared/queryClient';
+import { ARTICLES_ROOT_QUERY_KEY } from '~entities/article/article.api';
+import { ArticleSchema, ArticlesSchema } from '~entities/article/article.contracts';
+import { Article, Articles } from '~entities/article/article.types';
+import { Profile } from '~entities/profile/profie.types';
+import { profileQueryOptions } from '~entities/profile/profile.api';
+import { transformProfileDtoToProfile } from '~entities/profile/profile.lib';
 
 export function useFollowProfileMutation(
-  options?: Pick<
-    UseMutationOptions<
-      Awaited<ReturnType<typeof ProfileService.followProfileMutation>>,
-      DefaultError,
-      profileTypes.Profile,
-      unknown
-    >,
+  options: Pick<
+    UseMutationOptions<Profile, DefaultError, string, { previousArticles: unknown; previousProfile: Profile }>,
     'mutationKey' | 'onMutate' | 'onSuccess' | 'onError' | 'onSettled'
-  >,
+  > = {},
 ) {
-  const {
-    mutationKey = [],
-    onMutate,
-    onSuccess,
-    onError,
-    onSettled,
-  } = options || {}
+  const { mutationKey = [], onMutate, onSuccess, onError, onSettled } = options;
 
   return useMutation({
     mutationKey: ['profile', 'follow', ...mutationKey],
 
-    mutationFn: ({ username }: profileTypes.Profile) =>
-      ProfileService.followProfileMutation(username),
+    mutationFn: async (username) => {
+      const { data } = await followProfile(username);
+      const profile = transformProfileDtoToProfile(data);
+      return profile;
+    },
 
-    onMutate: async (updatedProfile) => {
+    onMutate: async (username) => {
+      const articleQueryKey = ARTICLES_ROOT_QUERY_KEY;
+      const profileQueryKey = profileQueryOptions(username).queryKey;
+
       await Promise.all([
-        queryClient.cancelQueries({
-          queryKey: ProfileQueries.keys.root,
-        }),
-        queryClient.cancelQueries({ queryKey: ArticleQueries.keys.root }),
-      ])
+        queryClient.cancelQueries({ queryKey: articleQueryKey }),
+        queryClient.cancelQueries({ queryKey: profileQueryKey }),
+      ]);
 
-      const previousProfile = queryClient.getQueryData(
-        ProfileQueries.profileQuery(updatedProfile.username).queryKey,
-      )
+      const previousArticles = queryClient.getQueriesData({ queryKey: articleQueryKey });
+      const previousProfile = queryClient.getQueryData(profileQueryKey);
 
-      const previousArticlesBySlug =
-        queryClient.getQueriesData<articleTypes.Article>({
-          queryKey: ArticleQueries.keys.rootBySlug,
-        })
+      const updatedProfile = previousProfile && { ...previousProfile, following: true };
 
-      queryClient.setQueryData(
-        ProfileQueries.profileQuery(updatedProfile.username).queryKey,
-        updatedProfile,
-      )
+      queryClient.setQueryData(profileQueryKey, updatedProfile);
 
-      queryClient.setQueriesData(
-        { queryKey: ArticleQueries.keys.rootBySlug },
-        (article: articleTypes.Article | undefined) => {
-          if (!article) return
-          if (article.author.username !== updatedProfile.username)
-            return article
-          return { ...article, author: updatedProfile }
-        },
-      )
+      queryClient.setQueriesData({ queryKey: articleQueryKey }, (rawData) => {
+        if (!rawData) {
+          return rawData;
+        }
 
-      await onMutate?.(updatedProfile)
+        const { data: articleData } = ArticleSchema.safeParse(rawData);
+        if (articleData && articleData.author.username === username) {
+          return { ...articleData, author: { ...articleData.author, following: true } } as Article;
+        }
 
-      return { previousProfile, previousArticlesBySlug }
+        const { data: articlesData } = ArticlesSchema.safeParse(rawData);
+        if (articlesData) {
+          const { articles, articlesCount } = articlesData;
+
+          const updatedArticles = Object.fromEntries(
+            Object.entries(articles).map(([slug, article]) => [
+              slug,
+              article?.author.username === username
+                ? { ...article, author: { ...article.author, following: true } }
+                : article,
+            ]),
+          );
+
+          return { articles: updatedArticles, articlesCount } as Articles;
+        }
+
+        return rawData;
+      });
+
+      await onMutate?.(username);
+
+      return { previousArticles, previousProfile };
     },
 
     onSuccess,
 
-    onError: async (error, updatedProfile, context) => {
-      const { previousProfile, previousArticlesBySlug } = context || {}
+    onError: async (error, username, context) => {
+      const articleQueryKey = ARTICLES_ROOT_QUERY_KEY;
+      const profileQueryKey = profileQueryOptions(username).queryKey;
 
-      queryClient.setQueryData(
-        ProfileQueries.profileQuery(updatedProfile.username).queryKey,
-        previousProfile,
-      )
-
-      queryClient.setQueriesData(
-        { queryKey: ArticleQueries.keys.rootBySlug },
-        previousArticlesBySlug,
-      )
-
-      await onError?.(error, updatedProfile, context)
+      queryClient.setQueriesData({ queryKey: articleQueryKey }, context.previousArticles);
+      queryClient.setQueryData(profileQueryKey, context.previousProfile);
+      await onError?.(error, username, context);
     },
 
-    onSettled: async (data, error, variables, context) => {
+    onSettled: async (data, error, username, context) => {
+      const articleQueryKey = ARTICLES_ROOT_QUERY_KEY;
+      const profileQueryKey = profileQueryOptions(username).queryKey;
+
       await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: ProfileQueries.keys.root,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: ArticleQueries.keys.root,
-        }),
-        onSettled?.(data, error, variables, context),
-      ])
+        queryClient.invalidateQueries({ queryKey: articleQueryKey }),
+        queryClient.invalidateQueries({ queryKey: profileQueryKey }),
+        onSettled?.(data, error, username, context),
+      ]);
     },
-  })
+  });
 }

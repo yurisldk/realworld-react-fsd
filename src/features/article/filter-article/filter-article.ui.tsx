@@ -1,111 +1,109 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { withErrorBoundary } from 'react-error-boundary'
-import { compose, withSuspense } from '~shared/lib/react'
-import { useSessionStore } from '~shared/session'
-import { ErrorHandler, logError } from '~shared/ui/error-handler'
-import { Tabs } from '~shared/ui/tabs'
-import { TagQueries } from '~entities/tag'
-import { TagFilterSkeleton } from './filter-article.skeleton'
+import { Suspense } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useSelector } from 'react-redux';
+import { useLoaderData, useSearchParams } from 'react-router-dom';
+import { logError } from '~shared/ui/error-handler/error-handler.lib';
+import { ErrorHandler } from '~shared/ui/error-handler/error-handler.ui';
+import { Tabs } from '~shared/ui/tabs/tabs.ui';
+import { selectSession } from '~entities/session/session.model';
+import { tagsQueryOptions } from '~entities/tag/tag.api';
+import { TagFilterSkeleton } from './filter-article.skeleton';
+import { PrimaryLoaderArgs, SecondaryLoaderArgs } from './filter-article.types';
 
-export type MainArticleFilter = {
-  onTabChange: (tab: string) => void
-  useTag: () => string | null
-  useTab: () => string
-}
+export function PrimaryFilter() {
+  const session = useSelector(selectSession);
 
-export function MainFilter(props: { mainArticleFilter: MainArticleFilter }) {
-  const { mainArticleFilter } = props
+  const { context } = useLoaderData() as PrimaryLoaderArgs;
+  const { filterQuery } = context;
+  const { source, tag } = filterQuery;
 
-  const session = useSessionStore.use.session()
+  const [, setSearchParams] = useSearchParams();
 
-  const tag = mainArticleFilter.useTag()
-  const tab = mainArticleFilter.useTab()
+  const tabValue = tag ? 'tag' : source;
+
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  const handleTabClick = (source: string) => {
+    setSearchParams(new URLSearchParams({ source, page: '1' }));
+  };
 
   return (
-    <Tabs.Root
-      value={tab}
-      onValueChange={mainArticleFilter.onTabChange}
-    >
+    <Tabs.Root value={tabValue} onValueChange={handleTabClick}>
       <Tabs.List>
-        {session && <Tabs.Trigger value="user-feed">Your Feed</Tabs.Trigger>}
-        <Tabs.Trigger value="global-feed">Global Feed</Tabs.Trigger>
-
-        {tab === 'tag-feed' && (
-          <Tabs.Trigger value="tag-feed">#{tag}</Tabs.Trigger>
-        )}
+        {session && <Tabs.Trigger value="user">Your Feed</Tabs.Trigger>}
+        <Tabs.Trigger value="global">Global Feed</Tabs.Trigger>
+        {tag && <Tabs.Trigger value="tag">#{tag}</Tabs.Trigger>}
       </Tabs.List>
     </Tabs.Root>
-  )
+  );
 }
 
-export type TagArticleFilter = {
-  onTagClick: (tag: string) => void
+export function TagFilter() {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorHandler} onError={logError}>
+      <Suspense fallback={<TagFilterSkeleton />}>
+        <BaseTagFilter />
+      </Suspense>
+    </ErrorBoundary>
+  );
 }
 
-type TagFilterProps = { tagArticleFilter: TagArticleFilter }
+function BaseTagFilter() {
+  const { data: tags } = useSuspenseQuery(tagsQueryOptions);
 
-const enhance = compose<TagFilterProps>(
-  (component) =>
-    withErrorBoundary(component, {
-      FallbackComponent: ErrorHandler,
-      onError: logError,
-    }),
-  (component) =>
-    withSuspense(component, { FallbackComponent: TagFilterSkeleton }),
-)
-
-export const TagFilter = enhance((props: TagFilterProps) => {
-  const { tagArticleFilter } = props
-
-  const { data: tags } = useSuspenseQuery(TagQueries.tagsQuery())
+  const [, setSearchParams] = useSearchParams();
 
   const handleTagClick = (tag: string) => () => {
-    tagArticleFilter.onTagClick(tag)
-  }
+    setSearchParams(new URLSearchParams({ source: 'global', page: '1', tag }));
+  };
 
   return (
     <div className="tag-list">
       {tags.map((tag) => (
-        <button
-          key={tag}
-          className="tag-pill tag-default"
-          type="button"
-          onClick={handleTagClick(tag)}
-        >
+        <button key={tag} className="tag-pill tag-default" type="button" onClick={handleTagClick(tag)}>
           {tag}
         </button>
       ))}
     </div>
-  )
-})
-
-export type ProfileArticleFilter = {
-  onTabChange: (username: string) => (tab: string) => void
-  useTab: () => string
+  );
 }
 
-export function ProfileFilter(props: {
-  username: string
-  profileArticleFilter: ProfileArticleFilter
-}) {
-  const { username, profileArticleFilter } = props
+export function SecondaryFilter() {
+  const { params, context } = useLoaderData() as SecondaryLoaderArgs;
+  const { filterQuery } = context;
+  const { favorited } = filterQuery;
+  const { username } = params;
 
-  const tab = profileArticleFilter.useTab()
+  const [, setSearchParams] = useSearchParams();
+
+  const tabValue = favorited ? 'favorited' : 'author';
+
+  const handleTabClick = (value: string) => {
+    const newParams = new URLSearchParams(filterQuery);
+    newParams.set('page', '1');
+
+    if (value === 'author') {
+      newParams.delete('favorited');
+      newParams.set('author', username);
+    }
+
+    if (value === 'favorited') {
+      newParams.delete('author');
+      newParams.set('favorited', username);
+    }
+
+    setSearchParams(newParams);
+  };
 
   return (
-    <Tabs.Root
-      value={tab}
-      onValueChange={profileArticleFilter.onTabChange(username)}
-    >
+    <Tabs.Root value={tabValue} onValueChange={handleTabClick}>
       <div className="articles-toggle">
         <Tabs.List>
-          <Tabs.Trigger value="author-feed">
-            {`${username}`}&apos;s Articles
-          </Tabs.Trigger>
+          <Tabs.Trigger value="author">{`${username}`}&apos;s Articles</Tabs.Trigger>
 
-          <Tabs.Trigger value="favorite-feed">Favorited Articles</Tabs.Trigger>
+          <Tabs.Trigger value="favorited">Favorited Articles</Tabs.Trigger>
         </Tabs.List>
       </div>
     </Tabs.Root>
-  )
+  );
 }

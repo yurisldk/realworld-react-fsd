@@ -1,14 +1,12 @@
-import { profileTypesDto } from '~shared/api/profile'
-import { Profile } from './profie.types'
+import type { ProfileDto } from '~shared/api/api.types';
+import type { Profile } from './profie.types';
 
-export function transformProfileDtoToProfile(
-  profileDto: profileTypesDto.ProfileDto,
-): Profile {
-  const { profile } = profileDto
+export function transformProfileDtoToProfile(profileDto: ProfileDto): Profile {
+  const { profile } = profileDto;
 
   return {
     ...profile,
     image: profile?.image || '',
     bio: profile?.bio || '',
-  }
+  };
 }

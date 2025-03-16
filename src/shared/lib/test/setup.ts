@@ -1,28 +1,32 @@
-import { cleanup } from '@testing-library/react'
-import { afterEach, vi } from 'vitest'
-import * as mockedZustand from './__mocks__/zustand'
-import '@testing-library/jest-dom/vitest'
+import { afterEach, jest } from '@jest/globals';
+import { cleanup } from '@testing-library/react';
+import '@testing-library/jest-dom/jest-globals';
 
-type Zustand = typeof import('zustand')
-vi.mock('zustand', async (importOriginal): Promise<Zustand> => {
-  const zustand = await importOriginal<Zustand>()
-  return {
-    ...zustand,
-    ...mockedZustand,
-  }
-})
+jest.mock('../../api/api.instance', () => ({
+  api: {
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+    interceptors: {
+      response: {
+        use: jest.fn(),
+      },
+    },
+  },
+}));
 
-type ReactRouterDom = typeof import('react-router-dom')
-vi.mock('react-router-dom', async (importOriginal): Promise<ReactRouterDom> => {
-  const reactRouterDom = await importOriginal<ReactRouterDom>()
+type ReactRouterDom = typeof import('react-router-dom');
+jest.mock('react-router-dom', () => {
+  const originalModule = jest.requireActual<ReactRouterDom>('react-router-dom');
   return {
-    ...reactRouterDom,
-    useNavigate: vi.fn().mockImplementation(reactRouterDom.useNavigate),
-    useLocation: vi.fn().mockImplementation(reactRouterDom.useLocation),
-  }
-})
+    ...originalModule,
+    useNavigate: jest.fn().mockImplementation(originalModule.useNavigate),
+    useLocation: jest.fn().mockImplementation(originalModule.useLocation),
+  };
+});
 
 afterEach(() => {
-  vi.clearAllMocks()
-  cleanup()
-})
+  jest.clearAllMocks();
+  cleanup();
+});

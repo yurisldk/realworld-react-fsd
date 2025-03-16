@@ -1,95 +1,85 @@
-import {
-  DefaultError,
-  UseMutationOptions,
-  useMutation,
-} from '@tanstack/react-query'
-import { FavoriteService } from '~shared/api/favorite'
-import { queryClient } from '~shared/lib/react-query'
-import { ArticleQueries, articleTypes } from '~entities/article'
+import { DefaultError, useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { unfavoriteArticle } from '~shared/api/api.service';
+import { queryClient } from '~shared/queryClient';
+import { ARTICLES_ROOT_QUERY_KEY } from '~entities/article/article.api';
+import { ArticleSchema, ArticlesSchema } from '~entities/article/article.contracts';
+import { transformArticleDtoToArticle } from '~entities/article/article.lib';
+import { Article, Articles } from '~entities/article/article.types';
 
 export function useUnfavoriteArticleMutation(
-  options?: Pick<
-    UseMutationOptions<
-      Awaited<ReturnType<typeof FavoriteService.unfavoriteArticleMutation>>,
-      DefaultError,
-      articleTypes.Article,
-      unknown
-    >,
+  options: Pick<
+    UseMutationOptions<Article, DefaultError, string, { previousArticles: unknown }>,
     'mutationKey' | 'onMutate' | 'onSuccess' | 'onError' | 'onSettled'
-  >,
+  > = {},
 ) {
-  const {
-    mutationKey = [],
-    onMutate,
-    onSuccess,
-    onError,
-    onSettled,
-  } = options || {}
+  const { mutationKey = [], onMutate, onSuccess, onError, onSettled } = options;
 
   return useMutation({
     mutationKey: ['article', 'unfavorite', ...mutationKey],
 
-    mutationFn: ({ slug }: articleTypes.Article) =>
-      FavoriteService.unfavoriteArticleMutation(slug),
+    mutationFn: async (slug: string) => {
+      const { data } = await unfavoriteArticle(slug);
+      const article = transformArticleDtoToArticle(data);
+      return article;
+    },
 
-    onMutate: async (updatedArticle) => {
-      await queryClient.cancelQueries({ queryKey: ArticleQueries.keys.root })
+    onMutate: async (slug) => {
+      await queryClient.cancelQueries({ queryKey: ARTICLES_ROOT_QUERY_KEY });
 
-      const previousArticle = queryClient.getQueryData(
-        ArticleQueries.articleQuery(updatedArticle.slug).queryKey,
-      )
+      const previousArticles = queryClient.getQueriesData({
+        queryKey: ARTICLES_ROOT_QUERY_KEY,
+      });
 
-      const previousInfiniteArticles = queryClient.getQueriesData({
-        queryKey: ArticleQueries.keys.rootInfinity,
-      })
+      queryClient.setQueriesData({ queryKey: ARTICLES_ROOT_QUERY_KEY }, (rawData) => {
+        if (!rawData) {
+          return rawData;
+        }
 
-      queryClient.setQueryData(
-        ArticleQueries.articleQuery(updatedArticle.slug).queryKey,
-        updatedArticle,
-      )
+        const { data: article } = ArticleSchema.safeParse(rawData);
+        if (article && article.slug === slug) {
+          return {
+            ...article,
+            favorited: false,
+            favoritesCount: article.favoritesCount - 1,
+          } as Article;
+        }
 
-      queryClient.setQueriesData(
-        { queryKey: ArticleQueries.keys.rootInfinity },
-        (infinityArticles: articleTypes.InfiniteArticles | undefined) => {
-          if (!infinityArticles) return
-          const { pages, pageParams } = infinityArticles
-          const updatedPages = pages.map((articles) => {
-            if (!articles.has(updatedArticle.slug)) return articles
-            const updatedArticles = new Map(articles)
-            updatedArticles.set(updatedArticle.slug, updatedArticle)
-            return updatedArticles
-          })
-          return { pages: updatedPages, pageParams }
-        },
-      )
+        const { data: articlesData } = ArticlesSchema.safeParse(rawData);
+        if (articlesData && articlesData.articles[slug]) {
+          const { articles, articlesCount } = articlesData;
+          return {
+            articles: {
+              ...articles,
+              [slug]: {
+                ...articles[slug],
+                favorited: false,
+                favoritesCount: articles[slug].favoritesCount - 1,
+              },
+            },
+            articlesCount,
+          } as Articles;
+        }
 
-      await onMutate?.(updatedArticle)
+        return rawData;
+      });
 
-      return { previousArticle, previousInfiniteArticles }
+      await onMutate?.(slug);
+
+      return { previousArticles };
     },
 
     onSuccess,
 
-    onError: async (error, updatedArticle, context) => {
-      const { previousInfiniteArticles, previousArticle } = context || {}
-
-      queryClient.setQueryData(
-        ArticleQueries.articleQuery(updatedArticle.slug).queryKey,
-        previousArticle,
-      )
-
-      previousInfiniteArticles?.forEach(([queryKey, data]) => {
-        queryClient.setQueriesData({ queryKey }, data)
-      })
-
-      await onError?.(error, updatedArticle, context)
+    onError: async (error, slug, context) => {
+      queryClient.setQueriesData({ queryKey: ARTICLES_ROOT_QUERY_KEY }, context?.previousArticles);
+      await onError?.(error, slug, context);
     },
 
     onSettled: async (data, error, variables, context) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ArticleQueries.keys.root }),
+        queryClient.invalidateQueries({ queryKey: ARTICLES_ROOT_QUERY_KEY }),
         onSettled?.(data, error, variables, context),
-      ])
+      ]);
     },
-  })
+  });
 }

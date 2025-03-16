@@ -1,10 +1,8 @@
-import { articleTypesDto } from '~shared/api/article'
-import type { Article, Articles } from './article.types'
+import type { ArticleDto, ArticlesDto, FilterQueryDto } from '~shared/api/api.types';
+import type { Article, Articles, FilterQuery } from './article.types';
 
-export function transformArticleDtoToArticle(
-  articleDto: articleTypesDto.ArticleDto,
-): Article {
-  const { article } = articleDto
+export function transformArticleDtoToArticle(articleDto: ArticleDto): Article {
+  const { article } = articleDto;
 
   return {
     ...article,
@@ -14,18 +12,26 @@ export function transformArticleDtoToArticle(
       image: article.author?.image || '',
       bio: article.author?.bio || '',
     },
-  }
+  };
 }
 
-export function transformArticlesDtoToArticles(
-  articlesDto: articleTypesDto.ArticlesDto,
-): Articles {
-  const { articles } = articlesDto
+export function transformArticlesDtoToArticles(articlesDto: ArticlesDto): Articles {
+  const { articles, articlesCount } = articlesDto;
 
-  return new Map(
-    articles.map((article) => [
-      article.slug,
-      transformArticleDtoToArticle({ article }),
-    ]),
-  )
+  return {
+    articles: Object.fromEntries(articles.map((article) => [article.slug, transformArticleDtoToArticle({ article })])),
+    articlesCount,
+  };
+}
+
+export function transformFilterQueryToFilterQueryDto(filterQuery: FilterQuery): FilterQueryDto {
+  const { page, source, ...otherParams } = filterQuery;
+  const limit = 10;
+  const offset = (Number(page) - 1) * limit;
+
+  return {
+    ...otherParams,
+    offset,
+    limit,
+  };
 }

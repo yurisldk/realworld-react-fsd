@@ -1,109 +1,92 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { withErrorBoundary } from 'react-error-boundary'
-import { useForm } from 'react-hook-form'
-import { commentContractsDto, commentTypesDto } from '~shared/api/comment'
-import { compose, withSuspense } from '~shared/lib/react'
-import { hasMessages } from '~shared/lib/react-hook-form'
-import { SessionQueries } from '~shared/session'
-import { ErrorHandler, logError } from '~shared/ui/error-handler'
-import { ErrorList } from '~shared/ui/error-list'
-import { transformCreateCommentDtoToComment } from './create-comment.lib'
-import { useCreateCommentMutation } from './create-comment.mutation'
-import { CreateCommentFormSkeleton } from './create-comment.skeleton'
+import { Suspense } from 'react';
+import { ErrorMessage } from '@hookform/error-message';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useForm } from 'react-hook-form';
+import { logError } from '~shared/ui/error-handler/error-handler.lib';
+import { ErrorHandler } from '~shared/ui/error-handler/error-handler.ui';
+import { sessionQueryOptions } from '~entities/session/session.api';
+import { CreateCommentSchema } from './create-comment.contracts';
+import { useCreateCommentMutation } from './create-comment.mutation';
+import { CreateCommentFormSkeleton } from './create-comment.skeleton';
+import { CreateComment } from './create-comment.types';
 
 type CreateCommentFormProps = {
-  slug: string
+  slug: string;
+};
+
+export function CreateCommentForm(props: CreateCommentFormProps) {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorHandler} onError={logError}>
+      <Suspense fallback={<CreateCommentFormSkeleton />}>
+        <BaseCreateCommentForm {...props} />
+      </Suspense>
+    </ErrorBoundary>
+  );
 }
 
-const enhance = compose<CreateCommentFormProps>(
-  (component) =>
-    withErrorBoundary(component, {
-      FallbackComponent: ErrorHandler,
-      onError: logError,
-    }),
-  (component) =>
-    withSuspense(component, { FallbackComponent: CreateCommentFormSkeleton }),
-)
+function BaseCreateCommentForm(props: CreateCommentFormProps) {
+  const { slug } = props;
 
-export const CreateCommentForm = enhance((props: CreateCommentFormProps) => {
-  const { slug } = props
-
-  const { data: session } = useSuspenseQuery(
-    SessionQueries.currentSessionQuery(),
-  )
+  const { data: user } = useSuspenseQuery(sessionQueryOptions);
 
   const {
     register,
     handleSubmit,
-    setError,
     setValue,
     formState: { errors, isDirty, isValid },
-  } = useForm<commentTypesDto.CreateCommentDto>({
+  } = useForm<CreateComment>({
     mode: 'onChange',
-    resolver: zodResolver(commentContractsDto.CreateCommentDtoSchema),
-    defaultValues: { body: '' },
-  })
+    resolver: zodResolver(CreateCommentSchema),
+    defaultValues: { slug, body: '' },
+  });
 
-  const { mutate } = useCreateCommentMutation({
+  const { mutate, isPending, isError, error } = useCreateCommentMutation({
     mutationKey: [slug],
-
-    onMutate: () => {
-      setValue('body', '')
+    onSuccess: () => {
+      setValue('body', '');
     },
+  });
 
-    onError: (error) => {
-      setError('root', { message: error.message })
-    },
-  })
+  const mutationErrors = error?.response?.data || [error?.message];
+  const canSubmit = [isDirty, isValid, !isPending].every(Boolean);
 
-  const canSubmit = [isDirty, isValid].every(Boolean)
-
-  const onSubmit = (createCommentDto: commentTypesDto.CreateCommentDto) => {
-    if (!session)
-      throw new Error('Session does not exist. Please log in and try again.')
-
-    const comment = transformCreateCommentDtoToComment({
-      createCommentDto,
-      session,
-    })
-    mutate({ slug, comment })
-  }
+  const onValid = (createComment: CreateComment) => {
+    mutate(createComment);
+  };
 
   return (
     <>
-      {hasMessages(errors) && <ErrorList errors={errors} />}
+      {isError && (
+        <ul className="error-messages">
+          {mutationErrors.map((err) => (
+            <li key={err}>{err}</li>
+          ))}
+        </ul>
+      )}
 
-      <form
-        className="card comment-form"
-        onSubmit={handleSubmit(onSubmit)}
-      >
+      <form className="card comment-form" onSubmit={handleSubmit(onValid)}>
         <div className="card-block">
           <fieldset>
             <textarea
               className="form-control"
               placeholder="Write a comment..."
               rows={3}
+              disabled={isPending}
               {...register('body')}
             />
+            <ErrorMessage errors={errors} name="body" as="div" role="alert" />
           </fieldset>
         </div>
         <div className="card-footer">
-          <img
-            src={session.image}
-            className="comment-author-img"
-            alt={session.username}
-          />
+          <img src={user.image} className="comment-author-img" alt={user.username} />
 
-          <button
-            className="btn btn-sm btn-primary"
-            type="submit"
-            disabled={!canSubmit}
-          >
+          <button className="btn btn-sm btn-primary" type="submit" disabled={!canSubmit}>
             Post Comment
           </button>
         </div>
       </form>
     </>
-  )
-})
+  );
+}

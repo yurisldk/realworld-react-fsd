@@ -1,19 +1,17 @@
-import { Button } from '../button'
+import { Button } from '../button/button.ui';
 
 type ErrorHandlerProps = {
-  error: Error
-  resetErrorBoundary?: (...args: any[]) => void
-}
-
-const isDevelopment = import.meta.env.DEV
+  error: Error;
+  resetErrorBoundary?: (...args: any[]) => void;
+};
 
 export function ErrorHandler(props: ErrorHandlerProps) {
-  const { error, resetErrorBoundary } = props
+  const { error, resetErrorBoundary } = props;
 
   return (
     <div>
       <h3>Something went wrong.</h3>
-      {isDevelopment && (
+      {__ENV__ === 'development' && (
         <>
           <ul className="error-messages">
             <li key={error.message}>{error.message}</li>
@@ -21,12 +19,9 @@ export function ErrorHandler(props: ErrorHandlerProps) {
           <pre>{error.stack}</pre>
         </>
       )}
-      <Button
-        type="button"
-        onClick={resetErrorBoundary}
-      >
+      <Button type="button" onClick={resetErrorBoundary}>
         Try again
       </Button>
     </div>
-  )
+  );
 }

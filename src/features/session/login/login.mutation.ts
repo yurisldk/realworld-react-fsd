@@ -1,50 +1,42 @@
-import {
-  DefaultError,
-  UseMutationOptions,
-  useMutation,
-} from '@tanstack/react-query'
-import { AuthService, authTypesDto } from '~shared/api/auth'
-import { sessionLib, useSessionStore } from '~shared/session'
+import { DefaultError, useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { loginUser } from '~shared/api/api.service';
+import { queryClient } from '~shared/queryClient';
+import { store } from '~shared/store';
+import { sessionQueryOptions } from '~entities/session/session.api';
+import { transformUserDtoToUser } from '~entities/session/session.lib';
+import { setSession } from '~entities/session/session.model';
+import type { User } from '~entities/session/session.types';
+import { transformLoginUserToLoginUserDto } from './login.lib';
+import type { LoginUser } from './login.types';
 
 export function useLoginMutation(
-  options?: Pick<
-    UseMutationOptions<
-      Awaited<ReturnType<typeof AuthService.loginUserMutation>>,
-      DefaultError,
-      authTypesDto.LoginUserDto,
-      unknown
-    >,
+  options: Pick<
+    UseMutationOptions<User, DefaultError, LoginUser, unknown>,
     'mutationKey' | 'onMutate' | 'onSuccess' | 'onError' | 'onSettled'
-  >,
+  > = {},
 ) {
-  const {
-    mutationKey = [],
-    onMutate,
-    onSuccess,
-    onError,
-    onSettled,
-  } = options || {}
+  const { mutationKey = [], onMutate, onSuccess, onError, onSettled } = options;
 
   return useMutation({
     mutationKey: ['session', 'login-user', ...mutationKey],
 
-    mutationFn: async (loginUserDto: authTypesDto.LoginUserDto) =>
-      AuthService.loginUserMutation({ loginUserDto }),
+    mutationFn: async (loginUserData: LoginUser) => {
+      const loginUserDto = transformLoginUserToLoginUserDto(loginUserData);
+      const { data } = await loginUser(loginUserDto);
+      const user = transformUserDtoToUser(data);
+      return user;
+    },
 
     onMutate,
 
-    onSuccess: async (response, variables, context) => {
-      const { user } = response.data
-      const { setSession } = useSessionStore.getState()
-
-      const session = sessionLib.transformUserDtoToSession({ user })
-      setSession(session)
-
-      await onSuccess?.(response, variables, context)
+    onSuccess: async (data, variables, context) => {
+      store.dispatch(setSession(data));
+      queryClient.setQueryData(sessionQueryOptions.queryKey, data);
+      await onSuccess?.(data, variables, context);
     },
 
     onError,
 
     onSettled,
-  })
+  });
 }

@@ -1,51 +1,9 @@
 .spinner {
   position: fixed;
   z-index: 10000;
-  display: none;
+  display: block;
   width: 40px;
   height: 40px;
-}
-
-.display {
-  display: inline-block;
-}
-
-.position-top-left {
-  top: 8px;
-  left: 8px;
-}
-
-.position-top-center {
-  top: 8px;
-  left: 50%;
-  transform: translateX(50%);
-}
-
-.position-top-right {
-  top: 8px;
-  right: 8px;
-}
-
-.position-bottom-left {
-  bottom: 8px;
-  left: 8px;
-}
-
-.position-bottom-center {
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(50%);
-}
-
-.position-bottom-right {
-  right: 8px;
-  bottom: 8px;
-}
-
-.position-center {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 .spinner div {

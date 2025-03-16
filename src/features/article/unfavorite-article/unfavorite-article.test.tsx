@@ -1,102 +1,94 @@
-import { screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { BrowserRouter } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
-import { FavoriteService } from '~shared/api/favorite'
-import { AxiosLib } from '~shared/lib/axios'
-import { renderWithQueryClient } from '~shared/lib/test'
-import { articleTypes } from '~entities/article'
-import {
-  UnfavoriteArticleBriefButton,
-  UnfavoriteArticleExtendedButton,
-} from './unfavorite-article.ui'
+import { describe, expect, it } from '@jest/globals';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
+import { api } from '~shared/api/api.instance';
+import { renderWithQueryClient } from '~shared/lib/test/test.lib';
+import { Article } from '~entities/article/article.types';
+import { UnfavoriteArticleBriefButton, UnfavoriteArticleExtendedButton } from './unfavorite-article.ui';
 
 describe('UnfavoriteArticleButton', () => {
   describe('UnfavoriteArticleBriefButton', () => {
     it('should render the favorite button with the correct count', () => {
-      renderUnfavoriteArticleBriefButton()
+      renderUnfavoriteArticleBriefButton();
 
-      expect(screen.getByRole('button'))
-      expect(screen.getByText('1')).toBeInTheDocument()
-    })
+      expect(screen.getByRole('button'));
+      expect(screen.getByText(mockArticle.favoritesCount)).toBeInTheDocument();
+    });
 
     it('should trigger mutation and update favorites count when clicked', async () => {
-      const unfavoriteArticleMutationSpy = vi
-        .spyOn(FavoriteService, 'unfavoriteArticleMutation')
-        .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({ article }))
+      // @ts-expect-error Property 'mockResolvedValue' does not exist
+      const mockRequest = api.delete.mockResolvedValue({});
 
-      const { click } = renderUnfavoriteArticleBriefButton()
+      const { click } = renderUnfavoriteArticleBriefButton();
 
-      await click(screen.getByRole('button'))
+      await click(screen.getByRole('button'));
 
       await waitFor(() => {
-        expect(unfavoriteArticleMutationSpy).toHaveBeenCalledWith(article.slug)
-      })
-    })
-  })
+        expect(mockRequest).toHaveBeenCalled();
+      });
+    });
+  });
 
   describe('UnfavoriteArticleExtendedButton', () => {
     it('should render the favorite button with the correct count and text', () => {
-      renderUnfavoriteArticleExtendedButton()
+      renderUnfavoriteArticleExtendedButton();
 
-      expect(
-        screen.getByRole('button', { name: /unfavorite article/i }),
-      ).toBeInTheDocument()
-      expect(screen.getByText('(1)')).toBeInTheDocument()
-    })
+      expect(screen.getByRole('button', { name: /unfavorite article/i })).toBeInTheDocument();
+      expect(screen.getByText(`(${mockArticle.favoritesCount})`)).toBeInTheDocument();
+    });
 
     it('should trigger mutation and update favorites count when clicked', async () => {
-      const unfavoriteArticleMutationSpy = vi
-        .spyOn(FavoriteService, 'unfavoriteArticleMutation')
-        .mockResolvedValue(AxiosLib.mockResolvedAxiosResponse({ article }))
+      // @ts-expect-error Property 'mockResolvedValue' does not exist
+      const mockRequest = api.delete.mockResolvedValue({});
 
-      const { click } = renderUnfavoriteArticleExtendedButton()
+      const { click } = renderUnfavoriteArticleExtendedButton();
 
-      await click(screen.getByRole('button', { name: /unfavorite article/i }))
+      await click(screen.getByRole('button', { name: /unfavorite article/i }));
 
       await waitFor(() => {
-        expect(unfavoriteArticleMutationSpy).toHaveBeenCalledWith(article.slug)
-      })
-    })
-  })
-})
+        expect(mockRequest).toHaveBeenCalled();
+      });
+    });
+  });
+});
 
-const article: articleTypes.Article = {
-  slug: 'test-article',
-  title: 'Test Article',
-  description: 'This is a test article',
-  body: 'This is the body of the test article',
-  tagList: [],
-  createdAt: new Date(Date.now()),
-  updatedAt: new Date(Date.now()),
-  favorited: true,
-  favoritesCount: 1,
+const mockArticle: Article = {
+  slug: 'example-article',
+  title: 'Example Article Title',
+  description: 'This is a mock description of the article.',
+  body: 'This is the body of the mock article. It contains detailed content.',
+  tagList: ['mock', 'test', 'article'],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  favorited: false,
+  favoritesCount: 42,
   author: {
-    username: 'testuser',
-    bio: '',
-    image: '',
+    username: 'mockUser',
+    bio: 'This is a mock bio of the author.',
+    image: 'https://example.com/mock-image.jpg',
     following: false,
   },
-}
+};
 
 function renderUnfavoriteArticleBriefButton() {
-  const user = userEvent.setup()
+  const user = userEvent.setup();
   const renderResult = renderWithQueryClient(
     <BrowserRouter>
-      <UnfavoriteArticleBriefButton article={article} />
+      <UnfavoriteArticleBriefButton article={mockArticle} />
     </BrowserRouter>,
-  )
+  );
 
-  return { ...user, ...renderResult }
+  return { ...user, ...renderResult };
 }
 
 function renderUnfavoriteArticleExtendedButton() {
-  const user = userEvent.setup()
+  const user = userEvent.setup();
   const renderResult = renderWithQueryClient(
     <BrowserRouter>
-      <UnfavoriteArticleExtendedButton article={article} />
+      <UnfavoriteArticleExtendedButton article={mockArticle} />
     </BrowserRouter>,
-  )
+  );
 
-  return { ...user, ...renderResult }
+  return { ...user, ...renderResult };
 }

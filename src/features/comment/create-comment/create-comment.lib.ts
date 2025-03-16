@@ -1,23 +1,6 @@
-import { commentTypesDto } from '~shared/api/comment'
-import { sessionTypes } from '~shared/session'
-import { commentTypes } from '~entities/comment'
+import type { CreateCommentDto } from '~shared/api/api.types';
+import type { CreateComment } from './create-comment.types';
 
-export function transformCreateCommentDtoToComment(config: {
-  createCommentDto: commentTypesDto.CreateCommentDto
-  session: sessionTypes.Session
-}): commentTypes.Comment {
-  const { createCommentDto, session } = config
-
-  return {
-    author: {
-      username: session.username,
-      bio: session.bio,
-      following: false,
-      image: session.image,
-    },
-    body: createCommentDto.body,
-    id: Infinity,
-    createdAt: new Date(Date.now()),
-    updatedAt: new Date(Date.now()),
-  }
+export function transformCreateCommentToCreateCommentDto(createCommentDto: CreateComment): CreateCommentDto {
+  return { comment: { body: createCommentDto.body } };
 }

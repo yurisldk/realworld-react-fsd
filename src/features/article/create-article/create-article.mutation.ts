@@ -1,72 +1,41 @@
-import {
-  DefaultError,
-  UseMutationOptions,
-  useMutation,
-} from '@tanstack/react-query'
-import { ArticleService } from '~shared/api/article'
-import { queryClient } from '~shared/lib/react-query'
-import { articleLib, ArticleQueries, articleTypes } from '~entities/article'
-import { CommentQueries } from '~entities/comment'
-import { transformArticleToCreateArticleDto } from './create-article.lib'
+import { DefaultError, useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { createArticle } from '~shared/api/api.service';
+import { queryClient } from '~shared/queryClient';
+import { ARTICLES_ROOT_QUERY_KEY } from '~entities/article/article.api';
+import { transformArticleDtoToArticle } from '~entities/article/article.lib';
+import { Article } from '~entities/article/article.types';
+import { transformCreateArticleToCreateArticleDto } from './create-article.lib';
+import { CreateArticle } from './create-article.types';
 
 export function useCreateArticleMutation(
-  options?: Pick<
-    UseMutationOptions<
-      Awaited<ReturnType<typeof ArticleService.createArticleMutation>>,
-      DefaultError,
-      articleTypes.Article,
-      unknown
-    >,
+  options: Pick<
+    UseMutationOptions<Article, DefaultError, CreateArticle, unknown>,
     'mutationKey' | 'onMutate' | 'onSuccess' | 'onError' | 'onSettled'
-  >,
+  > = {},
 ) {
-  const {
-    mutationKey = [],
-    onMutate,
-    onSuccess,
-    onError,
-    onSettled,
-  } = options || {}
+  const { mutationKey = [], onMutate, onSuccess, onError, onSettled } = options;
 
   return useMutation({
     mutationKey: ['article', 'create', ...mutationKey],
 
-    mutationFn: (article: articleTypes.Article) => {
-      const createArticleDto = transformArticleToCreateArticleDto(article)
-      return ArticleService.createArticleMutation({ createArticleDto })
+    mutationFn: async (createArticleData: CreateArticle) => {
+      const createArticleDto = transformCreateArticleToCreateArticleDto(createArticleData);
+      const { data } = await createArticle(createArticleDto);
+      const article = transformArticleDtoToArticle(data);
+      return article;
     },
 
-    onMutate: async (variables) => {
+    onMutate,
+
+    onSuccess: async (data, variables, context) => {
       await Promise.all([
-        queryClient.cancelQueries({ queryKey: ArticleQueries.keys.root }),
-        onMutate?.(variables),
-      ])
-    },
-
-    onSuccess: async (response, variables, context) => {
-      const article = articleLib.transformArticleDtoToArticle(response.data)
-      const { slug } = article
-
-      queryClient.setQueryData(
-        ArticleQueries.articleQuery(slug).queryKey,
-        article,
-      )
-
-      queryClient.setQueryData(
-        CommentQueries.commentsQuery(slug).queryKey,
-        new Map(),
-      )
-
-      await onSuccess?.(response, variables, context)
+        queryClient.invalidateQueries({ queryKey: ARTICLES_ROOT_QUERY_KEY }),
+        onSuccess?.(data, variables, context),
+      ]);
     },
 
     onError,
 
-    onSettled: async (response, error, variables, context) => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ArticleQueries.keys.root }),
-        onSettled?.(response, error, variables, context),
-      ])
-    },
-  })
+    onSettled,
+  });
 }

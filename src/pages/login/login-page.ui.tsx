@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom'
-import { pathKeys } from '~shared/lib/react-router'
-import { LoginForm } from '~features/session'
+import { Link } from 'react-router-dom';
+import { pathKeys } from '~shared/router';
+import LoginForm from '~features/session/login/login.ui';
 
-export function LoginPage() {
+export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="container page">
@@ -11,7 +11,7 @@ export function LoginPage() {
             <h1 className="text-xs-center">Sign in</h1>
 
             <p className="text-xs-center">
-              <Link to={pathKeys.register()}>Need an account?</Link>
+              <Link to={pathKeys.register}>Need an account?</Link>
             </p>
 
             <LoginForm />
@@ -19,5 +19,5 @@ export function LoginPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,80 +1,32 @@
-import {
-  DefaultError,
-  UseMutationOptions,
-  useMutation,
-} from '@tanstack/react-query'
-import { CommentService } from '~shared/api/comment'
-import { queryClient } from '~shared/lib/react-query'
-import { CommentQueries } from '~entities/comment'
+import { DefaultError, useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { deleteComment } from '~shared/api/api.service';
+import { queryClient } from '~shared/queryClient';
+import { commentsQueryOptions } from '~entities/comment/comment.api';
 
 export function useDeleteCommentMutation(
-  options?: Pick<
-    UseMutationOptions<
-      Awaited<ReturnType<typeof CommentService.deleteCommentMutation>>,
-      DefaultError,
-      { id: number; slug: string },
-      unknown
-    >,
+  options: Pick<
+    UseMutationOptions<unknown, DefaultError, { id: number; slug: string }, unknown>,
     'mutationKey' | 'onMutate' | 'onSuccess' | 'onError' | 'onSettled'
-  >,
+  > = {},
 ) {
-  const {
-    mutationKey = [],
-    onMutate,
-    onSuccess,
-    onError,
-    onSettled,
-  } = options || {}
+  const { mutationKey = [], onMutate, onSuccess, onError, onSettled } = options;
 
   return useMutation({
     mutationKey: ['comment', 'delete', ...mutationKey],
 
-    mutationFn: (config: { id: number; slug: string }) =>
-      CommentService.deleteCommentMutation(config.slug, config.id),
+    mutationFn: ({ id, slug }: { id: number; slug: string }) => deleteComment(slug, id),
 
-    onMutate: async (variables) => {
-      const { id, slug } = variables
+    onMutate,
 
-      await queryClient.cancelQueries({
-        queryKey: CommentQueries.keys.root,
-      })
-
-      const previousComments = queryClient.getQueryData(
-        CommentQueries.commentsQuery(slug).queryKey,
-      )
-
-      const updatedComments = new Map(previousComments)
-      updatedComments.delete(id)
-
-      queryClient.setQueryData(
-        CommentQueries.commentsQuery(slug).queryKey,
-        updatedComments,
-      )
-
-      await onMutate?.(variables)
-
-      return { previousComments }
-    },
-
-    onSuccess,
-
-    onError: async (error, variables, context) => {
-      const { slug } = variables
-      const { previousComments } = context || {}
-
-      queryClient.setQueryData(
-        CommentQueries.commentsQuery(slug).queryKey,
-        previousComments,
-      )
-
-      await onError?.(error, variables, context)
-    },
-
-    onSettled: async (data, error, variables, context) => {
+    onSuccess: async (comment, createComment, context) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: CommentQueries.keys.root }),
-        onSettled?.(data, error, variables, context),
-      ])
+        queryClient.invalidateQueries({ queryKey: commentsQueryOptions(createComment.slug).queryKey }),
+        onSuccess?.(comment, createComment, context),
+      ]);
     },
-  })
+
+    onError,
+
+    onSettled,
+  });
 }

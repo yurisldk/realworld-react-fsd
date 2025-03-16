@@ -1,99 +1,87 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { withErrorBoundary } from 'react-error-boundary'
-import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import { authContractsDto, authTypesDto } from '~shared/api/auth'
-import { compose } from '~shared/lib/react'
-import { hasMessages } from '~shared/lib/react-hook-form'
-import { pathKeys } from '~shared/lib/react-router'
-import { ErrorHandler, logError } from '~shared/ui/error-handler'
-import { ErrorList } from '~shared/ui/error-list'
-import { useRegisterMutation } from './register.mutation'
+import { ErrorMessage } from '@hookform/error-message';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { pathKeys } from '~shared/router';
+import { logError } from '~shared/ui/error-handler/error-handler.lib';
+import { ErrorHandler } from '~shared/ui/error-handler/error-handler.ui';
+import { RegisterUserSchema } from './register.contracts';
+import { useRegisterMutation } from './register.mutation';
+import { RegisterUser } from './register.types';
 
-const enhance = compose((component) =>
-  withErrorBoundary(component, {
-    FallbackComponent: ErrorHandler,
-    onError: logError,
-  }),
-)
+export default function RegisterForm() {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorHandler} onError={logError}>
+      <BaseRegisterForm />
+    </ErrorBoundary>
+  );
+}
 
-export const RegisterForm = enhance(() => {
-  const navigate = useNavigate()
+function BaseRegisterForm() {
+  const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors, isDirty, isValid },
-  } = useForm<authTypesDto.CreateUserDto>({
+  } = useForm<RegisterUser>({
     mode: 'onTouched',
-    resolver: zodResolver(authContractsDto.CreateUserDtoSchema),
+    resolver: zodResolver(RegisterUserSchema),
     defaultValues: { username: '', email: '', password: '' },
-  })
+  });
 
-  const { mutate: createUser, isPending } = useRegisterMutation({
-    onSuccess: async (respone) => {
-      const { username } = respone.data.user
-      navigate(pathKeys.profile.byUsername({ username }))
+  const { mutate, isPending, isError, error } = useRegisterMutation({
+    onSuccess(session) {
+      navigate(pathKeys.profile.byUsername(session.username));
     },
+  });
 
-    onError(error) {
-      setError('root', { message: error.message })
-    },
-  })
+  const mutationErrors = error?.response?.data || [error?.message];
+  const canSubmit = [isDirty, isValid, !isPending].every(Boolean);
 
-  const canSubmit = [isDirty, isValid, !isPending].every(Boolean)
-
-  const onSubmit = (createUserDto: authTypesDto.CreateUserDto) =>
-    createUser(createUserDto)
+  const onValid = (registerUser: RegisterUser) => {
+    mutate(registerUser);
+  };
 
   return (
     <>
-      {hasMessages(errors) && <ErrorList errors={errors} />}
+      {isError && (
+        <ul className="error-messages">
+          {mutationErrors.map((err) => (
+            <li key={err}>{err}</li>
+          ))}
+        </ul>
+      )}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <fieldset
-          className="form-group"
-          disabled={isPending}
-        >
+      <form onSubmit={handleSubmit(onValid)}>
+        <fieldset className="form-group" disabled={isPending}>
           <input
             className="form-control form-control-lg"
             type="text"
             placeholder="Your Name"
             {...register('username')}
           />
+          <ErrorMessage errors={errors} name="username" as="div" role="alert" />
         </fieldset>
-        <fieldset
-          className="form-group"
-          disabled={isPending}
-        >
-          <input
-            className="form-control form-control-lg"
-            type="text"
-            placeholder="Email"
-            {...register('email')}
-          />
+        <fieldset className="form-group" disabled={isPending}>
+          <input className="form-control form-control-lg" type="text" placeholder="Email" {...register('email')} />
+          <ErrorMessage errors={errors} name="email" as="div" role="alert" />
         </fieldset>
-        <fieldset
-          className="form-group"
-          disabled={isPending}
-        >
+        <fieldset className="form-group" disabled={isPending}>
           <input
             className="form-control form-control-lg"
             type="password"
             placeholder="Password"
             {...register('password')}
           />
+          <ErrorMessage errors={errors} name="password" as="div" role="alert" />
         </fieldset>
 
-        <button
-          className="btn btn-lg btn-primary pull-xs-right"
-          type="submit"
-          disabled={!canSubmit}
-        >
+        <button className="btn btn-lg btn-primary pull-xs-right" type="submit" disabled={!canSubmit}>
           Sign up
         </button>
       </form>
     </>
-  )
-})
+  );
+}

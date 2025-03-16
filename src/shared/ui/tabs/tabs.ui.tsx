@@ -1,39 +1,32 @@
-import {
-  ForwardedRef,
-  ReactNode,
-  createContext,
-  forwardRef,
-  useContext,
-  useMemo,
-} from 'react'
-import cn from 'classnames'
+import { ForwardedRef, ReactNode, createContext, forwardRef, useContext, useMemo } from 'react';
+import cn from 'classnames';
 
 type TabsContextProps = {
-  contextValue: string
-  onContextValueChange: (value: string) => void
-}
+  contextValue: string;
+  onContextValueChange: (value: string) => void;
+};
 
-const TabsContext = createContext<TabsContextProps | null>(null)
-TabsContext.displayName = 'TabsContext'
+const TabsContext = createContext<TabsContextProps | null>(null);
+TabsContext.displayName = 'TabsContext';
 
 function useTabsContext() {
-  const ctx = useContext(TabsContext)
+  const ctx = useContext(TabsContext);
 
   if (!ctx) {
-    throw new Error('useTabsContext must be used within a <Root />')
+    throw new Error('useTabsContext must be used within a <Root />');
   }
 
-  return ctx
+  return ctx;
 }
 
 type RootProps = {
-  value: string
-  onValueChange: (value: string) => void
-  children: ReactNode
-}
+  value: string;
+  onValueChange: (value: string) => void;
+  children: ReactNode;
+};
 
 function Root(props: RootProps) {
-  const { value, onValueChange, children } = props
+  const { value, onValueChange, children } = props;
 
   const memoizedValue: TabsContextProps = useMemo(
     () => ({
@@ -41,83 +34,65 @@ function Root(props: RootProps) {
       onContextValueChange: onValueChange,
     }),
     [onValueChange, value],
-  )
+  );
 
-  return (
-    <TabsContext.Provider value={memoizedValue}>
-      {children}
-    </TabsContext.Provider>
-  )
+  return <TabsContext.Provider value={memoizedValue}>{children}</TabsContext.Provider>;
 }
 
 type ListProps = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
-const List = forwardRef(
-  (props: ListProps, ref?: ForwardedRef<HTMLUListElement>) => {
-    const { children } = props
+const List = forwardRef((props: ListProps, ref?: ForwardedRef<HTMLUListElement>) => {
+  const { children } = props;
 
-    return (
-      <ul
-        ref={ref}
-        className="nav nav-pills outline-active"
-      >
-        {children}
-      </ul>
-    )
-  },
-)
+  return (
+    <ul ref={ref} className="nav nav-pills outline-active">
+      {children}
+    </ul>
+  );
+});
 
 type TriggerProps = {
-  value: string
-  children: ReactNode
-}
+  value: string;
+  children: ReactNode;
+};
 
-const Trigger = forwardRef(
-  (props: TriggerProps, ref?: ForwardedRef<HTMLLIElement>) => {
-    const { value, children } = props
+const Trigger = forwardRef((props: TriggerProps, ref?: ForwardedRef<HTMLLIElement>) => {
+  const { value, children } = props;
 
-    const { contextValue, onContextValueChange } = useTabsContext()
+  const { contextValue, onContextValueChange } = useTabsContext();
 
-    const active = value === contextValue
+  const active = value === contextValue;
 
-    const classes = cn('nav-link', { active })
+  const classes = cn('nav-link', { active });
 
-    const handleClick = () => {
-      onContextValueChange(value)
-    }
+  const handleClick = () => {
+    onContextValueChange(value);
+  };
 
-    return (
-      <li
-        ref={ref}
-        className="nav-item"
-      >
-        <button
-          className={classes}
-          type="button"
-          onClick={handleClick}
-        >
-          {children}
-        </button>
-      </li>
-    )
-  },
-)
+  return (
+    <li ref={ref} className="nav-item">
+      <button className={classes} type="button" onClick={handleClick}>
+        {children}
+      </button>
+    </li>
+  );
+});
 
 type ContentProps = {
-  value: string
-  children: ReactNode
-}
+  value: string;
+  children: ReactNode;
+};
 
 function Content(props: ContentProps) {
-  const { value, children } = props
+  const { value, children } = props;
 
-  const { contextValue } = useTabsContext()
+  const { contextValue } = useTabsContext();
 
-  const active = value === contextValue
+  const active = value === contextValue;
 
-  return active && children
+  return active && children;
 }
 
 export const Tabs = {
@@ -125,4 +100,4 @@ export const Tabs = {
   List,
   Trigger,
   Content,
-}
+};

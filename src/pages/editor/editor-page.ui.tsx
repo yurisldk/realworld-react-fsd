@@ -1,29 +1,30 @@
-import { ReactNode } from 'react'
-import { useLoaderData } from 'react-router-dom'
-import { routerTypes } from '~shared/lib/react-router'
-import { CreateArticleForm, UpdateArticleForm } from '~features/article'
+import { ReactNode } from 'react';
+import { useLoaderData } from 'react-router-dom';
+import { CreateArticleForm } from '~features/article/create-article/create-article.ui';
+import { UpdateArticleForm } from '~features/article/update-article/update-article.ui';
+import { EditorLoaderArgs } from './editor-page.loader';
 
 export function CreateEditorPage() {
   return (
     <EditorPageWrapper>
       <CreateArticleForm />
     </EditorPageWrapper>
-  )
+  );
 }
 
 export function UpdateEditorPage() {
-  const { params } = useLoaderData() as routerTypes.EditorPageData
-  const { slug } = params
+  const { params } = useLoaderData() as EditorLoaderArgs;
+  const { slug } = params;
 
   return (
     <EditorPageWrapper>
       <UpdateArticleForm slug={slug} />
     </EditorPageWrapper>
-  )
+  );
 }
 
 function EditorPageWrapper(props: { children: ReactNode }) {
-  const { children } = props
+  const { children } = props;
   return (
     <div className="editor-page">
       <div className="container page">
@@ -32,5 +33,5 @@ function EditorPageWrapper(props: { children: ReactNode }) {
         </div>
       </div>
     </div>
-  )
+  );
 }

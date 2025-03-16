@@ -1,36 +1,20 @@
-import { IoAdd } from 'react-icons/io5'
-import { Button } from '~shared/ui/button'
-import { profileTypes } from '~entities/profile'
-import { useFollowProfileMutation } from './follow-profile.mutation'
+import { IoAdd } from 'react-icons/io5';
+import { Button } from '~shared/ui/button/button.ui';
+import { useFollowProfileMutation } from './follow-profile.mutation';
 
-export function FollowUserButton(props: { profile: profileTypes.Profile }) {
-  const { profile } = props
+export function FollowUserButton(props: { username: string }) {
+  const { username } = props;
 
-  const { mutate } = useFollowProfileMutation({
-    mutationKey: [profile.username],
-  })
+  const { mutate } = useFollowProfileMutation({ mutationKey: [username] });
 
   const handleClick = () => {
-    const followedProfile = follow(profile)
-    mutate(followedProfile)
-  }
+    mutate(username);
+  };
 
   return (
-    <Button
-      color="secondary"
-      variant="outline"
-      className="action-btn "
-      onClick={handleClick}
-    >
+    <Button color="secondary" variant="outline" className="action-btn " onClick={handleClick}>
       <IoAdd size={16} />
-      &nbsp; Follow {profile.username}
+      &nbsp; Follow {username}
     </Button>
-  )
-}
-
-function follow(profile: profileTypes.Profile): profileTypes.Profile {
-  return {
-    ...profile,
-    following: true,
-  }
+  );
 }
