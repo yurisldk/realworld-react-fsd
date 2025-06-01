@@ -59,6 +59,44 @@ The example application is a social blogging site (i.e. a Medium.com clone) call
 - Favorite articles
 - Follow other users
 
+## Scripts
+
+- **`yarn start`** - Runs the Webpack development server with `webpack serve`, using development mode.
+- **`yarn build:dev`** - Compiles the project in development mode using Webpack.
+- **`yarn build:prod`** - Compiles the project in production mode using Webpack for optimized output.
+- **`yarn analyze`** - Builds the project in development mode and enables Webpack Bundle Analyzer for visualizing bundle contents.
+- **`yarn test`** - Runs Jest to execute unit tests.
+- **`yarn eslint`** - Runs ESLint to lint the `src` directory, automatically fixing issues and ensuring no unused disable directives remain.
+- **`yarn prettier`** - Formats the entire project using Prettier, respecting `.gitignore` rules.
+- **`yarn prepare`** - Initializes Husky and sets up pre-commit and pre-push Git hooks.
+- **`yarn graph`** - Generates a dependency graph of the `src` directory using `dependency-cruiser`.[^1]
+
+[^1]:
+    This assumes the GraphViz `dot` command is available - on most linux and
+    comparable systems this will be. In case it's not, see
+    [GraphViz' download page](https://www.graphviz.org/download/) for instructions
+    on how to get it on your machine.
+
+## Git Hooks and Formatting
+
+This project uses **Husky** and **lint-staged** to enforce code quality before commits and pushes.
+
+### Git hooks configured:
+
+- **pre-commit** – Runs ESLint and Prettier on staged files
+- **pre-push** – Runs `yarn test` to ensure tests pass before pushing
+
+### Formatting Commit
+
+The entire codebase has been formatted using ESLint and Prettier.
+To avoid noisy blame history caused by formatting-only changes, the formatting commit hash is listed in `.git-blame-ignore-revs`.
+
+To configure your local Git to ignore formatting-only commits in blame:
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 ## Getting started
 
 To get the frontend running locally:
@@ -75,23 +113,6 @@ To set up the backend:
 
 1. Follow the installation instructions in the [RealWorld Express + Prisma repository](https://github.com/yurisldk/node-express-realworld-example-app).
 2. Ensure the backend is running locally or deployed.
-
-## Scripts
-
-- **`yarn start`** - Runs the Webpack development server with `webpack serve`, using development mode.
-- **`yarn build:dev`** - Compiles the project in development mode using Webpack.
-- **`yarn build:prod`** - Compiles the project in production mode using Webpack for optimized output.
-- **`yarn analyze`** - Builds the project in development mode and enables Webpack Bundle Analyzer for visualizing bundle contents.
-- **`yarn test`** - Runs Jest to execute unit tests.
-- **`yarn eslint`** - Runs ESLint to lint the `src` directory, automatically fixing issues and ensuring no unused disable directives remain.
-- **`yarn prettier`** - Formats the entire project using Prettier, respecting `.gitignore` rules.
-- **`yarn graph`** - Generates a dependency graph of the `src` directory using `dependency-cruiser`.[^1]
-
-[^1]:
-    This assumes the GraphViz `dot` command is available - on most linux and
-    comparable systems this will be. In case it's not, see
-    [GraphViz' download page](https://www.graphviz.org/download/) for instructions
-    on how to get it on your machine.
 
 [shields-react-router-domain]: https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white
 [shields-react-query-domain]: https://img.shields.io/badge/-React%20Query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white
