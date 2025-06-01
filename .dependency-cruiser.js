@@ -338,9 +338,9 @@ module.exports = {
             rankdir: 'TD',
           },
           edge: {
-            arrowhead: "vee",
-            arrowsize: "0.5",
-            penwidth: "1.0",
+            arrowhead: 'vee',
+            arrowsize: '0.5',
+            penwidth: '1.0',
           },
         },
       },
