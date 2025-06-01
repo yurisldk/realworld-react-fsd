@@ -69,12 +69,12 @@ To get the frontend running locally:
 
 ## Backend Setup
 
-This project is fully compatible with my **[RealWorld Express + Prisma](https://github.com/yurisldk/node-express-realworld-example-app)** backend implementation.  
+This project is fully compatible with my **[RealWorld Express + Prisma](https://github.com/yurisldk/node-express-realworld-example-app)** backend implementation.
 
-To set up the backend:  
+To set up the backend:
 
-1. Follow the installation instructions in the [RealWorld Express + Prisma repository](https://github.com/yurisldk/node-express-realworld-example-app).  
-2. Ensure the backend is running locally or deployed.  
+1. Follow the installation instructions in the [RealWorld Express + Prisma repository](https://github.com/yurisldk/node-express-realworld-example-app).
+2. Ensure the backend is running locally or deployed.
 
 ## Scripts
 

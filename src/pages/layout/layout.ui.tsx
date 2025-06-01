@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { IoCreateOutline, IoSettingsSharp } from 'react-icons/io5';
 import { useSelector } from 'react-redux';
@@ -8,10 +9,9 @@ import { logError } from '~shared/ui/error-handler/error-handler.lib';
 import { ErrorHandler } from '~shared/ui/error-handler/error-handler.ui';
 import { Skeleton } from '~shared/ui/skeleton/skeleton.ui';
 import { Stack } from '~shared/ui/stack/stack.ui';
+import { sessionQueryOptions } from '~entities/session/session.api';
 import { selectSession } from '~entities/session/session.model';
 import { useCanPerformAction } from '~features/permission/permission.service';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { sessionQueryOptions } from '~entities/session/session.api';
 
 export default function Layout() {
   const session = useSelector(selectSession);

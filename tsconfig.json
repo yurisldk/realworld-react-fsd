@@ -24,5 +24,6 @@
     "compilerOptions": {
       "module": "CommonJS"
     }
-  }
+  },
+  "exclude": ["node_modules", "dist", "build", "coverage"]
 }

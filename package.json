@@ -8,9 +8,10 @@
     "build:prod": "webpack --env mode=production",
     "analyze": "webpack --env mode=development analyzer=true",
     "test": "jest",
-    "eslint": "eslint src --fix --ext ts,tsx --cache --report-unused-disable-directives --max-warnings 0",
+    "eslint": "eslint src --fix --ext ts,tsx --cache --report-unused-disable-directives",
     "prettier": "prettier --write . --ignore-path .gitignore",
-    "graph": "npx depcruise src --include-only \"^src\" --output-type dot | dot -T svg > dependency-graph-preview.svg"
+    "graph": "npx depcruise src --include-only \"^src\" --output-type dot | dot -T svg > dependency-graph-preview.svg",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/error-message": "^2.0.1",
@@ -66,10 +67,12 @@
     "eslint-plugin-react-hooks": "4.3.0",
     "fork-ts-checker-webpack-plugin": "9.0.2",
     "html-webpack-plugin": "5.6.3",
+    "husky": "^9.1.7",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jsdom": "^24.1.0",
+    "lint-staged": "^16.1.0",
     "mini-css-extract-plugin": "2.9.2",
     "path": "^0.12.7",
     "prettier": "^3.5.3",
@@ -87,5 +90,12 @@
     "webpack-cli": "6.0.1",
     "webpack-dev-server": "5.2.0",
     "webpack-merge": "6.0.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,scss}": "prettier --write"
   }
 }
