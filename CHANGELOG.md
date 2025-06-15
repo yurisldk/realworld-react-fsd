@@ -1,5 +1,11 @@
 # Versions
 
+## 1.1.1 (2025-06-15)
+
+### 🐛 Bug Fixes
+
+- Fixed missing GHCR authentication in release pipeline
+
 ## 1.1.0 (2025-06-15)
 
 ### 🚀 Features

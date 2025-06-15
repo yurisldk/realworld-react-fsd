@@ -40,6 +40,13 @@ jobs:
           RELEASE_VERSION="${GITHUB_REF#refs/tags/v}"
           echo "RELEASE_VERSION=${RELEASE_VERSION}" >> $GITHUB_OUTPUT
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and Push Docker image
         uses: docker/build-push-action@v5
         with:
