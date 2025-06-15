@@ -24,4 +24,4 @@ declare module '*.svg' {
 }
 
 declare const __ENV__: 'production' | 'development';
-declare const __API__: string;
+declare const __API_URL__: string;

@@ -26,7 +26,7 @@ module.exports = (env) => {
     }),
     new DefinePlugin({
       __ENV__: JSON.stringify(mode),
-      __API__: JSON.stringify(process.env.API || 'http://localhost:3000/api'),
+      __API_URL__: JSON.stringify(process.env.API_URL),
     }),
   ];
 
@@ -56,7 +56,7 @@ module.exports = (env) => {
   let devServer;
   if (isDev) {
     devServer = {
-      port: 3001,
+      port: process.env.DEV_PORT,
       historyApiFallback: true,
       hot: true,
       devMiddleware: { writeToDisk: true },
