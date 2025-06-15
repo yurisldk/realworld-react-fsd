@@ -134,7 +134,7 @@ module.exports = (env) => {
                 [
                   '@babel/preset-react',
                   {
-                    runtime: isDev ? 'automatic' : 'classic',
+                    runtime: 'automatic',
                   },
                 ],
               ],
