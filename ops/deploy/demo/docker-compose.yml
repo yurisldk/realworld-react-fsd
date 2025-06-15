@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '${DB_PORT_EXTERNAL}:${DB_PORT_INTERNAL}'
+
+  pgadmin:
+    image: dpage/pgadmin4:6.21
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PG_ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PG_ADMIN_PASSWORD}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - '${PG_ADMIN_PORT_EXTERNAL}:${PG_ADMIN_PORT_INTERNAL}'
+    depends_on:
+      - db
+
+  api:
+    image: ghcr.io/yurisldk/realworld-api:latest
+    container_name: api
+    platform: linux/amd64
+    environment:
+      DATABASE_URL: ${DB_URL}
+      JWT_SECRET: ${API_JWT_SECRET}
+      NODE_ENV: ${API_NODE_ENV}
+      PORT: ${API_PORT_INTERNAL}
+      MIN_REQUEST_DELAY_MS: ${API_MIN_REQUEST_DELAY_MS}
+      MAX_REQUEST_DELAY_MS: ${API_MAX_REQUEST_DELAY_MS}
+    depends_on:
+      - db
+    ports:
+      - '${API_PORT_EXTERNAL}:${API_PORT_INTERNAL}'
+
+  frontend:
+    image: ghcr.io/yurisldk/realworld:latest
+    container_name: frontend
+    platform: linux/amd64
+    ports:
+      - '${WEB_SERVER_PORT_EXTERNAL}:${WEB_SERVER_PORT_INTERNAL}'
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  pgadmin_data:
