@@ -1,5 +1,15 @@
 # Versions
 
+## 1.1.0 (2025-06-15)
+
+### 🚀 Features
+
+- Integrated initial demo environment configuration
+- Enhanced CI/CD workflows and GitHub Actions
+- Optimized Husky pre-push hook performance
+- Added environment variable support across application layers
+- Fixed JSX runtime default import issue
+
 ## 1.0.0 (2025-06-08)
 
 ### 🚀 Features
