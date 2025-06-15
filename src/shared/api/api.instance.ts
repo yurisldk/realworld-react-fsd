@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import { ApiErrorDataDtoSchema } from './api.contracts';
 import { normalizeValidationErrors } from './api.lib';
 
-export const api = axios.create({ baseURL: __API__ });
+export const api = axios.create({ baseURL: __API_URL__ });
 
 export function attachAuthInterceptor(getAuthToken: () => string | undefined) {
   api.interceptors.request.use(

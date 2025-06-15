@@ -1,6 +1,6 @@
 # 🙌 RealWorld example app 🍰 Feature-Sliced Design
 
-This codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API. Powered by [FSD (Feature-Sliced Design)](https://feature-sliced.design) architectural methodology.
+This codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API. Powered by [FSD (Feature-Sliced Design)](https://feature-sliced.github.io/documentation) architectural methodology.
 
 ![Realworld example app](./logo.gif)
 
@@ -14,17 +14,7 @@ This codebase containing real world examples (CRUD, auth, advanced patterns, etc
 [![React Query][shields-react-query-domain]](https://tanstack.com/query/v4/)
 [![Redux][shields-redux-domain]](https://redux.js.org/)
 [![Zod][shields-zod-domain]](https://zod.dev/)
-[![Feature-Sliced Design][shields-fsd-domain]](https://feature-sliced.design/)
-
-## Backend Solution for RealWorld API Challenges
-
-As part of the solution to the issues caused by recent changes to the [RealWorld API specifications](https://github.com/gothinkster/realworld/issues/1611), I’ve forked an backend and created a fully compatible alternative with **[RealWorld Express + Prisma](https://github.com/yurisldk/node-express-realworld-example-app)**.
-
-This fork addresses the challenges caused by the deletion of the official API server and demo deployment, and it implements the updated API specifications to keep the project running smoothly.
-
-To get the backend up and running, you can find instructions on how to install and set it up in the [RealWorld Express + Prisma repository](https://github.com/yurisldk/node-express-realworld-example-app).
-
-Feel free to contribute or reach out if you have any questions or suggestions!
+[![Feature-Sliced Design][shields-fsd-domain]](https://feature-sliced.github.io/documentation/)
 
 ## Features
 
@@ -104,6 +94,31 @@ To get the frontend running locally:
 1. Clone this repo
 2. `yarn install` to install all the dependencies defined in a `package.json` file.
 3. `yarn start` to start webpack dev server.
+
+## 🧪 Demo Environment
+
+You can run both the frontend (this repo) and the backend ([node-express-realworld-example-app](https://github.com/yurisldk/node-express-realworld-example-app)) together using Docker Compose.
+
+A demo setup is available in [`ops/deploy/demo`](./ops/deploy/demo), which includes preconfigured services:
+
+- Frontend (React app)
+- Backend API (Node.js + Express + Prisma)
+- PostgreSQL database
+- PgAdmin for DB inspection
+
+### Run the fullstack demo
+
+Make sure Docker is installed, then from the project root run:
+
+```bash
+docker-compose -f ops/deploy/demo/docker-compose.yml --env-file ops/deploy/demo/.env up --build -d
+```
+
+Once started, you can access:
+
+- Frontend: http://localhost:30401
+- API: http://localhost:30400
+- PgAdmin: http://localhost:30433
 
 ## Backend Setup
 
