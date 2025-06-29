@@ -35,7 +35,7 @@ export function useUpdateSessionMutation(
       const profileQueryKey = profileQueryOptions(data.username).queryKey;
 
       queryClient.setQueryData(sessionQueryKey, data);
-      queryClient.setQueryData(profileQueryKey, data);
+      queryClient.setQueryData(profileQueryKey, { ...data, following: false });
       store.dispatch(setSession(data));
 
       await Promise.all([
