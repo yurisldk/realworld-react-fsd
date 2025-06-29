@@ -23,5 +23,10 @@ declare module '*.svg' {
   export default SVG;
 }
 
+declare module '@cypress/grep/src/plugin' {
+  const plugin: any;
+  export default plugin;
+}
+
 declare const __NODE_ENV__: 'production' | 'development';
 declare const __API_URL__: string;
