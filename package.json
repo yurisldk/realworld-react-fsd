@@ -11,6 +11,10 @@
     "eslint": "eslint src --fix --ext ts,tsx --cache --report-unused-disable-directives",
     "prettier": "prettier --write . --ignore-path .gitignore",
     "graph": "npx depcruise src --include-only \"^src\" --output-type dot | dot -T svg > dependency-graph-preview.svg",
+    "db:seed:dev": "dotenv -e .env.development -- sh -c 'curl -X POST \"$API_URL/test-utils/seed-db\" -H \"Authorization: Bearer $TEST_UTILS_TOKEN\"'",
+    "db:seed:prod": "dotenv -e .env.production -- sh -c 'curl -X POST \"$API_URL/test-utils/seed-db\" -H \"Authorization: Bearer $TEST_UTILS_TOKEN\"'",
+    "cy:open": "cross-env NODE_ENV=development CYPRESS_ENV=debug cypress open",
+    "cy:run": "cross-env NODE_ENV=development CYPRESS_ENV=debug cypress run",
     "prepare": "husky"
   },
   "dependencies": {
@@ -59,6 +63,7 @@
     "cypress": "^14.4.1",
     "dependency-cruiser": "^16.3.3",
     "dotenv": "^16.4.7",
+    "dotenv-cli": "^8.0.0",
     "eslint": "8.57.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-airbnb-typescript": "18.0.0",
