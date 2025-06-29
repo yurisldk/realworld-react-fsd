@@ -10,7 +10,12 @@ import { transformProfileDtoToProfile } from '~entities/profile/profile.lib';
 
 export function useUnfollowProfileMutation(
   options: Pick<
-    UseMutationOptions<Profile, DefaultError, string, { previousArticles: unknown; previousProfile: Profile }>,
+    UseMutationOptions<
+      Profile,
+      DefaultError,
+      string,
+      { previousArticles: unknown; previousProfile: Profile | undefined }
+    >,
     'mutationKey' | 'onMutate' | 'onSuccess' | 'onError' | 'onSettled'
   > = {},
 ) {
@@ -37,9 +42,10 @@ export function useUnfollowProfileMutation(
       const previousArticles = queryClient.getQueriesData({ queryKey: articleQueryKey });
       const previousProfile = queryClient.getQueryData(profileQueryKey);
 
-      const updatedProfile = previousProfile && { ...previousProfile, following: true };
-
-      queryClient.setQueryData(profileQueryKey, updatedProfile);
+      if (previousProfile) {
+        const updatedProfile = previousProfile && { ...previousProfile, following: true };
+        queryClient.setQueryData(profileQueryKey, updatedProfile);
+      }
 
       queryClient.setQueriesData({ queryKey: articleQueryKey }, (rawData) => {
         if (!rawData) {
@@ -80,9 +86,16 @@ export function useUnfollowProfileMutation(
     onError: async (error, username, context) => {
       const articleQueryKey = ARTICLES_ROOT_QUERY_KEY;
       const profileQueryKey = profileQueryOptions(username).queryKey;
+      const { previousArticles, previousProfile } = context || {};
 
-      queryClient.setQueriesData({ queryKey: articleQueryKey }, context.previousArticles);
-      queryClient.setQueryData(profileQueryKey, context.previousProfile);
+      if (previousArticles) {
+        queryClient.setQueriesData({ queryKey: articleQueryKey }, previousArticles);
+      }
+
+      if (previousProfile) {
+        queryClient.setQueryData(profileQueryKey, previousProfile);
+      }
+
       await onError?.(error, username, context);
     },
 

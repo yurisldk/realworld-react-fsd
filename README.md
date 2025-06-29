@@ -1,35 +1,62 @@
 # 🙌 RealWorld example app 🍰 Feature-Sliced Design
 
-This codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API. Powered by [FSD (Feature-Sliced Design)](https://feature-sliced.github.io/documentation) architectural methodology.
+A modern implementation of the [RealWorld](https://github.com/gothinkster/realworld) app using [FSD (Feature-Sliced Design)](https://feature-sliced.github.io/documentation), React, TypeScript, and a contemporary frontend stack.
 
 ![Realworld example app](./logo.gif)
 
----
+## About the Project
 
-[![TypeScript][shields-typescript-domain]](https://www.typescriptlang.org/)
-[![Webpack][shields-webpack-domain]](https://webpack.js.org/)
-[![Jest][shields-jest-domain]](https://jestjs.io/)
-[![React][shields-react-domain]](https://react.dev/)
-[![React Router][shields-react-router-domain]](https://reactrouter.com/)
-[![React Query][shields-react-query-domain]](https://tanstack.com/query/v4/)
-[![Redux][shields-redux-domain]](https://redux.js.org/)
-[![Zod][shields-zod-domain]](https://zod.dev/)
-[![Feature-Sliced Design][shields-fsd-domain]](https://feature-sliced.github.io/documentation/)
-
-## Features
+This project is an educational and demonstration Medium-clone built with the Feature-Sliced Design (FSD) architectural approach and modern frontend tools. It is suitable for learning, experimentation, and as a template for large-scale applications.
 
 ![Preview][preview-domain]
 
-The example application is a social blogging site (i.e. a Medium.com clone) called "Conduit". It uses a custom API for all requests, including authentication.
+## Tech Stack
 
-### Advanced Features
+- **React** 18+
+- **TypeScript**
+- **Feature-Sliced Design (FSD)**
+- **React Router**
+- **React Query**
+- **Redux Toolkit**
+- **React Hook Form**
+- **Webpack**
+- **Jest** (unit tests)
+- **Cypress** (e2e tests)
+- **Zod** (schema validation)
+- **CSS Modules**
 
-- **Lazy Loading for React Components and React Router** – Components and routes are dynamically loaded only when needed, improving initial load times and optimizing performance.
-- **React Suspense** – Used for handling asynchronous component loading, providing a smooth user experience while waiting for data to load.
-- **Error Boundaries** – Ensures the application remains stable by catching JavaScript errors in component trees and displaying fallback UIs instead of crashing the app.
-- **Optimistic Updates with React Query** – Provides an enhanced user experience by updating the UI immediately before waiting for the server response, making interactions feel faster.
-- **Lazy Loading for Redux Slices** – Dynamically loads Redux slices when required, reducing the initial bundle size and improving app efficiency.
-- **Zod Validation for Backend Responses** – Ensures API responses adhere to expected structures using Zod contracts, improving reliability and preventing unexpected runtime errors.
+## Project Structure
+
+- `src/` — application source code
+  - `app/` — app initialization, routing, providers
+  - `pages/` — application pages (home, article, login, register, settings, 404, etc.)
+  - `widgets/` — large widgets (article feed, comments, etc.)
+  - `features/` — business features (authentication, articles, comments, etc.)
+  - `entities/` — business entities (article, comment, profile, etc.)
+  - `shared/` — reusable modules, utilities, UI components, API
+- `public/` — static files
+- `build/` — production build output
+- `coverage/` — test coverage reports
+- `cypress/` — e2e tests
+
+## Advanced Features
+
+- **Code Splitting & Lazy Loading** - React components and routes are loaded on demand, reducing initial bundle size and improving performance.
+- **React Suspense & Concurrent Features** - Handles asynchronous loading and leverages modern React features for a smoother user experience.
+- **Error Boundaries & Centralized Error Logging** - Prevents app crashes by catching JavaScript errors in component trees and displaying fallback UIs, with centralized error reporting.
+- **Optimistic UI Updates & Data Prefetching (React Query)** - Instantly updates the UI before server confirmation, prefetches and caches data for fast, responsive interactions.
+- **Dynamic Redux Slices** - Loads Redux slices only when needed, optimizing bundle size and state management.
+- **Type-Safe API Layer with Axios** - Centralized, strongly-typed API requests and error handling.
+- **Zod-based API Validation** - Validates backend responses with Zod schemas, ensuring data consistency and type safety.
+- **React Hook Form Integration** - Efficient, scalable form state management with validation and error display.
+- **Role-based Access & Permissions** - Permission checks for UI and API actions.
+- **Comprehensive Testing** - Includes unit (Jest) and e2e (Cypress) tests, with tag-based selection, custom commands, and coverage reports.
+- **CI/CD Integration** - Automated testing, linting, and formatting in the pipeline for reliable delivery.
+- **Environment-based Configuration** - Supports multiple environments via `.env` files and runtime variables.
+- **Feature-Sliced Design Architecture** - Strict adherence to FSD for scalable, maintainable code.
+- **Custom ESLint & Prettier Rules** - Enforced code style, import order, and formatting for consistency.
+- **Bundle Analysis & Dependency Graphs** - Visual tools for analyzing bundle size and module dependencies.
+- **Hot Module Replacement & Fast Refresh** - Instant feedback during development for a seamless DX.
 
 ### Dependency Graph
 
@@ -39,27 +66,21 @@ The example application is a social blogging site (i.e. a Medium.com clone) call
 
 ![Bundle Analyze][bundle-analyze-domain]
 
-**General functionality:**
-
-- Authenticate users via JWT (login/signup pages + logout button on settings page)
-- CRU- users (sign up & settings page - no deleting required)
-- CRUD Articles
-- CR-D Comments on articles (no updating required)
-- GET and display paginated lists of articles
-- Favorite articles
-- Follow other users
-
 ## Scripts
 
-- **`yarn start`** - Runs the Webpack development server with `webpack serve`, using development mode.
-- **`yarn build:dev`** - Compiles the project in development mode using Webpack.
-- **`yarn build:prod`** - Compiles the project in production mode using Webpack for optimized output.
-- **`yarn analyze`** - Builds the project in development mode and enables Webpack Bundle Analyzer for visualizing bundle contents.
-- **`yarn test`** - Runs Jest to execute unit tests.
-- **`yarn eslint`** - Runs ESLint to lint the `src` directory, automatically fixing issues and ensuring no unused disable directives remain.
-- **`yarn prettier`** - Formats the entire project using Prettier, respecting `.gitignore` rules.
-- **`yarn prepare`** - Initializes Husky and sets up pre-commit and pre-push Git hooks.
+- **`yarn start`** - Launches the Webpack development server with hot module replacement.
+- **`yarn build:dev`** - Builds the project in development mode.
+- **`yarn build:prod`** - Builds the project in production mode with optimizations.
+- **`yarn analyze`** - Builds and opens the Webpack Bundle Analyzer for bundle inspection.
+- **`yarn test`** - Runs all unit tests with Jest.
+- **`yarn eslint`** - Lints and auto-fixes code in the `src` directory.
+- **`yarn prettier`** - Formats the codebase using Prettier.
 - **`yarn graph`** - Generates a dependency graph of the `src` directory using `dependency-cruiser`.[^1]
+- **`yarn cy:open`** - Opens the Cypress UI for interactive e2e testing.
+- **`yarn cy:run`** - Runs all Cypress e2e tests in headless mode.
+- **`yarn prepare`** - Sets up Husky git hooks for pre-commit and pre-push.
+- **`yarn db:seed:dev`** - Seeds the development database via backend API.
+- **`yarn db:seed:prod`** - Seeds the production database via backend API.
 
 [^1]:
     This assumes the GraphViz `dot` command is available - on most linux and
@@ -67,77 +88,35 @@ The example application is a social blogging site (i.e. a Medium.com clone) call
     [GraphViz' download page](https://www.graphviz.org/download/) for instructions
     on how to get it on your machine.
 
-## Git Hooks and Formatting
+## Demo Environment
 
-This project uses **Husky** and **lint-staged** to enforce code quality before commits and pushes.
+A ready-to-use demo environment is provided for running both the frontend (this repo) and the backend ([node-express-realworld-example-app](https://github.com/yurisldk/node-express-realworld-example-app)) together using Docker Compose.
 
-### Git hooks configured:
+The setup in [`ops/deploy/demo`](./ops/deploy/demo) includes preconfigured services:
 
-- **pre-commit** – Runs ESLint and Prettier on staged files
-- **pre-push** – Runs `yarn test` to ensure tests pass before pushing
+- **frontend** — React-based frontend client
+- **api** — Node.js/Express backend API with Prisma and PostgreSQL
+- **db** — PostgreSQL database for persistent storage
+- **pgadmin** — Admin UI for managing PostgreSQL
 
-### Formatting Commit
+### Usage
 
-The entire codebase has been formatted using ESLint and Prettier.
-To avoid noisy blame history caused by formatting-only changes, the formatting commit hash is listed in `.git-blame-ignore-revs`.
+1. A `.env` file is already provided in the demo directory. No extra setup is needed.
+2. Start the environment:
+   ```bash
+   docker-compose -f ops/deploy/demo/docker-compose.yml --env-file ops/deploy/demo/.env up --build -d
+   ```
+3. Access the services:
+   - Frontend: <http://localhost:30401>
+   - API: <http://localhost:30400>
+   - PgAdmin: <http://localhost:30433>
 
-To configure your local Git to ignore formatting-only commits in blame:
+**Notes:**
 
-```bash
-git config blame.ignoreRevsFile .git-blame-ignore-revs
-```
+- PostgreSQL data is persisted via named volumes.
+- Images are pulled from GitHub Container Registry (GHCR).
+- On ARM-based systems (e.g., Apple Silicon), ensure Docker supports `linux/amd64` platform.
 
-## Getting started
-
-To get the frontend running locally:
-
-1. Clone this repo
-2. `yarn install` to install all the dependencies defined in a `package.json` file.
-3. `yarn start` to start webpack dev server.
-
-## 🧪 Demo Environment
-
-You can run both the frontend (this repo) and the backend ([node-express-realworld-example-app](https://github.com/yurisldk/node-express-realworld-example-app)) together using Docker Compose.
-
-A demo setup is available in [`ops/deploy/demo`](./ops/deploy/demo), which includes preconfigured services:
-
-- Frontend (React app)
-- Backend API (Node.js + Express + Prisma)
-- PostgreSQL database
-- PgAdmin for DB inspection
-
-### Run the fullstack demo
-
-Make sure Docker is installed, then from the project root run:
-
-```bash
-docker-compose -f ops/deploy/demo/docker-compose.yml --env-file ops/deploy/demo/.env up --build -d
-```
-
-Once started, you can access:
-
-- Frontend: http://localhost:30401
-- API: http://localhost:30400
-- PgAdmin: http://localhost:30433
-
-## Backend Setup
-
-This project is fully compatible with my **[RealWorld Express + Prisma](https://github.com/yurisldk/node-express-realworld-example-app)** backend implementation.
-
-To set up the backend:
-
-1. Follow the installation instructions in the [RealWorld Express + Prisma repository](https://github.com/yurisldk/node-express-realworld-example-app).
-2. Ensure the backend is running locally or deployed.
-
-[shields-react-router-domain]: https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white
-[shields-react-query-domain]: https://img.shields.io/badge/-React%20Query-FF4154?style=for-the-badge&logo=react%20query&logoColor=white
-[shields-typescript-domain]: https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white
-[shields-fsd-domain]: https://img.shields.io/badge/Feature--Sliced-Design?style=for-the-badge&color=F2F2F2&labelColor=262224&logoWidth=10&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAaCAYAAAC3g3x9AAAACXBIWXMAAALFAAACxQGJ1n/vAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAABISURBVHgB7dKxCQAgDETR0w2cws0cys2cwhEUBbsggikCuVekDHwSQFlYo7Q+8KnmtHdFWMdk2cl5wSsbxGSZw8dm8pX9ZHUTMBUgGU2F718AAAAASUVORK5CYII=
-[shields-react-domain]: https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
 [dependency-graph-domain]: ./dependency-graph-preview.svg
 [preview-domain]: ./preview.gif
 [bundle-analyze-domain]: ./bundle-analyze.png
-[shields-webpack-domain]: https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=Webpack&logoColor=white
-[shields-jest-domain]: https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white
-[shields-redux-domain]: https://img.shields.io/badge/Redux-593D88?style=for-the-badge&logo=redux&logoColor=white
-[shields-zod-domain]: https://img.shields.io/badge/Zod-000000?style=for-the-badge&logo=zod&logoColor=3068B7

@@ -49,7 +49,7 @@ function BaseCommentsList(props: CommentsListProps) {
   const { data } = useSuspenseQuery(commentsQueryOptions(slug));
 
   return (
-    <div>
+    <div data-test="comments">
       {Array.from(data.values())
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .map((comment) => (
@@ -74,7 +74,7 @@ function CommentCard(props: { comment: Comment; actions?: ReactNode }) {
   }).format(new Date(updatedAt));
 
   return (
-    <div key={comment.id} className="card">
+    <div key={comment.id} className="card" data-test="comment-item">
       <div className="card-block">
         <p className="card-text">{comment.body}</p>
       </div>

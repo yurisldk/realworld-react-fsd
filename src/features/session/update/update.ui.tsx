@@ -63,10 +63,16 @@ function BaseUpdateSessionForm() {
         </ul>
       )}
 
-      <form onSubmit={handleSubmit(onValid)}>
+      <form onSubmit={handleSubmit(onValid)} data-test="settings-form">
         <fieldset>
           <fieldset className="form-group" disabled={isPending}>
-            <input className="form-control" type="text" placeholder="URL of profile picture" {...register('image')} />
+            <input
+              className="form-control"
+              type="text"
+              placeholder="URL of profile picture"
+              data-test="settings-image"
+              {...register('image')}
+            />
             <ErrorMessage errors={errors} name="image" />
           </fieldset>
           <fieldset className="form-group" disabled={isPending}>
@@ -74,6 +80,7 @@ function BaseUpdateSessionForm() {
               className="form-control form-control-lg"
               type="text"
               placeholder="Your Name"
+              data-test="settings-username"
               {...register('username')}
             />
             <ErrorMessage errors={errors} name="username" />
@@ -83,25 +90,38 @@ function BaseUpdateSessionForm() {
               className="form-control form-control-lg"
               rows={8}
               placeholder="Short bio about you"
+              data-test="settings-bio"
               {...register('bio')}
             />
             <ErrorMessage errors={errors} name="bio" />
           </fieldset>
           <fieldset className="form-group" disabled={isPending}>
-            <input className="form-control form-control-lg" type="text" placeholder="Email" {...register('email')} />
+            <input
+              className="form-control form-control-lg"
+              type="text"
+              placeholder="Email"
+              data-test="settings-email"
+              {...register('email')}
+            />
             <ErrorMessage errors={errors} name="email" />
           </fieldset>
           <fieldset className="form-group" disabled={isPending}>
             <input
-              {...register('password')}
               className="form-control form-control-lg"
               type="password"
               placeholder="Password"
+              data-test="settings-password"
+              {...register('password')}
             />
             <ErrorMessage errors={errors} name="password" />
           </fieldset>
 
-          <button className="btn btn-lg btn-primary pull-xs-right" type="submit" disabled={!canSubmit}>
+          <button
+            className="btn btn-lg btn-primary pull-xs-right"
+            type="submit"
+            disabled={!canSubmit}
+            data-test="settings-submit"
+          >
             Update Settings
           </button>
         </fieldset>

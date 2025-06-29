@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router-dom';
 import { Button } from '../button/button.ui';
 
 type ErrorHandlerProps = {
@@ -8,10 +9,14 @@ type ErrorHandlerProps = {
 export function ErrorHandler(props: ErrorHandlerProps) {
   const { error, resetErrorBoundary } = props;
 
+  if ((error as any)?.response?.status === 404) {
+    return <Navigate to="/404" replace />;
+  }
+
   return (
     <div>
       <h3>Something went wrong.</h3>
-      {__ENV__ === 'development' && (
+      {__NODE_ENV__ === 'development' && (
         <>
           <ul className="error-messages">
             <li key={error.message}>{error.message}</li>

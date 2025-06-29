@@ -7,17 +7,17 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { ProgressPlugin, DefinePlugin } = require('webpack');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
-dotenv.config();
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 /**
  * @see https://webpack.js.org/configuration/
  * @type {import("webpack").Configuration}
  */
 module.exports = (env) => {
-  const { mode, analyzer } = env;
+  const { analyzer } = env;
 
-  const isDev = mode === 'development';
-  const isProd = mode === 'production';
+  const isDev = process.env.NODE_ENV === 'development';
+  const isProd = process.env.NODE_ENV === 'production';
 
   const plugins = [
     new HtmlWebpackPlugin({
@@ -25,7 +25,7 @@ module.exports = (env) => {
       favicon: path.resolve(__dirname, 'public', 'favicon.ico'),
     }),
     new DefinePlugin({
-      __ENV__: JSON.stringify(mode),
+      __NODE_ENV__: JSON.stringify(process.env.NODE_ENV),
       __API_URL__: JSON.stringify(process.env.API_URL),
     }),
   ];
@@ -56,7 +56,7 @@ module.exports = (env) => {
   let devServer;
   if (isDev) {
     devServer = {
-      port: process.env.DEV_PORT,
+      port: process.env.PORT,
       historyApiFallback: true,
       hot: true,
       devMiddleware: { writeToDisk: true },
@@ -66,7 +66,7 @@ module.exports = (env) => {
   }
 
   return {
-    mode,
+    mode: process.env.NODE_ENV,
     entry: path.resolve(__dirname, 'src', 'app', 'index.tsx'),
     output: {
       path: path.resolve(__dirname, 'build'),

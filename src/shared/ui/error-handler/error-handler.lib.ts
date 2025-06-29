@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 export function logError(error: Error, info: { componentStack?: string | null }) {
-  if (__ENV__ === 'development') {
+  if (__NODE_ENV__ === 'development') {
     console.log('Caught error:', error);
     console.log('Error details:', info);
   } else {

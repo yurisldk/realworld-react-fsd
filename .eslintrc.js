@@ -44,7 +44,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['src/shared/lib/test/**/*.{js,ts,jsx,tsx}'],
+      files: ['src/shared/lib/test/**/*.{js,ts,jsx,tsx}', 'cypress.config.ts', 'cypress/**'],
       rules: {
         'import/no-extraneous-dependencies': ['off'],
       },

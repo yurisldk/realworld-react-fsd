@@ -59,7 +59,7 @@ type TriggerProps = {
 };
 
 const Trigger = forwardRef((props: TriggerProps, ref?: ForwardedRef<HTMLLIElement>) => {
-  const { value, children } = props;
+  const { value, children, ...other } = props;
 
   const { contextValue, onContextValueChange } = useTabsContext();
 
@@ -73,7 +73,8 @@ const Trigger = forwardRef((props: TriggerProps, ref?: ForwardedRef<HTMLLIElemen
 
   return (
     <li ref={ref} className="nav-item">
-      <button className={classes} type="button" onClick={handleClick}>
+      {/* @ts-expect-error */}
+      <button className={classes} type="button" onClick={handleClick} data-test={other['data-test']}>
         {children}
       </button>
     </li>
