@@ -1,7 +1,7 @@
 {
   "name": "realworld-react-fsd",
   "private": true,
-  "version": "1.2.0",
+  "version": "1.2.1",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve",
     "build:dev": "cross-env NODE_ENV=development webpack",

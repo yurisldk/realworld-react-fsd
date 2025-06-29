@@ -1,5 +1,11 @@
 # Versions
 
+## 1.2.1 (2025-06-29)
+
+### 🐛 Bug Fixes
+
+- Improved error handling in `BubbleError` function
+
 ## 1.2.0 (2025-06-29)
 
 ### 🚀 Features

@@ -70,6 +70,12 @@ const browserRouter = () =>
 function BubbleError(): null {
   const error = useRouteError();
 
-  if (error) throw error;
+  if (error) {
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error(typeof error === 'string' ? error : JSON.stringify(error));
+    }
+  }
   return null;
 }
