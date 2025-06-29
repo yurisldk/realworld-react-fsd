@@ -21,6 +21,7 @@ export function DeleteCommentButtton(props: DeleteCommentButttonProps) {
       className="mod-options"
       onClick={handleClick}
       type="button"
+      data-test="comment-delete-button"
     >
       <span>
         <IoTrash size={14} />

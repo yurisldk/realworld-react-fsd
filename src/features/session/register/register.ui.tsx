@@ -47,7 +47,7 @@ function BaseRegisterForm() {
   return (
     <>
       {isError && (
-        <ul className="error-messages">
+        <ul className="error-messages" data-test="register-error">
           {mutationErrors.map((err) => (
             <li key={err}>{err}</li>
           ))}
@@ -60,12 +60,19 @@ function BaseRegisterForm() {
             className="form-control form-control-lg"
             type="text"
             placeholder="Your Name"
+            data-test="register-username"
             {...register('username')}
           />
           <ErrorMessage errors={errors} name="username" as="div" role="alert" />
         </fieldset>
         <fieldset className="form-group" disabled={isPending}>
-          <input className="form-control form-control-lg" type="text" placeholder="Email" {...register('email')} />
+          <input
+            className="form-control form-control-lg"
+            type="text"
+            placeholder="Email"
+            data-test="register-email"
+            {...register('email')}
+          />
           <ErrorMessage errors={errors} name="email" as="div" role="alert" />
         </fieldset>
         <fieldset className="form-group" disabled={isPending}>
@@ -73,12 +80,18 @@ function BaseRegisterForm() {
             className="form-control form-control-lg"
             type="password"
             placeholder="Password"
+            data-test="register-password"
             {...register('password')}
           />
           <ErrorMessage errors={errors} name="password" as="div" role="alert" />
         </fieldset>
 
-        <button className="btn btn-lg btn-primary pull-xs-right" type="submit" disabled={!canSubmit}>
+        <button
+          className="btn btn-lg btn-primary pull-xs-right"
+          type="submit"
+          disabled={!canSubmit}
+          data-test="register-submit"
+        >
           Sign up
         </button>
       </form>

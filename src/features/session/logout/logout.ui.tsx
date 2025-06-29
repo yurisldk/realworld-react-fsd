@@ -16,7 +16,7 @@ export default function LogoutButton() {
   };
 
   return (
-    <button className="btn btn-outline-danger" type="button" onClick={handleClick}>
+    <button className="btn btn-outline-danger" type="button" onClick={handleClick} data-test="logout-button">
       Or click here to logout.
     </button>
   );

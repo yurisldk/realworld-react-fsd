@@ -20,7 +20,13 @@ export function DeleteArticleButton(props: { slug: string }) {
   };
 
   return (
-    <button onClick={handleClick} className="btn btn-outline-danger btn-sm" type="button" disabled={isPending}>
+    <button
+      onClick={handleClick}
+      className="btn btn-outline-danger btn-sm"
+      type="button"
+      disabled={isPending}
+      data-test="article-delete-button"
+    >
       <IoTrash size={16} />
       &nbsp;Delete Article
     </button>

@@ -40,12 +40,12 @@ function BaseArticlePage() {
     <div className="article-page">
       <div className="banner">
         <div className="container">
-          <h1>{article.title}</h1>
+          <h1 data-test="article-title">{article.title}</h1>
           <ArticleMeta article={article} actions={<ArticleActions article={article} />} />
         </div>
       </div>
 
-      <div className="container page">
+      <div className="container page" data-test="article-body">
         <div className="row article-content">
           <div className="col-md-12">
             <div>
@@ -94,10 +94,12 @@ function ArticleMeta(props: { article: Article; actions?: ReactNode }) {
         <img src={author.image} alt={author.username} />
       </Link>
       <div className="info">
-        <Link className="author" to={pathKeys.profile.byUsername(author.username)}>
+        <Link className="author" to={pathKeys.profile.byUsername(author.username)} data-test="article-author">
           {author.username}
         </Link>
-        <span className="date">{formattedDate}</span>
+        <span className="date" data-test="article-date">
+          {formattedDate}
+        </span>
       </div>
       {actions}
     </div>
@@ -172,7 +174,11 @@ function EditArticleLink(props: { slug: string }) {
   const { slug } = props;
 
   return (
-    <Link className="btn btn-outline-secondary btn-sm" to={pathKeys.editor.bySlug(slug)}>
+    <Link
+      className="btn btn-outline-secondary btn-sm"
+      to={pathKeys.editor.bySlug(slug)}
+      data-test="article-edit-button"
+    >
       <IoPencil size={16} />
       Edit Article
     </Link>
@@ -202,7 +208,7 @@ function NavigateToLoginButtonFavorite(props: { favoritesCount: number }) {
   const onClick = () => navigate(pathKeys.login);
 
   return (
-    <Button color="primary" variant="outline" onClick={onClick}>
+    <Button color="primary" variant="outline" onClick={onClick} data-test="favorite-extended-button">
       <IoHeart size={16} />
       &nbsp;Favorite Article&nbsp;
       <span className="counter">({favoritesCount})</span>

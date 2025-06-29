@@ -47,18 +47,20 @@ function BaseArticlesFeed() {
 
       {data.articlesCount === 0 && <div className="article-preview">No articles are here... yet.</div>}
 
-      <ul className="pagination">
-        {Array(Math.ceil(data.articlesCount / 10))
-          .fill(0)
-          .map((_, i) => (i + 1).toString())
-          .map((page) => (
-            <li key={page} className={`page-item ${page === filterQuery.page ? 'active' : ''}`}>
-              <button className="page-link" type="button" onClick={onPageClick(page)}>
-                {page}
-              </button>
-            </li>
-          ))}
-      </ul>
+      {data.articlesCount > 10 && (
+        <ul className="pagination" data-test="pagination">
+          {Array(Math.ceil(data.articlesCount / 10))
+            .fill(0)
+            .map((_, i) => (i + 1).toString())
+            .map((page) => (
+              <li key={page} className={`page-item ${page === filterQuery.page ? 'active' : ''}`}>
+                <button className="page-link" type="button" onClick={onPageClick(page)}>
+                  {page}
+                </button>
+              </li>
+            ))}
+        </ul>
+      )}
     </>
   );
 }
@@ -75,7 +77,7 @@ function ArticleMeta(props: ArticleMetaProps) {
   }).format(new Date(updatedAt));
 
   return (
-    <div className="article-preview">
+    <div className="article-preview" data-test="article-preview">
       <div className="article-meta">
         <Link to={pathKeys.profile.byUsername(author.username)}>
           <img src={author.image} alt={author.username} />

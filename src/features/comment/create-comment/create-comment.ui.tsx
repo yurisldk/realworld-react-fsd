@@ -74,6 +74,7 @@ function BaseCreateCommentForm(props: CreateCommentFormProps) {
               placeholder="Write a comment..."
               rows={3}
               disabled={isPending}
+              data-test="comment-input"
               {...register('body')}
             />
             <ErrorMessage errors={errors} name="body" as="div" role="alert" />
@@ -82,7 +83,7 @@ function BaseCreateCommentForm(props: CreateCommentFormProps) {
         <div className="card-footer">
           <img src={user.image} className="comment-author-img" alt={user.username} />
 
-          <button className="btn btn-sm btn-primary" type="submit" disabled={!canSubmit}>
+          <button className="btn btn-sm btn-primary" type="submit" disabled={!canSubmit} data-test="comment-submit">
             Post Comment
           </button>
         </div>
