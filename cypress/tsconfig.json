@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["cypress", "@cypress/grep"]
+  },
+  "include": ["../src", "./**/*.ts", "./**/*.tsx"]
+}
