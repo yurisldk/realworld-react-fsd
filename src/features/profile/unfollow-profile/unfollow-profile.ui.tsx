@@ -12,7 +12,7 @@ export function UnfollowUserButton(props: { username: string }) {
   };
 
   return (
-    <Button color="secondary" className="action-btn " onClick={handleClick}>
+    <Button color="secondary" className="action-btn " onClick={handleClick} data-test="unfollow-button">
       <IoRemove size={16} />
       &nbsp; Unfollow {username}
     </Button>

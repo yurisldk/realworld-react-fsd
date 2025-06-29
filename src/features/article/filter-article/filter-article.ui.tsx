@@ -30,8 +30,14 @@ export function PrimaryFilter() {
   return (
     <Tabs.Root value={tabValue} onValueChange={handleTabClick}>
       <Tabs.List>
-        {session && <Tabs.Trigger value="user">Your Feed</Tabs.Trigger>}
-        <Tabs.Trigger value="global">Global Feed</Tabs.Trigger>
+        {session && (
+          <Tabs.Trigger value="user" data-test="your-feed-tab">
+            Your Feed
+          </Tabs.Trigger>
+        )}
+        <Tabs.Trigger value="global" data-test="global-feed-tab">
+          Global Feed
+        </Tabs.Trigger>
         {tag && <Tabs.Trigger value="tag">#{tag}</Tabs.Trigger>}
       </Tabs.List>
     </Tabs.Root>
@@ -58,9 +64,15 @@ function BaseTagFilter() {
   };
 
   return (
-    <div className="tag-list">
+    <div className="tag-list" data-test="tag-list">
       {tags.map((tag) => (
-        <button key={tag} className="tag-pill tag-default" type="button" onClick={handleTagClick(tag)}>
+        <button
+          key={tag}
+          className="tag-pill tag-default"
+          type="button"
+          onClick={handleTagClick(tag)}
+          data-test={`tag-${tag}`}
+        >
           {tag}
         </button>
       ))}
@@ -99,9 +111,13 @@ export function SecondaryFilter() {
     <Tabs.Root value={tabValue} onValueChange={handleTabClick}>
       <div className="articles-toggle">
         <Tabs.List>
-          <Tabs.Trigger value="author">{`${username}`}&apos;s Articles</Tabs.Trigger>
+          <Tabs.Trigger value="author" data-test="profile-tab-my-articles">
+            {`${username}`}&apos;s Articles
+          </Tabs.Trigger>
 
-          <Tabs.Trigger value="favorited">Favorited Articles</Tabs.Trigger>
+          <Tabs.Trigger value="favorited" data-test="profile-tab-favorited-articles">
+            Favorited Articles
+          </Tabs.Trigger>
         </Tabs.List>
       </div>
     </Tabs.Root>

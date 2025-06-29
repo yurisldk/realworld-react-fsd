@@ -12,7 +12,7 @@ export function FollowUserButton(props: { username: string }) {
   };
 
   return (
-    <Button color="secondary" variant="outline" className="action-btn " onClick={handleClick}>
+    <Button color="secondary" variant="outline" className="action-btn " onClick={handleClick} data-test="follow-button">
       <IoAdd size={16} />
       &nbsp; Follow {username}
     </Button>

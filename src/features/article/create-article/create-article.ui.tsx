@@ -47,7 +47,7 @@ export function BaseCreateArticleForm() {
   return (
     <form onSubmit={handleSubmit(onValid)}>
       {isError && (
-        <ul className="error-messages">
+        <ul className="error-messages" data-test="article-error">
           {mutationErrors.map((err) => (
             <li key={err}>{err}</li>
           ))}
@@ -60,6 +60,7 @@ export function BaseCreateArticleForm() {
           className="form-control form-control-lg"
           placeholder="Article Title"
           disabled={isPending}
+          data-test="article-title-input"
           {...register('title')}
         />
         <ErrorMessage errors={errors} name="title" as="div" role="alert" />
@@ -71,6 +72,7 @@ export function BaseCreateArticleForm() {
           className="form-control"
           placeholder="What's this article about?"
           disabled={isPending}
+          data-test="article-description-input"
           {...register('description')}
         />
         <ErrorMessage errors={errors} name="description" as="div" role="alert" />
@@ -82,6 +84,7 @@ export function BaseCreateArticleForm() {
           rows={8}
           placeholder="Write your article (in markdown)"
           disabled={isPending}
+          data-test="article-body-input"
           {...register('body')}
         />
         <ErrorMessage errors={errors} name="body" as="div" role="alert" />
@@ -93,12 +96,18 @@ export function BaseCreateArticleForm() {
           className="form-control"
           placeholder="Enter tags"
           disabled={isPending}
+          data-test="article-tags-input"
           {...register('tagList')}
         />
         <ErrorMessage errors={errors} name="tagList" as="div" role="alert" />
       </fieldset>
 
-      <button className="btn btn-lg pull-xs-right btn-primary" type="submit" disabled={!canSubmit}>
+      <button
+        className="btn btn-lg pull-xs-right btn-primary"
+        type="submit"
+        disabled={!canSubmit}
+        data-test="article-submit"
+      >
         Publish Article
       </button>
     </form>

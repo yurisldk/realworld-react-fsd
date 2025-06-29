@@ -61,8 +61,8 @@ function BaseProfileInfo() {
   return (
     <>
       <img src={profile.image} className="user-img" alt={profile.username} />
-      <h4>{profile.username}</h4>
-      <p>{profile.bio}</p>
+      <h4 data-test="app-header-username">{profile.username}</h4>
+      <p data-test="app-header-bio">{profile.bio}</p>
 
       <ToggleFollowProfile profile={profile} />
     </>

@@ -30,7 +30,7 @@ export function UnfavoriteArticleExtendedButton(props: { article: Article }) {
   };
 
   return (
-    <Button color="primary" onClick={handleUnfavorite}>
+    <Button color="primary" onClick={handleUnfavorite} data-test="unfavorite-extended-button">
       <IoHeart size={16} />
       &nbsp;Unfavorite Article&nbsp;
       <span className="counter">({article.favoritesCount})</span>
