@@ -1,5 +1,20 @@
 # Versions
 
+## 1.2.0 (2025-06-29)
+
+### 🚀 Features
+
+- Added Cypress end-to-end testing framework with comprehensive user flow tests
+- Introduced data-test attributes for improved testability
+- Enabled strict null checks in TypeScript configuration for better type safety
+- Refactored environment variable management for clarity and multi-env support
+- Enhanced test support and coverage across UI components
+
+### 🐛 Bug Fixes
+
+- Fixed Docker login action to use GHCR_PAT instead of GITHUB_TOKEN
+- Minor CI/CD and workflow improvements
+
 ## 1.1.1 (2025-06-15)
 
 ### 🐛 Bug Fixes
