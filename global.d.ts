@@ -23,5 +23,5 @@ declare module '*.svg' {
   export default SVG;
 }
 
-declare const __ENV__: 'production' | 'development';
+declare const __NODE_ENV__: 'production' | 'development';
 declare const __API_URL__: string;
