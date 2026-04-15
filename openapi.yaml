@@ -1,0 +1,1025 @@
+openapi: 3.0.1
+info:
+  title: RealWorld Conduit API
+  description: Conduit API documentation. Fixed for proper code generation with Orval.
+  contact:
+    name: RealWorld
+    url: https://realworld-docs.netlify.app/
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+tags:
+  - name: Articles
+  - name: Comments
+  - name: Favorites
+  - name: Profile
+  - name: Tags
+  - name: User and Authentication
+servers:
+  - url: https://api.realworld.io/api
+paths:
+  /users/login:
+    post:
+      tags:
+        - User and Authentication
+      summary: Existing user login
+      description: Login for existing user
+      operationId: Login
+      requestBody:
+        required: true
+        description: Credentials to use
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginUserRequest'
+      responses:
+        '200':
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      x-codegen-request-body-name: body
+  /users:
+    post:
+      tags:
+        - User and Authentication
+      description: Register a new user
+      operationId: CreateUser
+      requestBody:
+        required: true
+        description: Details of the new user to register
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUserRequest'
+      responses:
+        '201':
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      x-codegen-request-body-name: body
+  /user:
+    get:
+      tags:
+        - User and Authentication
+      summary: Get current user
+      description: Gets the currently logged-in user
+      operationId: GetCurrentUser
+      responses:
+        '200':
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+    put:
+      tags:
+        - User and Authentication
+      summary: Update current user
+      description: Updated user information for current user
+      operationId: UpdateCurrentUser
+      requestBody:
+        required: true
+        description: User details to update. At least **one** field is required.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+      x-codegen-request-body-name: body
+  /profiles/{username}:
+    get:
+      tags:
+        - Profile
+      summary: Get a profile
+      description: Get a profile of a user of the system. Auth is optional
+      operationId: GetProfileByUsername
+      parameters:
+        - name: username
+          in: path
+          description: Username of the profile to get
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+  /profiles/{username}/follow:
+    post:
+      tags:
+        - Profile
+      summary: Follow a user
+      description: Follow a user by username
+      operationId: FollowUserByUsername
+      parameters:
+        - name: username
+          in: path
+          description: Username of the profile you want to follow
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+    delete:
+      tags:
+        - Profile
+      summary: Unfollow a user
+      description: Unfollow a user by username
+      operationId: UnfollowUserByUsername
+      parameters:
+        - name: username
+          in: path
+          description: Username of the profile you want to unfollow
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+  /articles/feed:
+    get:
+      tags:
+        - Articles
+      summary: Get recent articles from users you follow
+      description: Get most recent articles from users you follow. Use query parameters
+        to limit. Auth is required
+      operationId: GetArticlesFeed
+      parameters:
+        - in: query
+          name: offset
+          required: true
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set.
+        - in: query
+          name: limit
+          required: true
+          schema:
+            type: integer
+          description: The numbers of items to return.
+      responses:
+        '200':
+          description: Multiple articles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleArticlesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+  /articles:
+    get:
+      tags:
+        - Articles
+      summary: Get recent articles globally
+      description: Get most recent articles globally. Use query parameters to filter
+        results. Auth is optional
+      operationId: GetArticles
+      parameters:
+        - name: tag
+          in: query
+          description: Filter by tag
+          schema:
+            type: string
+        - name: author
+          in: query
+          description: Filter by author (username)
+          schema:
+            type: string
+        - name: favorited
+          in: query
+          description: Filter by favorites of a user (username)
+          schema:
+            type: string
+        - in: query
+          name: offset
+          required: true
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set.
+        - in: query
+          name: limit
+          required: true
+          schema:
+            type: integer
+          description: The numbers of items to return.
+      responses:
+        '200':
+          description: Multiple articles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleArticlesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+    post:
+      tags:
+        - Articles
+      summary: Create an article
+      description: Create an article. Auth is required
+      operationId: CreateArticle
+      requestBody:
+        required: true
+        description: Article to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewArticleRequest'
+      responses:
+        '201':
+          description: Single article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleArticleResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+      x-codegen-request-body-name: article
+  /articles/{slug}:
+    get:
+      tags:
+        - Articles
+      summary: Get an article
+      description: Get an article. Auth not required
+      operationId: GetArticle
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article to get
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Single article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleArticleResponse'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+    put:
+      tags:
+        - Articles
+      summary: Update an article
+      description: Update an article. Auth is required
+      operationId: UpdateArticle
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Article to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateArticleRequest'
+      responses:
+        '200':
+          description: Single article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleArticleResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+      x-codegen-request-body-name: article
+    delete:
+      tags:
+        - Articles
+      summary: Delete an article
+      description: Delete an article. Auth is required
+      operationId: DeleteArticle
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+  /articles/{slug}/comments:
+    get:
+      tags:
+        - Comments
+      summary: Get comments for an article
+      description: Get the comments for an article. Auth is optional
+      operationId: GetArticleComments
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to get comments for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Multiple comments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleCommentsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+    post:
+      tags:
+        - Comments
+      summary: Create a comment for an article
+      description: Create a comment for an article. Auth is required
+      operationId: CreateArticleComment
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to create a comment for
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Comment you want to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCommentRequest'
+      responses:
+        '200':
+          description: Single comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleCommentResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+      x-codegen-request-body-name: comment
+  /articles/{slug}/comments/{id}:
+    delete:
+      tags:
+        - Comments
+      summary: Delete a comment for an article
+      description: Delete a comment for an article. Auth is required
+      operationId: DeleteArticleComment
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to delete a comment for
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: ID of the comment you want to delete
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: No content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+  /articles/{slug}/favorite:
+    post:
+      tags:
+        - Favorites
+      summary: Favorite an article
+      description: Favorite an article. Auth is required
+      operationId: CreateArticleFavorite
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to favorite
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Single article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleArticleResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+    delete:
+      tags:
+        - Favorites
+      summary: Unfavorite an article
+      description: Unfavorite an article. Auth is required
+      operationId: DeleteArticleFavorite
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of the article that you want to unfavorite
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Single article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleArticleResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+      security:
+        - Token: []
+  /tags:
+    get:
+      tags:
+        - Tags
+      summary: Get tags
+      description: Get tags. Auth not required
+      operationId: GetTags
+      responses:
+        '200':
+          description: Tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagsResponse'
+        '422':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorModel'
+components:
+  schemas:
+    LoginUser:
+      required:
+        - email
+        - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          format: password
+    NewUser:
+      required:
+        - email
+        - password
+        - username
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          format: password
+    User:
+      required:
+        - email
+        - image
+        - token
+        - username
+      type: object
+      properties:
+        email:
+          type: string
+        username:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        image:
+          type: string
+        token:
+          type: string
+    UpdateUser:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+        bio:
+          type: string
+        image:
+          type: string
+    Profile:
+      required:
+        - following
+        - image
+        - username
+      type: object
+      properties:
+        username:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        image:
+          type: string
+        following:
+          type: boolean
+    Article:
+      required:
+        - author
+        - body
+        - createdAt
+        - description
+        - favorited
+        - favoritesCount
+        - slug
+        - tagList
+        - title
+        - updatedAt
+      type: object
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        favorited:
+          type: boolean
+        favoritesCount:
+          type: integer
+        author:
+          $ref: '#/components/schemas/Profile'
+    NewArticle:
+      required:
+        - body
+        - description
+        - title
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
+    UpdateArticle:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        body:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
+    Comment:
+      required:
+        - author
+        - body
+        - createdAt
+        - id
+        - updatedAt
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        body:
+          type: string
+        author:
+          $ref: '#/components/schemas/Profile'
+    NewComment:
+      required:
+        - body
+      type: object
+      properties:
+        body:
+          type: string
+    GenericErrorModel:
+      required:
+        - errors
+      type: object
+      properties:
+        errors:
+          required:
+            - body
+          type: object
+          properties:
+            body:
+              type: array
+              items:
+                type: string
+    LoginUserRequest:
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/LoginUser'
+    NewUserRequest:
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/NewUser'
+    UpdateUserRequest:
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UpdateUser'
+    NewArticleRequest:
+      required:
+        - article
+      type: object
+      properties:
+        article:
+          $ref: '#/components/schemas/NewArticle'
+    UpdateArticleRequest:
+      required:
+        - article
+      type: object
+      properties:
+        article:
+          $ref: '#/components/schemas/UpdateArticle'
+    NewCommentRequest:
+      required:
+        - comment
+      type: object
+      properties:
+        comment:
+          $ref: '#/components/schemas/NewComment'
+    ArticlePreview:
+      required:
+        - author
+        - createdAt
+        - description
+        - favorited
+        - favoritesCount
+        - slug
+        - tagList
+        - title
+        - updatedAt
+      type: object
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        tagList:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        favorited:
+          type: boolean
+        favoritesCount:
+          type: integer
+        author:
+          $ref: '#/components/schemas/Profile'
+    UserResponse:
+      required:
+        - user
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+    ProfileResponse:
+      required:
+        - profile
+      type: object
+      properties:
+        profile:
+          $ref: '#/components/schemas/Profile'
+    SingleArticleResponse:
+      required:
+        - article
+      type: object
+      properties:
+        article:
+          $ref: '#/components/schemas/Article'
+    MultipleArticlesResponse:
+      required:
+        - articles
+        - articlesCount
+      type: object
+      properties:
+        articles:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArticlePreview'
+        articlesCount:
+          type: integer
+    SingleCommentResponse:
+      required:
+        - comment
+      type: object
+      properties:
+        comment:
+          $ref: '#/components/schemas/Comment'
+    MultipleCommentsResponse:
+      required:
+        - comments
+      type: object
+      properties:
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+    TagsResponse:
+      required:
+        - tags
+      type: object
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+  parameters:
+    offsetParam:
+      in: query
+      name: offset
+      required: true
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set.
+    limitParam:
+      in: query
+      name: limit
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        default: 20
+      description: The numbers of items to return.
+  securitySchemes:
+    Token:
+      type: apiKey
+      description: "Authentication is handled via Authorization header using a single\
+        \ JWT token returned in `user.token`.\n\nProtected requests must include:\n\
+        \n    Authorization: Token xxxxxx.yyyyyyy.zzzzzz\n"
+      name: Authorization
+      in: header

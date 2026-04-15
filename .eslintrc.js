@@ -22,6 +22,8 @@ module.exports = {
     'no-param-reassign': 'off',
     'react/require-default-props': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/no-throw-literal': 'off',
+    'no-promise-executor-return': 'off',
     'import/extensions': 'off',
     'react/jsx-props-no-spreading': 'off',
     'import/order': [
@@ -50,5 +52,5 @@ module.exports = {
       },
     },
   ],
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', 'src/shared/api/generated/**'],
 };

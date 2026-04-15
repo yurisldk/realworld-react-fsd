@@ -1,9 +1,8 @@
 .spinner {
-  position: fixed;
-  z-index: 10000;
   display: block;
   width: 40px;
   height: 40px;
+  margin: 0 auto;
 }
 
 .spinner div {

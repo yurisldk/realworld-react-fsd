@@ -32,8 +32,14 @@ module.exports = (env) => {
 
   if (isDev) {
     plugins.push(new ProgressPlugin());
-    plugins.push(new ForkTsCheckerWebpackPlugin());
-    plugins.push(new ReactRefreshWebpackPlugin());
+    plugins.push(
+      new ForkTsCheckerWebpackPlugin({
+        issue: {
+          exclude: [{ file: '**/src/shared/api/generated/**' }],
+        },
+      }),
+    );
+    plugins.push(new ReactRefreshWebpackPlugin({ overlay: false }));
   }
 
   if (isProd) {
@@ -46,7 +52,7 @@ module.exports = (env) => {
   }
 
   if (analyzer) {
-    plugins.push(new BundleAnalyzerPlugin());
+    plugins.push(new BundleAnalyzerPlugin({ openAnalyzer: false }));
   }
 
   /**
@@ -61,7 +67,7 @@ module.exports = (env) => {
       hot: true,
       devMiddleware: { writeToDisk: true },
       static: { directory: path.resolve(__dirname, 'public') },
-      client: { overlay: true },
+      client: { overlay: false },
     };
   }
 
@@ -154,7 +160,43 @@ module.exports = (env) => {
         '~shared/*': path.resolve(__dirname, 'src', 'shared/*'),
       },
     },
-    devtool: isDev ? 'eval-cheap-module-source-map' : undefined,
+    devtool: isDev ? 'source-map' : undefined,
     devServer,
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          reactVendor: {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'react-vendor',
+            chunks: 'all',
+            priority: 50,
+            enforce: true,
+          },
+          routerVendor: {
+            test: /[\\/]node_modules[\\/]react-router[\\/]/,
+            name: 'router-vendor',
+            chunks: 'all',
+            priority: 45,
+            enforce: true,
+          },
+          tanstackVendor: {
+            test: /[\\/]node_modules[\\/]@tanstack[\\/]/,
+            name: 'tanstack-vendor',
+            chunks: 'all',
+            priority: 40,
+            enforce: true,
+          },
+          commonVendor: {
+            test: /[\\/]node_modules[\\/](react-error-boundary|classnames|zod|react-icons)[\\/]/,
+            name: 'common-vendor',
+            chunks: 'all',
+            priority: 30,
+            enforce: true,
+          },
+        },
+      },
+      runtimeChunk: 'single',
+    },
   };
 };

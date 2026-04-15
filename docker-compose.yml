@@ -1,0 +1,9 @@
+services:
+  frontend:
+    build:
+      context: .
+      args:
+        API_URL: ${API_URL}
+    image: ${IMAGE_NAME:-realworld-frontend:local}
+    ports:
+      - '${WEB_SERVER_PORT_EXTERNAL}:${WEB_SERVER_PORT_INTERNAL}'

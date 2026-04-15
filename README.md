@@ -1,6 +1,6 @@
 # 🙌 RealWorld example app 🍰 Feature-Sliced Design
 
-A modern implementation of the [RealWorld](https://github.com/gothinkster/realworld) app using [FSD (Feature-Sliced Design)](https://feature-sliced.github.io/documentation), React, TypeScript, and a contemporary frontend stack.
+A modern implementation of the [RealWorld](https://github.com/gothinkster/realworld) app built with React, TypeScript, React Router, React Query, and Zod.
 
 ![Realworld example app](./logo.gif)
 
@@ -12,51 +12,53 @@ This project is an educational and demonstration Medium-clone built with the Fea
 
 ## Tech Stack
 
-- **React** 18+
+- **React 19**
 - **TypeScript**
-- **Feature-Sliced Design (FSD)**
-- **React Router**
-- **React Query**
-- **Redux Toolkit**
-- **React Hook Form**
-- **Webpack**
-- **Jest** (unit tests)
-- **Cypress** (e2e tests)
-- **Zod** (schema validation)
-- **CSS Modules**
+- **React Router 7**
+- **TanStack React Query 5**
+- **Zod 4**
+- **Webpack 5**
+- **Jest**
+- **Testing Library**
+- **MSW**
+- **ESLint**
+- **Prettier**
+- **Sass**
+- **Orval**
 
 ## Project Structure
 
-- `src/` — application source code
-  - `app/` — app initialization, routing, providers
-  - `pages/` — application pages (home, article, login, register, settings, 404, etc.)
-  - `widgets/` — large widgets (article feed, comments, etc.)
-  - `features/` — business features (authentication, articles, comments, etc.)
-  - `entities/` — business entities (article, comment, profile, etc.)
-  - `shared/` — reusable modules, utilities, UI components, API
-- `public/` — static files
-- `build/` — production build output
-- `coverage/` — test coverage reports
-- `cypress/` — e2e tests
+- `src/app` — application shell, root router, layout, providers, root error handling
+- `src/pages` — page-scoped route modules and page UI
+- `src/shared` — reusable API layer, utilities, router helpers, and shared UI
 
-## Advanced Features
+## Architecture Notes
 
-- **Code Splitting & Lazy Loading** - React components and routes are loaded on demand, reducing initial bundle size and improving performance.
-- **React Suspense & Concurrent Features** - Handles asynchronous loading and leverages modern React features for a smoother user experience.
-- **Error Boundaries & Centralized Error Logging** - Prevents app crashes by catching JavaScript errors in component trees and displaying fallback UIs, with centralized error reporting.
-- **Optimistic UI Updates & Data Prefetching (React Query)** - Instantly updates the UI before server confirmation, prefetches and caches data for fast, responsive interactions.
-- **Dynamic Redux Slices** - Loads Redux slices only when needed, optimizing bundle size and state management.
-- **Type-Safe API Layer with Axios** - Centralized, strongly-typed API requests and error handling.
-- **Zod-based API Validation** - Validates backend responses with Zod schemas, ensuring data consistency and type safety.
-- **React Hook Form Integration** - Efficient, scalable form state management with validation and error display.
-- **Role-based Access & Permissions** - Permission checks for UI and API actions.
-- **Comprehensive Testing** - Includes unit (Jest) and e2e (Cypress) tests, with tag-based selection, custom commands, and coverage reports.
-- **CI/CD Integration** - Automated testing, linting, and formatting in the pipeline for reliable delivery.
-- **Environment-based Configuration** - Supports multiple environments via `.env` files and runtime variables.
-- **Feature-Sliced Design Architecture** - Strict adherence to FSD for scalable, maintainable code.
-- **Custom ESLint & Prettier Rules** - Enforced code style, import order, and formatting for consistency.
-- **Bundle Analysis & Dependency Graphs** - Visual tools for analyzing bundle size and module dependencies.
-- **Hot Module Replacement & Fast Refresh** - Instant feedback during development for a seamless DX.
+The codebase uses a page-scoped structure rather than a full multi-layer FSD tree.
+
+- The root router is defined in `src/app/browser-router.tsx`.
+- Pages expose route objects from `src/pages/*/*.route.ts`.
+- Route modules are lazy-loaded to keep the initial bundle smaller.
+- Data fetching is handled in route loaders with React Query.
+- Mutations are handled in route actions and usually validate `formData` with Zod before calling the API.
+- Shared routing helpers, API utilities, and common UI live in `src/shared`.
+
+## Runtime Patterns
+
+- **Lazy route modules**: page components, loaders, and actions are loaded on demand.
+- **Route loaders**: async page data is prepared through React Router loaders backed by React Query.
+- **Route actions**: form submissions and mutations are handled declaratively through React Router actions.
+- **Auth middleware**: route middleware restores the current user and protects auth-only flows.
+- **Validation before API calls**: form data is validated with Zod-based helpers before mutations run.
+- **Optimistic UI**: interactive actions such as follow and favorite use fetcher-driven optimistic state.
+- **Error boundaries**: the root router renders a dedicated fallback for route and auth failures.
+
+## Development Workflow
+
+- Webpack Dev Server is used for local development.
+- Husky hooks are configured for pre-commit and pre-push checks.
+- Generated API code is produced from OpenAPI through Orval and then normalized with a local Zod conversion step.
+- Root `Dockerfile` and `nginx.conf` are used for the containerized frontend build.
 
 ### Dependency Graph
 
@@ -68,19 +70,35 @@ This project is an educational and demonstration Medium-clone built with the Fea
 
 ## Scripts
 
-- **`yarn start`** - Launches the Webpack development server with hot module replacement.
-- **`yarn build:dev`** - Builds the project in development mode.
-- **`yarn build:prod`** - Builds the project in production mode with optimizations.
-- **`yarn analyze`** - Builds and opens the Webpack Bundle Analyzer for bundle inspection.
-- **`yarn test`** - Runs all unit tests with Jest.
-- **`yarn eslint`** - Lints and auto-fixes code in the `src` directory.
-- **`yarn prettier`** - Formats the codebase using Prettier.
-- **`yarn graph`** - Generates a dependency graph of the `src` directory using `dependency-cruiser`.[^1]
-- **`yarn cy:open`** - Opens the Cypress UI for interactive e2e testing.
-- **`yarn cy:run`** - Runs all Cypress e2e tests in headless mode.
-- **`yarn prepare`** - Sets up Husky git hooks for pre-commit and pre-push.
-- **`yarn db:seed:dev`** - Seeds the development database via backend API.
-- **`yarn db:seed:prod`** - Seeds the production database via backend API.
+- `yarn start` — starts the development server.
+- `yarn build:dev` — builds the app in development mode.
+- `yarn build:prod` — builds the production bundle.
+- `yarn analyze:prod` — builds the production bundle with bundle analyzer enabled.
+- `yarn test` — runs Jest tests.
+- `yarn eslint` — lints and auto-fixes files under `src`.
+- `yarn prettier` — formats the repository with Prettier.
+- `yarn graph` — generates a dependency graph preview for `src`.[^1]
+- `yarn generate` — regenerates API artifacts from the OpenAPI schema.
+- `yarn zod:mini` — post-processes generated Zod artifacts.
+- `yarn format:generated` — formats generated API files.
+- `yarn prepare` — installs Husky hooks.
+
+## Run
+
+Install dependencies:
+
+```bash
+yarn install
+```
+
+Run locally:
+
+```bash
+yarn start
+```
+
+- Frontend: `http://localhost:30401`
+- Backend API: `http://localhost:30400/api`
 
 [^1]:
     This assumes the GraphViz `dot` command is available - on most linux and
@@ -88,34 +106,32 @@ This project is an educational and demonstration Medium-clone built with the Fea
     [GraphViz' download page](https://www.graphviz.org/download/) for instructions
     on how to get it on your machine.
 
-## Demo Environment
+## Docker Compose
 
-A ready-to-use demo environment is provided for running both the frontend (this repo) and the backend ([node-express-realworld-example-app](https://github.com/yurisldk/node-express-realworld-example-app)) together using Docker Compose.
+Start locally with Docker:
 
-The setup in [`ops/deploy/demo`](./ops/deploy/demo) includes preconfigured services:
+```bash
+docker compose --env-file .env.compose up -d --build
+```
 
-- **frontend** — React-based frontend client
-- **api** — Node.js/Express backend API with Prisma and PostgreSQL
-- **db** — PostgreSQL database for persistent storage
-- **pgadmin** — Admin UI for managing PostgreSQL
+- Frontend: <http://localhost:30401>
+- Backend API is expected separately at <http://localhost:30400>
 
-### Usage
+For backend integration, see [../node-express-realworld-example-app/README.md](../node-express-realworld-example-app/README.md).
 
-1. A `.env` file is already provided in the demo directory. No extra setup is needed.
-2. Start the environment:
-   ```bash
-   docker-compose -f ops/deploy/demo/docker-compose.yml --env-file ops/deploy/demo/.env up --build -d
-   ```
-3. Access the services:
-   - Frontend: <http://localhost:30401>
-   - API: <http://localhost:30400>
-   - PgAdmin: <http://localhost:30433>
+Stop:
 
-**Notes:**
+```bash
+docker compose --env-file .env.compose down
+```
 
-- PostgreSQL data is persisted via named volumes.
-- Images are pulled from GitHub Container Registry (GHCR).
-- On ARM-based systems (e.g., Apple Silicon), ensure Docker supports `linux/amd64` platform.
+## Deployment
+
+Build image:
+
+```bash
+docker build --build-arg API_URL=http://localhost:30400/api -t realworld-frontend .
+```
 
 [dependency-graph-domain]: ./dependency-graph-preview.svg
 [preview-domain]: ./preview.gif

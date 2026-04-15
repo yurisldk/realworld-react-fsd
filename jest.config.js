@@ -13,7 +13,7 @@ module.exports = {
     ],
   },
   globals: {
-    __API_URL__: '',
+    __API_URL__: 'http://api.test/api',
   },
   moduleNameMapper: {
     '^~app/(.*)$': '<rootDir>/src/app/$1',

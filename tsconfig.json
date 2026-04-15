@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "noImplicitAny": true,
-    "module": "ESNext",
+    "module": "esnext",
     "target": "ESNext",
     "jsx": "react-jsx",
     "allowJs": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "sourceMap": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
@@ -23,7 +24,7 @@
   },
   "ts-node": {
     "compilerOptions": {
-      "module": "CommonJS"
+      "module": "NodeNext"
     }
   },
   "exclude": ["node_modules", "dist", "build", "coverage"]

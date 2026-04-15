@@ -167,4 +167,7 @@ build
 # SvelteKit build / generate output
 .svelte-kit
 
+# Generated API artifacts
+src/shared/api/generated
+
 # End of https://www.toptal.com/developers/gitignore/api/node,macos

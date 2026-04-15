@@ -1,81 +1,66 @@
-import { useState, useEffect } from 'react';
-import { Outlet, RouterProvider, createBrowserRouter, redirect, useRouteError } from 'react-router-dom';
-import { pathKeys } from '~shared/router';
-import { persistor } from '~shared/store';
+import { Link, createBrowserRouter, isRouteErrorResponse, redirect, useRouteError } from 'react-router';
+import { getErrorMessage } from '~shared/lib/react-router/getErrorMessage';
+import { loadUserMiddleware } from '~shared/lib/react-router/loadUserMiddleware';
 import { Spinner } from '~shared/ui/spinner/spinner.ui';
-import { articlePageRoute } from '~pages/article/article-page.route';
-import { editorPageRoute } from '~pages/editor/editor-page.route';
-import { homePageRoute } from '~pages/home/home-page.route';
-import { lazyLayout } from '~pages/layout/layout.route';
-import { loginPageRoute } from '~pages/login/login-page.route';
+import { articleRoute } from '~pages/article/article.route';
+import { editorRoute } from '~pages/editor/editor.route';
+import { homeRoute } from '~pages/home/home.route';
+import { loginRoute } from '~pages/login/login.route';
 import { page404Route } from '~pages/page-404/page-404.route';
-import { profilePageRoute } from '~pages/profile/profile-page.route';
-import { registerPageRoute } from '~pages/register/register-page.route';
-import { settingsPageRoute } from '~pages/settings/settings-page.route';
+import { profileRoute } from '~pages/profile/profile.route';
+import { registerRoute } from '~pages/register/register.route';
+import { settingsRoute } from '~pages/settings/settings.route';
+import { Layout } from './app-layout.ui';
+import { appLoader } from './app.loader';
 
-export function BootstrappedRouter() {
-  const [router, setRouter] = useState<ReturnType<typeof browserRouter> | null>(null);
-
-  useEffect(() => {
-    if (persistor.getState().bootstrapped) {
-      setRouter(browserRouter());
-    } else {
-      const unsubscribe = persistor.subscribe(() => {
-        if (persistor.getState().bootstrapped) {
-          setRouter(browserRouter());
-          unsubscribe();
-        }
-      });
-      return () => unsubscribe();
-    }
-  }, []);
-
-  if (!router) {
-    return <Spinner />;
-  }
-
-  return <RouterProvider router={router} fallbackElement={<Spinner />} />;
-}
-
-const browserRouter = () =>
+export const browserRouter = () =>
   createBrowserRouter([
     {
-      errorElement: <BubbleError />,
-      children: [
-        {
-          lazy: lazyLayout,
-          children: [
-            loginPageRoute,
-            registerPageRoute,
-            homePageRoute,
-            articlePageRoute,
-            profilePageRoute,
-            editorPageRoute,
-            settingsPageRoute,
-          ],
-        },
-        {
-          element: <Outlet />,
-          children: [page404Route],
-        },
-        {
-          path: '*',
-          loader: async () => redirect(pathKeys.page404),
-        },
-      ],
+      id: 'root',
+      middleware: [loadUserMiddleware],
+      Component: Layout,
+      loader: appLoader,
+      ErrorBoundary: RootErrorBoundary,
+      children: [loginRoute, registerRoute, settingsRoute, homeRoute, profileRoute, articleRoute, editorRoute],
+      hydrateFallbackElement: <Spinner />,
+    },
+    page404Route,
+    {
+      path: '*',
+      loader: async () => redirect('/404'),
     },
   ]);
 
-// https://github.com/remix-run/react-router/discussions/10166
-function BubbleError(): null {
+function RootErrorBoundary() {
   const error = useRouteError();
+  const isUnauthorized = isRouteErrorResponse(error) && error.status === 401;
 
-  if (error) {
-    if (error instanceof Error) {
-      throw error;
-    } else {
-      throw new Error(typeof error === 'string' ? error : JSON.stringify(error));
-    }
-  }
-  return null;
+  return (
+    <div className="container page">
+      <div className="row">
+        <div className="col-md-12">
+          <div className="card">
+            <div className="card-block">
+              <p className="card-text">
+                <strong>{isUnauthorized ? 'Authentication expired' : 'Page unavailable'}</strong>
+              </p>
+              <p className="card-text">
+                {getErrorMessage(
+                  error,
+                  isUnauthorized ? 'Your token is invalid or expired. Please log in again.' : 'Something went wrong.',
+                )}
+              </p>
+              {isUnauthorized && (
+                <p className="card-text">
+                  <Link to="/login" replace>
+                    Go to login
+                  </Link>
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
