@@ -117,7 +117,7 @@ docker compose --env-file .env.compose up -d --build
 - Frontend: <http://localhost:30401>
 - Backend API is expected separately at <http://localhost:30400>
 
-For backend integration, see [../node-express-realworld-example-app/README.md](../node-express-realworld-example-app/README.md).
+For backend integration, see [node-express-realworld-example-app](https://github.com/yurisldk/node-express-realworld-example-app).
 
 Stop:
 
@@ -132,6 +132,15 @@ Build image:
 ```bash
 docker build --build-arg API_URL=http://localhost:30400/api -t realworld-frontend .
 ```
+
+Released images are published to GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/yurisldk/realworld:2.0.0
+docker pull ghcr.io/yurisldk/realworld:latest
+```
+
+Release images are built with `API_URL=http://localhost:30400/api` by default.
 
 [dependency-graph-domain]: ./dependency-graph-preview.svg
 [preview-domain]: ./preview.gif

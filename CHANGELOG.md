@@ -1,5 +1,20 @@
 # Versions
 
+## 2.0.0 (2026-04-25)
+
+### 🚀 Features
+
+- Upgraded the application stack to React 19, React Router 7, TanStack Query 5, and Zod 4
+- Moved the active application structure to page-scoped route modules from the previous multi-layer FSD tree
+- Adopted React Router loaders and actions for page data loading and mutations
+- Added an OpenAPI, Orval, and Zod-based generated API workflow
+- Moved Docker and nginx deployment files to the project root
+
+### ⚠️ Breaking Changes
+
+- Removed the previous Cypress setup from the active project structure
+- Removed the previous `ops/deploy/demo` setup from the active project structure
+
 ## 1.2.1 (2025-06-29)
 
 ### 🐛 Bug Fixes

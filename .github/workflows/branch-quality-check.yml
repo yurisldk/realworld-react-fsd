@@ -17,4 +17,3 @@ on:
 jobs:
   code-quality-and-build:
     uses: ./.github/workflows/code-quality-and-build.yml
-

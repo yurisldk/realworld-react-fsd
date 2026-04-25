@@ -24,4 +24,3 @@ jobs:
 
       - name: Build production bundle
         run: yarn build:prod
-
