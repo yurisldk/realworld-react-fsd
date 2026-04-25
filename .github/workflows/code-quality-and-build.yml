@@ -22,5 +22,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Generate API artifacts
+        run: yarn generate
+
       - name: Build production bundle
         run: yarn build:prod

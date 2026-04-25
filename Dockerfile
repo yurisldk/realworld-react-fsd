@@ -5,13 +5,14 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-COPY tsconfig.json webpack.config.js ./
+COPY tsconfig.json webpack.config.js openapi.yaml orval.config.ts convert-zod-mini.ts ./
 COPY src ./src
 COPY public ./public
 
 ARG API_URL
 ENV API_URL=${API_URL}
 
+RUN yarn generate
 RUN yarn build:prod
 
 FROM nginx:alpine
