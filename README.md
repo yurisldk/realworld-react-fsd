@@ -136,7 +136,7 @@ docker build --build-arg API_URL=http://localhost:30400/api -t realworld-fronten
 Released images are published to GitHub Container Registry:
 
 ```bash
-docker pull ghcr.io/yurisldk/realworld:2.0.0
+docker pull ghcr.io/yurisldk/realworld:2.1.0
 docker pull ghcr.io/yurisldk/realworld:latest
 ```
 

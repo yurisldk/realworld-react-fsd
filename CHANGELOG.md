@@ -1,5 +1,20 @@
 # Versions
 
+## 2.1.0 (2026-05-25)
+
+### 🚀 Features
+
+- Adopted the current official RealWorld Conduit theme stylesheet
+- Updated typography integration for the new `Lora` and `Source Sans Pro` font contract
+- Added React root layout adaptation for correct sticky footer behavior
+
+### ⚡ Performance
+
+- Reduced global stylesheet size by replacing the bundled Bootstrap-based stylesheet
+- Added production CSS minification
+- Configured browser targets and updated Browserslist data
+- Added a webpack performance budget aligned with the current initial bundle
+
 ## 2.0.0 (2026-04-25)
 
 ### 🚀 Features

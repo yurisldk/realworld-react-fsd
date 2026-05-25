@@ -2,7 +2,7 @@
   "name": "realworld-react-fsd",
   "author": "yurisldk <soldatenko.yuri@gmail.com>",
   "repository": "https://github.com/yurisldk/realworld-react-fsd",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve",
     "build:dev": "cross-env NODE_ENV=development webpack",
