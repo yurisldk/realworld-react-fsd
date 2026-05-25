@@ -1,5 +1,6 @@
 const path = require('path');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const dotenv = require('dotenv');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -77,10 +78,12 @@ module.exports = (env) => {
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: '[name].[contenthash].js',
+      chunkFilename: analyzer ? '[name].js' : undefined,
       clean: true,
       publicPath: '/',
     },
     plugins,
+    stats: isProd && !analyzer ? 'summary' : 'normal',
     module: {
       rules: [
         {
@@ -162,7 +165,16 @@ module.exports = (env) => {
     },
     devtool: isDev ? 'source-map' : undefined,
     devServer,
+    performance: isProd
+      ? {
+          hints: 'warning',
+          maxEntrypointSize: 400000,
+          maxAssetSize: 250000,
+        }
+      : false,
     optimization: {
+      chunkIds: analyzer ? 'named' : undefined,
+      minimizer: isProd ? ['...', new CssMinimizerPlugin()] : undefined,
       splitChunks: {
         chunks: 'all',
         cacheGroups: {
